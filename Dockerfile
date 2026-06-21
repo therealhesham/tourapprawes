@@ -8,11 +8,11 @@ WORKDIR /app
 
 # Install dependencies based on the preferred package manager
 COPY package.json package-lock.json* ./
-COPY prisma ./prisma
+# COPY prisma ./prisma
 RUN npm ci
 
 # Post-install prisma generation
-RUN npx prisma generate
+# RUN npx prisma generate/
 
 # Rebuild the source code only when needed
 FROM base AS builder
@@ -44,10 +44,10 @@ RUN chown nextjs:nodejs .next
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
+# COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
 # Copy Prisma engines into the standalone output (needed at runtime)
-COPY --from=builder --chown=nextjs:nodejs /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder --chown=nextjs:nodejs /app/node_modules/@prisma ./node_modules/@prisma
+# COPY --from=builder --chown=nextjs:nodejs /app/node_modules/.prisma ./node_modules/.prisma
+# COPY --from=builder --chown=nextjs:nodejs /app/node_modules/@prisma ./node_modules/@prisma
 
 USER nextjs
 
