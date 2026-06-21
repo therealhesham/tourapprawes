@@ -12,9 +12,9 @@ export default function Home() {
               <Image
                 src="/logo.png"
                 alt="Rawaes Logo"
-                width={280}
-                height={96}
-                className="h-14 w-auto object-contain brightness-0 invert opacity-95 hover:opacity-100 transition-opacity"
+                width={340}
+                height={116}
+                className="h-20 w-auto object-contain brightness-0 invert opacity-95 hover:opacity-100 transition-opacity"
               />
             </a>
 
