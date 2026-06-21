@@ -163,15 +163,13 @@ export default function Home() {
                     الوجهة
                   </label>
                   <div className="relative">
-                    <select className="w-full py-3 px-4 bg-surface-container-lowest border border-outline-variant/40 rounded-xl focus:border-secondary focus:ring-2 focus:ring-secondary/20 appearance-none font-body-md text-on-surface transition-all cursor-pointer outline-none">
+                    <select className="w-full py-3  bg-surface-container-lowest border border-outline-variant/40 rounded-xl focus:border-secondary focus:ring-2 focus:ring-secondary/20 appearance-none font-body-md text-on-surface transition-all cursor-pointer outline-none">
                       <option value="">جميع الوجهات</option>
                       <option value="malaysia">ماليزيا</option>
                       <option value="bosnia">البوسنة</option>
                       <option value="albania">ألبانيا أو كوسوفو</option>
                     </select>
-                    <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm pointer-events-none">
-                      expand_more
-                    </span>
+
                   </div>
                 </div>
 
@@ -184,15 +182,13 @@ export default function Home() {
                     المدة
                   </label>
                   <div className="relative">
-                    <select className="w-full py-3 px-4 bg-surface-container-lowest border border-outline-variant/40 rounded-xl focus:border-secondary focus:ring-2 focus:ring-secondary/20 appearance-none font-body-md text-on-surface transition-all cursor-pointer outline-none">
+                    <select className="w-full py-3  bg-surface-container-lowest border border-outline-variant/40 rounded-xl focus:border-secondary focus:ring-2 focus:ring-secondary/20 appearance-none font-body-md text-on-surface transition-all cursor-pointer outline-none">
                       <option value="">أي مدة</option>
                       <option value="5">5 أيام</option>
                       <option value="8">8 أيام</option>
                       <option value="10+">10+ أيام</option>
                     </select>
-                    <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm pointer-events-none">
-                      expand_more
-                    </span>
+
                   </div>
                 </div>
 
@@ -205,15 +201,13 @@ export default function Home() {
                     الميزانية (SAR)
                   </label>
                   <div className="relative">
-                    <select className="w-full py-3 px-4 bg-surface-container-lowest border border-outline-variant/40 rounded-xl focus:border-secondary focus:ring-2 focus:ring-secondary/20 appearance-none font-body-md text-on-surface transition-all cursor-pointer outline-none">
+                    <select className="w-full py-3  bg-surface-container-lowest border border-outline-variant/40 rounded-xl focus:border-secondary focus:ring-2 focus:ring-secondary/20 appearance-none font-body-md text-on-surface transition-all cursor-pointer outline-none">
                       <option value="">جميع الأسعار</option>
                       <option value="5000-6000">5,000 – 6,000</option>
                       <option value="6000-7000">6,000 – 7,000</option>
                       <option value="7000+">7,000+</option>
                     </select>
-                    <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm pointer-events-none">
-                      expand_more
-                    </span>
+
                   </div>
                 </div>
               </div>
