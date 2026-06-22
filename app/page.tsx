@@ -14,7 +14,7 @@ export default function Home() {
                 alt="Rawaes Logo"
                 width={340}
                 height={116}
-                className="h-20 w-auto object-contain brightness-0 invert opacity-95 hover:opacity-100 transition-opacity"
+                className="h-28 md:h-32 w-auto object-contain brightness-0 invert opacity-95 hover:opacity-100 transition-opacity"
               />
             </a>
 
@@ -30,14 +30,14 @@ export default function Home() {
                 <a
                   key={item.label}
                   href={item.href}
-                  className={`relative font-body-md text-body-md tracking-widest uppercase transition-colors duration-300 group ${item.active
+                  className={`relative font-bold text-lg tracking-widest uppercase transition-colors duration-300 group ${item.active
                     ? "text-secondary-bright"
                     : "text-white/75 hover:text-white"
                     }`}
                 >
                   {item.label}
                   <span
-                    className={`absolute -bottom-1 right-0 h-px bg-gradient-to-l from-secondary-bright to-secondary transition-all duration-300 ${item.active ? "w-full" : "w-0 group-hover:w-full"
+                    className={`absolute -bottom-2 right-0 h-px bg-gradient-to-l from-secondary-bright to-secondary transition-all duration-300 ${item.active ? "w-full" : "w-0 group-hover:w-full"
                       }`}
                   />
                 </a>
@@ -46,10 +46,10 @@ export default function Home() {
 
             {/* CTA */}
             <div className="flex items-center gap-4">
-              <button className="hidden md:block text-white/75 hover:text-white font-body-md text-body-md tracking-widest uppercase transition-colors duration-300">
+              <button className="hidden md:block text-white/75 hover:text-white font-bold text-lg tracking-widest uppercase transition-colors duration-300">
                 تسجيل الدخول
               </button>
-              <button className="gold-shimmer bg-gradient-to-l from-secondary to-secondary-bright text-on-secondary px-6 py-2.5 rounded-full font-body-md text-body-md uppercase tracking-widest btn-glow">
+              <button className="gold-shimmer bg-gradient-to-l from-secondary to-secondary-bright text-on-secondary px-8 py-3 rounded-full font-bold text-lg uppercase tracking-widest btn-glow">
                 احجز الآن
               </button>
             </div>
