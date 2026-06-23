@@ -12,17 +12,15 @@ import {
 } from "./data/mockData";
 
 export default function BookingPage() {
-  const [filterContinent, setFilterContinent] = useState("");
   const [filterCountry, setFilterCountry] = useState("");
   const [filterCategory, setFilterCategory] = useState("");
   const [filterDuration, setFilterDuration] = useState("");
   const [filterPrice, setFilterPrice] = useState("");
   const [showWizard, setShowWizard] = useState(false);
 
-  const availableCountries = filterContinent ? allCountries[filterContinent] : [];
+  const flatCountries = Object.values(allCountries).flat();
 
   const filteredPackages = mockPackages.filter((pkg) => {
-    if (filterContinent && pkg.continent !== filterContinent) return false;
     if (filterCountry && pkg.country !== filterCountry) return false;
     if (filterCategory && pkg.category !== filterCategory) return false;
 
@@ -97,27 +95,7 @@ export default function BookingPage() {
           {/* ─── Search Widget ─── */}
           <section className="mb-14" dir="rtl">
             <div className="glass-panel rounded-2xl shadow-xl border border-outline-variant/30 p-6 md:p-8">
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
-                {/* Continent */}
-                <div className="flex flex-col gap-2">
-                  <label className="text-xs text-secondary font-bold uppercase tracking-wider">
-                    القارة
-                  </label>
-                  <select
-                    value={filterContinent}
-                    onChange={(e) => {
-                      setFilterContinent(e.target.value);
-                      setFilterCountry("");
-                    }}
-                    className="w-full py-3  bg-surface-container-lowest border border-outline-variant/40 rounded-xl text-on-surface focus:border-secondary outline-none text-sm transition-all"
-                  >
-                    <option value="">جميع القارات</option>
-                    {continents.map((c) => (
-                      <option key={c.id} value={c.id}>{c.name}</option>
-                    ))}
-                  </select>
-                </div>
-
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                 {/* Country */}
                 <div className="flex flex-col gap-2">
                   <label className="text-xs text-secondary font-bold uppercase tracking-wider">
@@ -126,11 +104,10 @@ export default function BookingPage() {
                   <select
                     value={filterCountry}
                     onChange={(e) => setFilterCountry(e.target.value)}
-                    disabled={!filterContinent}
-                    className="w-full py-3  bg-surface-container-lowest border border-outline-variant/40 rounded-xl text-on-surface focus:border-secondary outline-none text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full py-3 bg-surface-container-lowest border border-outline-variant/40 rounded-xl text-on-surface focus:border-secondary outline-none text-sm transition-all"
                   >
                     <option value="">جميع الدول</option>
-                    {availableCountries.map((c) => (
+                    {flatCountries.map((c) => (
                       <option key={c.id} value={c.id}>{c.name}</option>
                     ))}
                   </select>
