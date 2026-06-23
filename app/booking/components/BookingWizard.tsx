@@ -345,7 +345,7 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
               </button>
               <button
                 onClick={handleFinish}
-                disabled={!state.departureDate || (lastCityAdded && !lastCityAdded.hasAirport && !state.departureAirport)}
+                disabled={!state.departureDate || !!(lastCityAdded && !lastCityAdded.hasAirport && !state.departureAirport)}
                 className="gold-shimmer bg-gradient-to-l from-secondary to-secondary-bright text-on-secondary px-10 py-3 rounded-full font-bold uppercase tracking-widest btn-glow disabled:opacity-50 disabled:cursor-not-allowed transition-all"
               >
                 مراجعة الحجز
