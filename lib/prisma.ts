@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { PrismaMariaDb } from "@prisma/adapter-mariadb";
 
-const connectionString = process.env.DATABASE_URL || "mysql://root:password@localhost:3306/tourapprawes";
+const connectionString = process.env.DATABASE_URL || "";
 
 // Convert mysql:// protocol to mariadb:// for compatibility with the mariadb pool
 const cleanConnectionString = connectionString.startsWith("mysql://")

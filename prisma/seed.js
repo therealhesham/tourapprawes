@@ -2,7 +2,7 @@ const { PrismaClient } = require('@prisma/client')
 const { PrismaMariaDb } = require('@prisma/adapter-mariadb')
 require('dotenv').config()
 
-const connectionString = process.env.DATABASE_URL || "mysql://root:password@localhost:3306/tourapprawes";
+const connectionString = process.env.DATABASE_URL;
 const cleanConnectionString = connectionString.startsWith("mysql://")
   ? connectionString.replace("mysql://", "mariadb://")
   : connectionString;
@@ -86,7 +86,7 @@ async function main() {
   const riyadh = await prisma.city.create({
     data: { name: 'الرياض', countryId: saudi.id }
   })
-  
+
   const jeddah = await prisma.city.create({
     data: { name: 'جدة', countryId: saudi.id }
   })
@@ -95,7 +95,7 @@ async function main() {
   const ruh = await prisma.saudiAirport.create({
     data: { airportName: 'مطار الملك خالد الدولي', cityId: riyadh.id }
   })
-  
+
   const jed = await prisma.saudiAirport.create({
     data: { airportName: 'مطار الملك عبدالعزيز الدولي', cityId: jeddah.id }
   })
