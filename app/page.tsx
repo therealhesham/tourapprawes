@@ -1,61 +1,11 @@
 import Image from "next/image";
+import Navbar from "@/components/Navbar";
+import HomeSearchWidget from "@/components/HomeSearchWidget";
 
 export default function Home() {
   return (
     <>
-      {/* ─── Navigation ─────────────────────────────────────────────── */}
-      <header className="fixed top-0 inset-x-0 z-50 transition-all duration-500">
-        <div className="glass-panel border-b border-outline-variant/30 shadow-sm">
-          <div className="flex justify-between items-center px-margin-mobile md:px-margin-desktop py-4 w-full max-w-container-max mx-auto">
-            {/* Logo */}
-            <a href="/" className="flex items-center">
-              <Image
-                src="/logo.png"
-                alt="Rawaes Logo"
-                width={340}
-                height={116}
-                className="h-28 md:h-32 w-auto object-contain opacity-95 hover:opacity-100 transition-opacity"
-              />
-            </a>
-
-            {/* Nav Links */}
-            <nav className="hidden md:flex items-center gap-8">
-              {[
-                { label: "وجهات", href: "#" },
-                { label: "جولات", href: "#", active: true },
-                { label: "رحلات جوية", href: "#" },
-                { label: "تأشيرات", href: "#" },
-                { label: "فنادق", href: "#" },
-              ].map((item) => (
-                <a
-                  key={item.label}
-                  href={item.href}
-                  className={`relative font-bold text-lg tracking-widest uppercase transition-colors duration-300 group ${item.active
-                    ? "text-secondary"
-                    : "text-primary/75 hover:text-primary"
-                    }`}
-                >
-                  {item.label}
-                  <span
-                    className={`absolute -bottom-2 right-0 h-px bg-gradient-to-l from-secondary-bright to-secondary transition-all duration-300 ${item.active ? "w-full" : "w-0 group-hover:w-full"
-                      }`}
-                  />
-                </a>
-              ))}
-            </nav>
-
-            {/* CTA */}
-            <div className="flex items-center gap-4">
-              <button className="hidden md:block text-primary/75 hover:text-primary font-bold text-lg tracking-widest uppercase transition-colors duration-300">
-                تسجيل الدخول
-              </button>
-              <button className="gold-shimmer bg-primary text-background px-8 py-3 rounded-full font-bold text-lg uppercase tracking-widest btn-glow">
-                احجز الآن
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
+      <Navbar activeLinkId="tours" />
 
       {/* ─── Hero ────────────────────────────────────────────────────── */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
@@ -227,83 +177,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ─── Search / Filter Bar ─────────────────────────────────────── */}
-      <section className="relative z-30 -mt-36 md:-mt-44 px-margin-mobile md:px-margin-desktop">
-        <div className="max-w-container-max mx-auto">
-          <div className="glass-panel rounded-2xl shadow-2xl overflow-hidden border border-white/60">
-            {/* Top accent bar */}
-            <div className="h-1 w-full bg-gradient-to-l from-secondary-bright via-secondary to-secondary-bright/50" />
-
-            <div className="p-6 md:p-8 flex flex-col md:flex-row gap-6 items-end">
-              {/* Filters */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full flex-grow">
-                {/* Destination */}
-                <div className="flex flex-col gap-2">
-                  <label className="flex items-center gap-2 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">
-                    <span className="material-symbols-outlined text-base text-secondary">
-                      location_on
-                    </span>
-                    الوجهة
-                  </label>
-                  <div className="relative">
-                    <select className="w-full py-3  bg-surface-container-lowest border border-outline-variant/40 rounded-xl focus:border-secondary focus:ring-2 focus:ring-secondary/20 appearance-none font-body-md text-on-surface transition-all cursor-pointer outline-none">
-                      <option value="">جميع الوجهات</option>
-                      <option value="malaysia">ماليزيا</option>
-                      <option value="bosnia">البوسنة</option>
-                      <option value="albania">ألبانيا أو كوسوفو</option>
-                    </select>
-
-                  </div>
-                </div>
-
-                {/* Duration */}
-                <div className="flex flex-col gap-2">
-                  <label className="flex items-center gap-2 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">
-                    <span className="material-symbols-outlined text-base text-secondary">
-                      calendar_month
-                    </span>
-                    المدة
-                  </label>
-                  <div className="relative">
-                    <select className="w-full py-3  bg-surface-container-lowest border border-outline-variant/40 rounded-xl focus:border-secondary focus:ring-2 focus:ring-secondary/20 appearance-none font-body-md text-on-surface transition-all cursor-pointer outline-none">
-                      <option value="">أي مدة</option>
-                      <option value="5">5 أيام</option>
-                      <option value="8">8 أيام</option>
-                      <option value="10+">10+ أيام</option>
-                    </select>
-
-                  </div>
-                </div>
-
-                {/* Price */}
-                <div className="flex flex-col gap-2">
-                  <label className="flex items-center gap-2 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">
-                    <span className="material-symbols-outlined text-base text-secondary">
-                      payments
-                    </span>
-                    الميزانية (SAR)
-                  </label>
-                  <div className="relative">
-                    <select className="w-full py-3  bg-surface-container-lowest border border-outline-variant/40 rounded-xl focus:border-secondary focus:ring-2 focus:ring-secondary/20 appearance-none font-body-md text-on-surface transition-all cursor-pointer outline-none">
-                      <option value="">جميع الأسعار</option>
-                      <option value="5000-6000">5,000 – 6,000</option>
-                      <option value="6000-7000">6,000 – 7,000</option>
-                      <option value="7000+">7,000+</option>
-                    </select>
-
-                  </div>
-                </div>
-              </div>
-
-              {/* Search button */}
-              <button className="gold-shimmer w-full md:w-auto bg-gradient-to-l from-primary to-primary/80 text-on-primary px-10 py-3.5 rounded-xl font-label-sm text-label-sm uppercase tracking-widest whitespace-nowrap btn-glow border border-white/10 flex items-center justify-center gap-2">
-                <span className="material-symbols-outlined text-sm">search</span>
-                البحث عن رحلة
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
+      <HomeSearchWidget />
 
       {/* ─── Packages ────────────────────────────────────────────────── */}
       <section className="pt-24 pb-20 px-margin-mobile md:px-margin-desktop bg-background">

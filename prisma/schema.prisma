@@ -1,0 +1,85 @@
+datasource db {
+  provider = "mysql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Destination {
+  id          String    @id @default(uuid())
+  destination String    @map("destination")
+  countries   Country[]
+
+  @@map("destinations")
+}
+
+model Country {
+  id            String      @id @default(uuid())
+  name          String      @map("name")
+  destinationId String      @map("destination_id")
+  destination   Destination @relation(fields: [destinationId], references: [id])
+  cities        City[]
+  flights       Flight[]
+
+  @@map("countries")
+}
+
+model City {
+  id                  String               @id @default(uuid())
+  name                String               @map("name")
+  countryId           String               @map("country_id")
+  country             Country              @relation(fields: [countryId], references: [id])
+  saudiAirports       SaudiAirport[]
+  destinationAirports DestinationAirport[]
+  departureTransports InternalTransport[]  @relation("DepartureCity")
+  arrivalTransports   InternalTransport[]  @relation("ArrivalCity")
+
+  @@map("cities")
+}
+
+model SaudiAirport {
+  id          String   @id @default(uuid())
+  airportName String   @map("airport_name")
+  cityId      String   @map("city_id")
+  city        City     @relation(fields: [cityId], references: [id])
+  flights     Flight[] @relation("SaudiDepartedFlights")
+
+  @@map("saudi_airports")
+}
+
+model DestinationAirport {
+  id          String   @id @default(uuid())
+  airportName String   @map("airport_name")
+  cityId      String   @map("city_id")
+  city        City     @relation(fields: [cityId], references: [id])
+  flights     Flight[] @relation("DestinationArrivalFlights")
+
+  @@map("destination_airports")
+}
+
+model Flight {
+  id                String             @id @default(uuid())
+  countryId         String             @map("country_id")
+  country           Country            @relation(fields: [countryId], references: [id])
+  approximatePrice  Int                @map("approximate_price")
+  airWayName        String             @map("air_way_name")
+  arrivalAirportId  String             @map("arrival_airport_id")
+  arrivalAirport    DestinationAirport @relation("DestinationArrivalFlights", fields: [arrivalAirportId], references: [id])
+  departedAirportId String             @map("departed_airport_id")
+  departedAirport   SaudiAirport       @relation("SaudiDepartedFlights", fields: [departedAirportId], references: [id])
+
+  @@map("flights")
+}
+
+model InternalTransport {
+  id                 String @id @default(uuid())
+  transportationName String @map("transportation_name")
+  approximatePrice   Int    @map("approximate_price")
+  cityId             String @map("city_id")
+  departureCity      City   @relation("DepartureCity", fields: [cityId], references: [id])
+  arrivalCityId      String @map("arrival_city_id")
+  arrivalCity        City   @relation("ArrivalCity", fields: [arrivalCityId], references: [id])
+
+  @@map("internal_transports")
+}

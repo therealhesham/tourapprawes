@@ -600,7 +600,7 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
                     <p className="text-xs text-slate-500">* هذا السعر تقديري وقابل للتغيير حسب توفر الحجوزات والمواسم.</p>
                   </div>
                   <div className="text-2xl md:text-3xl font-black text-secondary-bright">
-                    {totalEstimate.toLocaleString()} SAR
+                    {totalEstimate.toLocaleString("en-US")} SAR
                   </div>
                 </div>
               </div>

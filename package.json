@@ -9,9 +9,14 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@prisma/adapter-mariadb": "^7.8.0",
+    "@prisma/client": "^7.8.0",
     "@tailwindcss/container-queries": "^0.1.1",
     "@tailwindcss/forms": "^0.5.11",
+    "mariadb": "^3.5.3",
     "next": "16.2.9",
+    "next-auth": "^4.24.14",
+    "prisma": "^7.8.0",
     "react": "19.2.4",
     "react-dom": "19.2.4"
   },
@@ -27,5 +32,8 @@
   },
   "overrides": {
     "postcss": "^8.4.49"
+  },
+  "prisma": {
+    "seed": "node prisma/seed.js"
   }
 }

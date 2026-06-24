@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import BookingWizard from "./components/BookingWizard";
+import Navbar from "@/components/Navbar";
 import {
   continents,
   countries as allCountries,
@@ -17,6 +18,19 @@ export default function BookingPage() {
   const [filterDuration, setFilterDuration] = useState("");
   const [filterPrice, setFilterPrice] = useState("");
   const [showWizard, setShowWizard] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const countryParam = params.get("country");
+      const durationParam = params.get("duration");
+      const priceParam = params.get("price");
+
+      if (countryParam) setFilterCountry(countryParam);
+      if (durationParam) setFilterDuration(durationParam);
+      if (priceParam) setFilterPrice(priceParam);
+    }
+  }, []);
 
   const flatCountries = Object.values(allCountries).flat();
 
@@ -41,34 +55,14 @@ export default function BookingPage() {
 
   return (
     <>
-      {/* ─── Navigation ─── */}
-      <header className="fixed top-0 inset-x-0 z-40 transition-all duration-500 bg-primary/95 backdrop-blur-md border-b border-white/10">
-        <div className="flex justify-between items-center px-margin-mobile md:px-margin-desktop py-4 w-full max-w-container-max mx-auto">
-          <a href="/" className="flex items-center">
-            <Image
-              src="/logo.png"
-              alt="Rawaes Logo"
-              width={160}
-              height={55}
-              className="h-12 md:h-16 w-auto object-contain brightness-0 invert opacity-95 hover:opacity-100 transition-opacity"
-            />
-          </a>
-          <nav className="flex items-center gap-6">
-            <a href="/" className="font-bold text-base md:text-lg tracking-widest uppercase text-white/75 hover:text-white transition-colors">
-              الرئيسية
-            </a>
-            <button
-              onClick={() => setShowWizard(true)}
-              className="gold-shimmer bg-primary text-background px-5 py-2 rounded-full font-bold text-sm btn-glow"
-            >
-              صمم رحلتك المخصصة
-            </button>
-          </nav>
-        </div>
-      </header>
+      <Navbar
+        activeLinkId="tours"
+        primaryCtaText="صمم رحلتك المخصصة"
+        onPrimaryCtaClick={() => setShowWizard(true)}
+      />
 
       {/* ─── Main Content ─── */}
-      <main className="relative min-h-screen pt-32 pb-20 overflow-hidden bg-background">
+      <main className="relative min-h-screen pt-44 md:pt-48 pb-20 overflow-hidden bg-background">
         {/* Background Overlay */}
         <div className="absolute inset-0 z-0">
           <Image
@@ -217,7 +211,7 @@ export default function BookingPage() {
                             <span className="material-symbols-outlined text-base">arrow_forward</span>
                           </button>
                           <span className="block text-2xl font-black text-white tracking-tight">
-                            {pkg.price.toLocaleString()} <span className="text-xs font-normal text-secondary-bright">SAR</span>
+                            {pkg.price.toLocaleString("en-US")} <span className="text-xs font-normal text-secondary-bright">SAR</span>
                           </span>
                         </div>
                       </div>
