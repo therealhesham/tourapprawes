@@ -12,7 +12,7 @@ COPY package.json package-lock.json* ./
 RUN npm ci
 
 # Post-install prisma generation
-RUN npx prisma generate/
+RUN npx prisma generate
 
 # Rebuild the source code only when needed
 FROM base AS builder
