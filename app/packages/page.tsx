@@ -121,7 +121,7 @@ function ElegantDatePicker({ label, icon }: { label: string, icon: string }) {
               </div>
               <button 
                 onClick={(e) => { e.stopPropagation(); setIsOpen(false); }}
-                className="w-full bg-gradient-to-r from-secondary to-secondary-bright text-on-secondary py-3 rounded-lg text-sm font-bold mt-2 hover:shadow-md transition-all cursor-pointer btn-glow"
+                className="w-full bg-primary text-background py-3 rounded-lg text-sm font-bold mt-2 hover:shadow-md transition-all cursor-pointer btn-glow"
               >
                 تأكيد التواريخ
               </button>
@@ -314,7 +314,7 @@ export default function PackagesPage() {
             </div>
             
             {/* Search Button */}
-            <button className="w-full h-[64px] bg-gradient-to-r from-secondary to-secondary-bright text-on-secondary px-6 rounded-xl font-bold flex items-center justify-center gap-2 hover:shadow-xl hover:-translate-y-0.5 transition-all btn-glow gold-shimmer cursor-pointer xl:col-span-1 shadow-lg">
+            <button className="w-full h-[64px] bg-primary text-background px-6 rounded-xl font-bold flex items-center justify-center gap-2 hover:shadow-xl hover:-translate-y-0.5 transition-all btn-glow gold-shimmer cursor-pointer xl:col-span-1 shadow-lg">
               <span className="material-symbols-outlined text-2xl">search</span>
               <span className="text-lg">بحث</span>
             </button>

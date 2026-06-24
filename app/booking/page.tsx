@@ -59,7 +59,7 @@ export default function BookingPage() {
             </a>
             <button
               onClick={() => setShowWizard(true)}
-              className="gold-shimmer bg-gradient-to-l from-secondary to-secondary-bright text-on-secondary px-5 py-2 rounded-full font-bold text-sm btn-glow"
+              className="gold-shimmer bg-primary text-background px-5 py-2 rounded-full font-bold text-sm btn-glow"
             >
               صمم رحلتك المخصصة
             </button>
@@ -239,7 +239,7 @@ export default function BookingPage() {
                 </p>
                 <button
                   onClick={() => setShowWizard(true)}
-                  className="gold-shimmer bg-gradient-to-l from-secondary to-secondary-bright text-on-secondary px-10 py-4 rounded-full font-bold text-lg uppercase tracking-widest btn-glow transition-all"
+                  className="gold-shimmer bg-primary text-background px-10 py-4 rounded-full font-bold text-lg uppercase tracking-widest btn-glow transition-all"
                 >
                   صمم رحلتك بنفسك الآن
                 </button>

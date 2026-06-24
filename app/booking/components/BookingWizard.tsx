@@ -13,7 +13,6 @@ import {
 type CityStay = {
   cityId: string;
   hotelCategory: string;
-  arrivalDate: string;
   transportFromPrevious?: string;
 };
 
@@ -56,6 +55,49 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
   const flatCountries = Object.values(countries).flat();
   const availableCities = state.country ? allCities[state.country] : [];
 
+  // Pricing constants and calculations
+  const HOTEL_RATES: Record<string, number> = {
+    budget: 250,
+    auto: 450,
+    family: 450,
+    honeymoon: 700,
+    luxury: 1200,
+  };
+
+  const TRANSPORT_RATES: Record<string, number> = {
+    flight: 350,
+    train: 120,
+    bus: 60,
+    car: 250,
+  };
+
+  const totalDays = (() => {
+    if (!state.startDate || !state.departureDate) return 1;
+    const start = new Date(state.startDate);
+    const end = new Date(state.departureDate);
+    const diff = end.getTime() - start.getTime();
+    return Math.max(1, Math.ceil(diff / (1000 * 60 * 60 * 24)));
+  })();
+
+  const hotelCost = (() => {
+    if (state.cityStays.length === 0) return 0;
+    const daysPerCity = totalDays / state.cityStays.length;
+    return state.cityStays.reduce((sum, stay) => {
+      const rate = HOTEL_RATES[stay.hotelCategory] || 450;
+      return sum + (rate * daysPerCity);
+    }, 0);
+  })();
+
+  const transportCost = state.cityStays.reduce((sum, stay) => {
+    if (stay.transportFromPrevious) {
+      return sum + (TRANSPORT_RATES[stay.transportFromPrevious] || 0);
+    }
+    return sum;
+  }, 0);
+
+  const flightCost = state.includeFlight ? (state.flightEstimate || 0) : 0;
+  const totalEstimate = Math.round(flightCost + hotelCost + transportCost);
+
   const lastCityAdded = state.cityStays.length > 0
     ? allCities[state.country]?.find((c) => c.id === state.cityStays[state.cityStays.length - 1].cityId)
     : null;
@@ -79,8 +121,7 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
   const handleNextCityDetails = () => {
     if (
       currentCity.cityId &&
-      currentCity.hotelCategory &&
-      currentCity.arrivalDate
+      currentCity.hotelCategory
     ) {
       if (state.cityStays.length > 0 && !currentCity.transportFromPrevious) {
         return; // require transport if not first city
@@ -132,7 +173,7 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
           {view === "SUMMARY" ? "ملخص الحجز" : "صمم رحلتك"}
         </h2>
         <p className="font-body-md text-slate-600">
-          {view === "SELECT_DATE" && "اختر تاريخ بدء الرحلة"}
+          {view === "SELECT_DATE" && "حدد تاريخ الذهاب وتاريخ العودة لبدء تصميم رحلتك"}
           {view === "SELECT_DESTINATION" && "حدد وجهتك الرئيسية"}
           {view === "FLIGHT_SELECTION" && "خيارات وحجوزات الطيران"}
           {view === "CITY_DETAILS" && "اختر تفاصيل إقامتك في المدينة"}
@@ -143,25 +184,56 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
       </div>
 
       <div className="space-y-8 animate-fade-in-up">
-        {/* ─── VIEW 0: Start Date ─── */}
+        {/* ─── VIEW 0: Date Range Selection (From / To) ─── */}
         {view === "SELECT_DATE" && (
           <div className="space-y-6">
-            <div>
-              <label className="block font-label-sm text-secondary uppercase tracking-widest mb-3">
-                تاريخ بدء الرحلة
-              </label>
-              <input
-                type="date"
-                value={state.startDate}
-                onChange={(e) => setState({ ...state, startDate: e.target.value })}
-                className="w-full py-4 px-5 bg-surface-container-lowest border border-outline-variant/40 rounded-xl focus:border-secondary focus:ring-2 focus:ring-secondary/20 text-on-surface outline-none"
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block font-label-sm text-secondary uppercase tracking-widest mb-3 font-bold">
+                  تاريخ الذهاب (من)
+                </label>
+                <input
+                  type="date"
+                  value={state.startDate}
+                  min={new Date().toISOString().split("T")[0]}
+                  onChange={(e) => {
+                    const newStart = e.target.value;
+                    setState((prev) => ({
+                      ...prev,
+                      startDate: newStart,
+                      departureDate: prev.departureDate && prev.departureDate < newStart ? "" : prev.departureDate,
+                    }));
+                  }}
+                  className="w-full py-4 px-5 bg-surface-container-lowest border border-outline-variant/40 rounded-xl focus:border-secondary focus:ring-2 focus:ring-secondary/20 text-on-surface outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block font-label-sm text-secondary uppercase tracking-widest mb-3 font-bold">
+                  تاريخ العودة (إلى)
+                </label>
+                <input
+                  type="date"
+                  value={state.departureDate}
+                  min={state.startDate || new Date().toISOString().split("T")[0]}
+                  disabled={!state.startDate}
+                  onChange={(e) => setState((prev) => ({ ...prev, departureDate: e.target.value }))}
+                  className="w-full py-4 px-5 bg-surface-container-lowest border border-outline-variant/40 rounded-xl focus:border-secondary focus:ring-2 focus:ring-secondary/20 text-on-surface outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+                />
+              </div>
             </div>
+
+            {state.startDate && state.departureDate && state.departureDate < state.startDate && (
+              <p className="text-red-500 text-sm font-bold">
+                * يجب أن يكون تاريخ العودة بعد أو مساوياً لتاريخ الذهاب.
+              </p>
+            )}
+
             <div className="pt-6 flex justify-end">
               <button
                 onClick={() => setView("SELECT_DESTINATION")}
-                disabled={!state.startDate}
-                className="gold-shimmer bg-gradient-to-l from-secondary to-secondary-bright text-on-secondary px-10 py-3 rounded-full font-bold uppercase tracking-widest btn-glow disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                disabled={!state.startDate || !state.departureDate || state.departureDate < state.startDate}
+                className="gold-shimmer bg-primary text-background px-10 py-3 rounded-full font-bold uppercase tracking-widest btn-glow disabled:opacity-50 disabled:cursor-not-allowed transition-all"
               >
                 التالي
               </button>
@@ -202,7 +274,7 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
               <button
                 onClick={handleNextDestination}
                 disabled={!state.country}
-                className="gold-shimmer bg-gradient-to-l from-secondary to-secondary-bright text-on-secondary px-10 py-3 rounded-full font-bold uppercase tracking-widest btn-glow disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                className="gold-shimmer bg-primary text-background px-10 py-3 rounded-full font-bold uppercase tracking-widest btn-glow disabled:opacity-50 disabled:cursor-not-allowed transition-all"
               >
                 التالي
               </button>
@@ -296,34 +368,20 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
               </select>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block font-label-sm text-secondary uppercase tracking-widest mb-3">
-                  فئة الفندق
-                </label>
-                <select
-                  value={currentCity.hotelCategory || ""}
-                  onChange={(e) => setCurrentCity({ ...currentCity, hotelCategory: e.target.value })}
-                  className="w-full py-4  bg-surface-container-lowest border border-outline-variant/40 rounded-xl focus:border-secondary focus:ring-2 focus:ring-secondary/20 text-on-surface outline-none"
-                >
-                  <option value="">اختر فئة الفندق...</option>
-                  {hotelCategories.map((c) => (
-                    <option key={c.id} value={c.id}>{c.name}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block font-label-sm text-secondary uppercase tracking-widest mb-3">
-                  تاريخ الوصول
-                </label>
-                <input
-                  type="date"
-                  value={currentCity.arrivalDate || ""}
-                  onChange={(e) => setCurrentCity({ ...currentCity, arrivalDate: e.target.value })}
-                  className="w-full py-4 px-5 bg-surface-container-lowest border border-outline-variant/40 rounded-xl focus:border-secondary focus:ring-2 focus:ring-secondary/20 text-on-surface outline-none"
-                />
-              </div>
+            <div>
+              <label className="block font-label-sm text-secondary uppercase tracking-widest mb-3">
+                فئة الفندق
+              </label>
+              <select
+                value={currentCity.hotelCategory || ""}
+                onChange={(e) => setCurrentCity({ ...currentCity, hotelCategory: e.target.value })}
+                className="w-full py-4 px-5 bg-surface-container-lowest border border-outline-variant/40 rounded-xl focus:border-secondary focus:ring-2 focus:ring-secondary/20 text-on-surface outline-none"
+              >
+                <option value="">اختر فئة الفندق...</option>
+                {hotelCategories.map((c) => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
+              </select>
             </div>
 
             <div className="pt-6 flex justify-between">
@@ -335,8 +393,8 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
               </button>
               <button
                 onClick={handleNextCityDetails}
-                disabled={!currentCity.cityId || !currentCity.hotelCategory || !currentCity.arrivalDate || (state.cityStays.length > 0 && !currentCity.transportFromPrevious)}
-                className="gold-shimmer bg-gradient-to-l from-secondary to-secondary-bright text-on-secondary px-10 py-3 rounded-full font-bold uppercase tracking-widest btn-glow disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                disabled={!currentCity.cityId || !currentCity.hotelCategory || (state.cityStays.length > 0 && !currentCity.transportFromPrevious)}
+                className="gold-shimmer bg-primary text-background px-10 py-3 rounded-full font-bold uppercase tracking-widest btn-glow disabled:opacity-50 disabled:cursor-not-allowed transition-all"
               >
                 تأكيد المدينة
               </button>
@@ -354,9 +412,6 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
                   <li key={idx} className="flex items-center gap-3 text-slate-800">
                     <span className="material-symbols-outlined text-secondary">location_on</span>
                     {availableCities.find(c => c.id === stay.cityId)?.name}
-                    <span className="text-slate-500 text-sm ml-2">
-                      ({stay.arrivalDate})
-                    </span>
                   </li>
                 ))}
               </ul>
@@ -371,7 +426,7 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
               </button>
               <button
                 onClick={() => handleAddAnother(false)}
-                className="gold-shimmer bg-gradient-to-l from-secondary to-secondary-bright text-on-secondary px-10 py-4 rounded-full font-bold uppercase tracking-widest btn-glow transition-all"
+                className="gold-shimmer bg-primary text-background px-10 py-4 rounded-full font-bold uppercase tracking-widest btn-glow transition-all"
               >
                 إنهاء مسار الرحلة
               </button>
@@ -389,6 +444,7 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
               <input
                 type="date"
                 value={state.departureDate}
+                min={state.startDate || new Date().toISOString().split("T")[0]}
                 onChange={(e) => setState({ ...state, departureDate: e.target.value })}
                 className="w-full py-4 px-5 bg-surface-container-lowest border border-outline-variant/40 rounded-xl focus:border-secondary focus:ring-2 focus:ring-secondary/20 text-on-surface outline-none"
               />
@@ -425,7 +481,7 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
               <button
                 onClick={handleFinish}
                 disabled={!state.departureDate || !!(lastCityAdded && !lastCityAdded.hasAirport && !state.departureAirport)}
-                className="gold-shimmer bg-gradient-to-l from-secondary to-secondary-bright text-on-secondary px-10 py-3 rounded-full font-bold uppercase tracking-widest btn-glow disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                className="gold-shimmer bg-primary text-background px-10 py-3 rounded-full font-bold uppercase tracking-widest btn-glow disabled:opacity-50 disabled:cursor-not-allowed transition-all"
               >
                 مراجعة الحجز
               </button>
@@ -441,28 +497,32 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
                 تفاصيل الرحلة
               </h3>
 
-              <div className="grid grid-cols-4 gap-4 mb-8 text-slate-800">
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8 text-slate-800 border-b border-slate-200/60 pb-6">
                 <div>
                   <p className="text-sm text-slate-500 mb-1 uppercase tracking-widest">الوجهة</p>
-                  <p className="font-bold text-lg">{flatCountries.find(c => c.id === state.country)?.name}</p>
+                  <p className="font-bold text-lg text-primary">{flatCountries.find(c => c.id === state.country)?.name}</p>
                 </div>
                 <div>
                   <p className="text-sm text-slate-500 mb-1 uppercase tracking-widest">تاريخ البدء</p>
-                  <p className="font-bold text-lg">{state.startDate}</p>
+                  <p className="font-bold text-lg text-primary">{state.startDate}</p>
                 </div>
                 <div>
                   <p className="text-sm text-slate-500 mb-1 uppercase tracking-widest">تاريخ العودة</p>
-                  <p className="font-bold text-lg">{state.departureDate}</p>
+                  <p className="font-bold text-lg text-primary">{state.departureDate}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-slate-500 mb-1 uppercase tracking-widest">المدة الإجمالية</p>
+                  <p className="font-bold text-lg text-primary">{totalDays} يوم / {totalDays - 1 > 0 ? totalDays - 1 : 1} ليلة</p>
                 </div>
                 <div>
                   <p className="text-sm text-slate-500 mb-1 uppercase tracking-widest">حجز الطيران</p>
-                  <p className="font-bold text-lg">
+                  <p className="font-bold text-lg text-primary">
                     {state.includeFlight ? (
                       <span>
                         {state.flightClass === "economy" && "اقتصادي"}
                         {state.flightClass === "business" && "رجال أعمال"}
                         {state.flightClass === "first" && "درجة أولى"}
-                        <span className="text-secondary block text-xs mt-0.5">({state.flightEstimate} SAR تقديري)</span>
+                        <span className="text-secondary block text-xs mt-0.5">({state.flightEstimate} SAR)</span>
                       </span>
                     ) : (
                       "بدون طيران"
@@ -490,10 +550,9 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
                       )}
 
                       <h4 className="text-xl font-bold text-primary mb-2">{city?.name}</h4>
-                      <div className="grid grid-cols-2 gap-2 text-slate-700 text-sm">
-                        <p>تاريخ الوصول: {stay.arrivalDate}</p>
+                      <div className="text-slate-700 text-sm space-y-1">
                         <p>فئة الفندق: {hotel?.name}</p>
-                        <p className="col-span-2 text-secondary-bright mt-1">
+                        <p className="text-secondary-bright mt-1">
                           الفندق المقترح: <span className="font-bold">{getSuggestedHotel(stay.cityId, stay.hotelCategory)}</span>
                         </p>
                       </div>
@@ -503,13 +562,48 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
               </div>
 
               {state.departureAirport && (
-                <div className="mt-8 p-4 bg-secondary/10 border border-secondary/20 rounded-xl">
+                <div className="mt-6 p-4 bg-secondary/10 border border-secondary/20 rounded-xl">
                   <p className="text-secondary-bright font-bold flex items-center gap-2">
                     <span className="material-symbols-outlined">flight_takeoff</span>
                     العودة ستكون من مطار: {availableCities.find(c => c.id === state.departureAirport)?.name}
                   </p>
                 </div>
               )}
+
+              {/* Cost Breakdown & Total */}
+              <div className="mt-8 pt-6 border-t border-slate-200/60">
+                <h4 className="text-lg font-bold text-primary mb-4">التكلفة التقديرية للرحلة</h4>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 text-sm text-slate-700">
+                  {state.includeFlight && (
+                    <div className="bg-white p-3 rounded-xl border border-slate-100 flex justify-between items-center shadow-sm">
+                      <span>تذاكر الطيران ({state.flightClass === "economy" ? "اقتصادي" : state.flightClass === "business" ? "رجال أعمال" : "درجة أولى"}):</span>
+                      <span className="font-bold text-primary">{state.flightEstimate} SAR</span>
+                    </div>
+                  )}
+                  {hotelCost > 0 && (
+                    <div className="bg-white p-3 rounded-xl border border-slate-100 flex justify-between items-center shadow-sm">
+                      <span>إقامة الفنادق ({totalDays} ليالي):</span>
+                      <span className="font-bold text-primary">{Math.round(hotelCost)} SAR</span>
+                    </div>
+                  )}
+                  {transportCost > 0 && (
+                    <div className="bg-white p-3 rounded-xl border border-slate-100 flex justify-between items-center shadow-sm">
+                      <span>المواصلات الداخلية:</span>
+                      <span className="font-bold text-primary">{transportCost} SAR</span>
+                    </div>
+                  )}
+                </div>
+                
+                <div className="bg-secondary/10 p-5 rounded-2xl border border-secondary/20 flex flex-col md:flex-row justify-between items-center gap-4">
+                  <div>
+                    <p className="text-sm font-bold text-slate-800 mb-1">إجمالي التكلفة التقديرية (للشخص الواحد):</p>
+                    <p className="text-xs text-slate-500">* هذا السعر تقديري وقابل للتغيير حسب توفر الحجوزات والمواسم.</p>
+                  </div>
+                  <div className="text-2xl md:text-3xl font-black text-secondary-bright">
+                    {totalEstimate.toLocaleString()} SAR
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div className="flex justify-between items-center">

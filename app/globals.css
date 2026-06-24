@@ -247,6 +247,37 @@
   .btn-glow:active {
     transform: translateY(0);
   }
+
+  /* Custom Animations for Image-Less Hero */
+  @keyframes slowSpin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  @keyframes pulseSoft {
+    0%, 100% { opacity: 0.15; transform: scale(1); }
+    50% { opacity: 0.45; transform: scale(1.05); }
+  }
+  @keyframes floatSlow {
+    0%, 100% { transform: translateY(0px) scale(1); }
+    50% { transform: translateY(-15px) scale(1.05); }
+  }
+  @keyframes pulsePoint {
+    0%, 100% { transform: scale(1); opacity: 0.3; }
+    50% { transform: scale(2); opacity: 0.9; }
+  }
+
+  .animate-slow-spin {
+    animation: slowSpin 160s linear infinite;
+  }
+  .animate-pulse-soft {
+    animation: pulseSoft 6s ease-in-out infinite;
+  }
+  .animate-float-slow {
+    animation: floatSlow 10s ease-in-out infinite;
+  }
+  .animate-pulse-point {
+    animation: pulsePoint 3s ease-in-out infinite;
+  }
 }
 
 body, * {
@@ -266,11 +297,11 @@ html {
   background: #f0eeec;
 }
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #a07820, #c9a84c);
+  background: #0c1120;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #a07820;
+  background: #111827;
 }
 
 /* Selection colors */
