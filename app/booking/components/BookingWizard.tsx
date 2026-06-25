@@ -55,6 +55,7 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
   const [dbCities, setDbCities] = useState<Record<string, { id: string; name: string; hasAirport: boolean }[]>>({});
   const [dbAirports, setDbAirports] = useState<{ saudiAirports: any[]; destinationAirports: any[] }>({ saudiAirports: [], destinationAirports: [] });
   const [dbFlights, setDbFlights] = useState<any[]>([]);
+  const [dbReturningFlights, setDbReturningFlights] = useState<any[]>([]);
   const [dbTransports, setDbTransports] = useState<any[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
 
@@ -73,10 +74,11 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
     const fetchCities = fetch("/api/admin/cities").then(res => res.json());
     const fetchAirports = fetch("/api/admin/airports").then(res => res.json());
     const fetchFlights = fetch("/api/admin/flights").then(res => res.json());
+    const fetchReturningFlights = fetch("/api/admin/returning-flights").then(res => res.json());
     const fetchTransports = fetch("/api/admin/transports").then(res => res.json());
 
-    Promise.all([fetchCities, fetchAirports, fetchFlights, fetchTransports])
-      .then(([citiesData, airportsData, flightsData, transportsData]) => {
+    Promise.all([fetchCities, fetchAirports, fetchFlights, fetchReturningFlights, fetchTransports])
+      .then(([citiesData, airportsData, flightsData, returningFlightsData, transportsData]) => {
         if (Array.isArray(citiesData)) {
           const flattenedCountries: { id: string; name: string }[] = [];
           const citiesRecord: Record<string, { id: string; name: string; hasAirport: boolean }[]> = {};
@@ -107,6 +109,10 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
 
         if (Array.isArray(flightsData)) {
           setDbFlights(flightsData);
+        }
+
+        if (Array.isArray(returningFlightsData)) {
+          setDbReturningFlights(returningFlightsData);
         }
 
         if (Array.isArray(transportsData)) {
@@ -209,12 +215,89 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
     return sum;
   }, 0);
 
-  const flightCost = state.includeFlight ? (state.flightEstimate || 0) : 0;
-  const totalEstimate = Math.round(flightCost + hotelCost + transportCost);
-
   const lastCityAdded = state.cityStays.length > 0
     ? availableCities.find((c) => c.id === state.cityStays[state.cityStays.length - 1].cityId)
     : null;
+
+  const getReturningFlight = () => {
+    if (state.cityStays.length === 0) return null;
+    
+    // 1. Get the last city
+    const lastCityStay = state.cityStays[state.cityStays.length - 1];
+    const lastCityId = lastCityStay.cityId;
+    const countryCities = dbCities[state.country] || [];
+    const lastCityObj = countryCities.find(c => c.id === lastCityId);
+    if (!lastCityObj) return null;
+    
+    // 2. Determine departure airport for returning flight
+    let departedAirportId = "";
+    const airportInCity = dbAirports.destinationAirports.find(a => a.cityId === lastCityId);
+    
+    if (airportInCity) {
+      departedAirportId = airportInCity.id;
+    } else {
+      // Fallback to Capital City
+      const capitalNames = ["تبليسي", "تيرانا", "ماليه", "القاهرة"];
+      const capitalCity = countryCities.find(c => capitalNames.includes(c.name));
+      if (capitalCity) {
+        const capitalAirport = dbAirports.destinationAirports.find(a => a.cityId === capitalCity.id);
+        if (capitalAirport) {
+          departedAirportId = capitalAirport.id;
+        }
+      }
+      
+      // If still not found, fallback to first city in country with an airport
+      if (!departedAirportId) {
+        const cityWithAirport = countryCities.find(c => c.hasAirport);
+        if (cityWithAirport) {
+          const fallbackAirport = dbAirports.destinationAirports.find(a => a.cityId === cityWithAirport.id);
+          if (fallbackAirport) {
+            departedAirportId = fallbackAirport.id;
+          }
+        }
+      }
+    }
+    
+    if (!departedAirportId) return null;
+    
+    // 3. Find target Saudi Airport
+    let targetSaudiAirportId = "";
+    if (state.includeFlight && state.flightId) {
+      const outboundFlight = dbFlights.find(f => f.id === state.flightId);
+      if (outboundFlight) {
+        targetSaudiAirportId = outboundFlight.departedAirportId;
+      }
+    }
+    
+    if (!targetSaudiAirportId) {
+      // Default to Riyadh or first available Saudi Airport
+      const ruhAirport = dbAirports.saudiAirports.find(a => a.airportName.includes("خالد") || a.city?.name === "الرياض");
+      targetSaudiAirportId = ruhAirport ? ruhAirport.id : (dbAirports.saudiAirports[0]?.id || "");
+    }
+    
+    // 4. Find matching returning flight from dbReturningFlights
+    const match = dbReturningFlights.find(
+      rf => rf.countryId === state.country && 
+            rf.departedAirportId === departedAirportId && 
+            rf.arrivalAirportId === targetSaudiAirportId
+    );
+    
+    if (!match) {
+      return dbReturningFlights.find(
+        rf => rf.countryId === state.country && 
+              rf.departedAirportId === departedAirportId
+      ) || null;
+    }
+    
+    return match;
+  };
+
+  const returningFlight = getReturningFlight();
+
+  const flightCost = state.includeFlight 
+    ? ((state.flightEstimate || 0) + (returningFlight ? returningFlight.approximatePrice : 0)) 
+    : 0;
+  const totalEstimate = Math.round(flightCost + hotelCost + transportCost);
 
   const handleNextDestination = () => {
     if (state.country) {
@@ -261,9 +344,6 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
 
   const handleFinish = () => {
     if (state.departureDate) {
-      if (lastCityAdded && !lastCityAdded.hasAirport && !state.departureAirport) {
-        return; // require departure airport
-      }
       setView("SUMMARY");
     }
   };
@@ -629,23 +709,20 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
             </div>
 
             {lastCityAdded && !lastCityAdded.hasAirport && (
-              <div className="animate-fade-in-up">
-                <label className="block font-label-sm text-secondary uppercase tracking-widest mb-3">
-                  مطار المغادرة
-                </label>
-                <p className="text-sm text-secondary-bright/80 mb-3 font-bold">
-                  * آخر مدينة اخترتها ({lastCityAdded.name}) لا يوجد بها مطار. يرجى تحديد المطار الذي ستغادر منه:
+              <div className="animate-fade-in-up p-5 bg-amber-50/50 border border-amber-200/50 rounded-2xl text-amber-800 text-right space-y-2">
+                <div className="font-bold flex items-center gap-2">
+                  <span className="material-symbols-outlined text-amber-600">info</span>
+                  تنويه بخصوص مطار العودة
+                </div>
+                <p className="text-sm">
+                  بما أن آخر مدينة في مسار رحلتك (<strong>{lastCityAdded.name}</strong>) لا تحتوي على مطار جوي، 
+                  فقد تم تحديد رحلة العودة تلقائياً من مطار العاصمة أو أقرب مطار متاح.
                 </p>
-                <select
-                  value={state.departureAirport}
-                  onChange={(e) => setState({ ...state, departureAirport: e.target.value })}
-                  className="w-full py-4 px-5 bg-surface-container-lowest border border-outline-variant/40 rounded-xl focus:border-secondary focus:ring-2 focus:ring-secondary/20 text-on-surface outline-none"
-                >
-                  <option value="">اختر مطار المغادرة...</option>
-                  {availableCities.filter(c => c.hasAirport).map((c) => (
-                    <option key={c.id} value={c.id}>مطار {c.name}</option>
-                  ))}
-                </select>
+                {returningFlight && (
+                  <div className="p-3 bg-white/80 rounded-xl border border-amber-100 text-xs font-bold text-slate-700 mt-2">
+                    مطار العودة: {returningFlight.departedAirport?.airportName} ({returningFlight.departedAirport?.city?.name})
+                  </div>
+                )}
               </div>
             )}
 
@@ -658,7 +735,7 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
               </button>
               <button
                 onClick={handleFinish}
-                disabled={!state.departureDate || !!(lastCityAdded && !lastCityAdded.hasAirport && !state.departureAirport)}
+                disabled={!state.departureDate}
                 className="gold-shimmer bg-primary text-background px-10 py-3 rounded-full font-bold uppercase tracking-widest btn-glow disabled:opacity-50 disabled:cursor-not-allowed transition-all"
               >
                 مراجعة الحجز
@@ -694,17 +771,22 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
                 </div>
                 <div>
                   <p className="text-sm text-slate-500 mb-1 uppercase tracking-widest">حجز الطيران</p>
-                  <p className="font-bold text-lg text-primary col-span-2 sm:col-span-1">
+                  <div className="font-bold text-slate-800 col-span-2 sm:col-span-1 text-sm">
                     {state.includeFlight ? (
-                      <span>
-                        {state.flightAirway || "طيران"} 
-                        <span className="text-xs text-slate-500 block">({state.flightClass || "أساسي"})</span>
-                        <span className="text-secondary block text-xs mt-0.5">({state.flightEstimate} SAR)</span>
-                      </span>
+                      <div className="space-y-1">
+                        <div>
+                          <span className="text-secondary font-bold">الذهاب:</span> {state.flightAirway || "طيران"} ({state.flightEstimate} SAR)
+                        </div>
+                        {returningFlight && (
+                          <div>
+                            <span className="text-secondary font-bold">العودة:</span> {returningFlight.airWayName} ({returningFlight.approximatePrice} SAR)
+                          </div>
+                        )}
+                      </div>
                     ) : (
                       "بدون طيران"
                     )}
-                  </p>
+                  </div>
                 </div>
               </div>
 
@@ -749,11 +831,18 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
                 })}
               </div>
 
-              {state.departureAirport && (
-                <div className="mt-6 p-4 bg-secondary/10 border border-secondary/20 rounded-xl">
+              {state.includeFlight && returningFlight && (
+                <div className="mt-6 p-4 bg-secondary/10 border border-secondary/20 rounded-xl text-right">
                   <p className="text-secondary-bright font-bold flex items-center gap-2">
                     <span className="material-symbols-outlined">flight_takeoff</span>
-                    العودة ستكون من مطار: {availableCities.find(c => c.id === state.departureAirport)?.name}
+                    تفاصيل رحلة العودة (مضافة للبرنامج):
+                  </p>
+                  <p className="text-sm text-slate-700 mt-1 font-bold">
+                    {returningFlight.airWayName} | {returningFlight.departedAirport?.airportName} ({returningFlight.departedAirport?.city?.name})
+                    ← {returningFlight.arrivalAirport?.airportName} ({returningFlight.arrivalAirport?.city?.name})
+                  </p>
+                  <p className="text-xs text-slate-500 mt-1">
+                    * {lastCityAdded && !lastCityAdded.hasAirport ? `بما أن مدينة العودة (${lastCityAdded.name}) لا تحتوي على مطار، فقد تم اختيار مطار العاصمة.` : `مغادرة من مدينة (${lastCityAdded?.name}).`}
                   </p>
                 </div>
               )}
@@ -846,7 +935,7 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
                       startDate: state.startDate,
                       endDate: state.departureDate,
                       departingFlightId: state.flightId || null,
-                      returningFlightId: null, // Can map returning flight if needed
+                      returningFlightId: returningFlight?.id || null,
                       pricing: totalEstimate,
                       cityStays: state.cityStays,
                     }),

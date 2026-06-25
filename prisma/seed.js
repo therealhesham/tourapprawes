@@ -14,6 +14,7 @@ async function main() {
   console.log('Start seeding data...')
 
   // Clear existing data (optional but good for clean seed)
+  await prisma.returningFlight.deleteMany()
   await prisma.flight.deleteMany()
   await prisma.internalTransport.deleteMany()
   await prisma.destinationAirport.deleteMany()
@@ -67,9 +68,15 @@ async function main() {
   const batumi = await prisma.city.create({
     data: { name: 'باتومي', countryId: georgia.id }
   })
+  const borjomi = await prisma.city.create({
+    data: { name: 'بورجومي', countryId: georgia.id } // No airport (fallback to Tbilisi)
+  })
 
   const tirana = await prisma.city.create({
     data: { name: 'تيرانا', countryId: albania.id }
+  })
+  const berat = await prisma.city.create({
+    data: { name: 'بيرات', countryId: albania.id } // No airport (fallback to Tirana)
   })
 
   const male = await prisma.city.create({
@@ -81,6 +88,9 @@ async function main() {
   })
   const sharm = await prisma.city.create({
     data: { name: 'شرم الشيخ', countryId: egypt.id }
+  })
+  const alexandria = await prisma.city.create({
+    data: { name: 'الإسماعيلية', countryId: egypt.id } // No airport (fallback to Cairo)
   })
 
   const riyadh = await prisma.city.create({
@@ -105,6 +115,10 @@ async function main() {
     data: { airportName: 'مطار تبليسي الدولي', cityId: tbilisi.id }
   })
 
+  const bus = await prisma.destinationAirport.create({
+    data: { airportName: 'مطار باتومي الدولي', cityId: batumi.id }
+  })
+
   const tia = await prisma.destinationAirport.create({
     data: { airportName: 'مطار تيرانا الدولي', cityId: tirana.id }
   })
@@ -115,6 +129,10 @@ async function main() {
 
   const cai = await prisma.destinationAirport.create({
     data: { airportName: 'مطار القاهرة الدولي', cityId: cairo.id }
+  })
+
+  const ssh = await prisma.destinationAirport.create({
+    data: { airportName: 'مطار شرم الشيخ الدولي', cityId: sharm.id }
   })
 
   // Flights
@@ -147,6 +165,100 @@ async function main() {
         airWayName: 'مصر للطيران',
         arrivalAirportId: cai.id,
         departedAirportId: ruh.id,
+      }
+    ]
+  })
+
+  // Returning Flights
+  await prisma.returningFlight.createMany({
+    data: [
+      // Georgia
+      {
+        countryId: georgia.id,
+        approximatePrice: 1400,
+        airWayName: 'طيران ناس',
+        arrivalAirportId: ruh.id,
+        departedAirportId: tbs.id,
+      },
+      {
+        countryId: georgia.id,
+        approximatePrice: 1600,
+        airWayName: 'الخطوط السعودية',
+        arrivalAirportId: jed.id,
+        departedAirportId: tbs.id,
+      },
+      {
+        countryId: georgia.id,
+        approximatePrice: 1500,
+        airWayName: 'طيران ناس',
+        arrivalAirportId: ruh.id,
+        departedAirportId: bus.id,
+      },
+      {
+        countryId: georgia.id,
+        approximatePrice: 1700,
+        airWayName: 'الخطوط السعودية',
+        arrivalAirportId: jed.id,
+        departedAirportId: bus.id,
+      },
+      // Albania
+      {
+        countryId: albania.id,
+        approximatePrice: 1900,
+        airWayName: 'الخطوط السعودية',
+        arrivalAirportId: jed.id,
+        departedAirportId: tia.id,
+      },
+      {
+        countryId: albania.id,
+        approximatePrice: 1850,
+        airWayName: 'طيران ناس',
+        arrivalAirportId: ruh.id,
+        departedAirportId: tia.id,
+      },
+      // Maldives
+      {
+        countryId: maldives.id,
+        approximatePrice: 3200,
+        airWayName: 'الخطوط السعودية',
+        arrivalAirportId: ruh.id,
+        departedAirportId: mle.id,
+      },
+      {
+        countryId: maldives.id,
+        approximatePrice: 3300,
+        airWayName: 'الخطوط السعودية',
+        arrivalAirportId: jed.id,
+        departedAirportId: mle.id,
+      },
+      // Egypt
+      {
+        countryId: egypt.id,
+        approximatePrice: 750,
+        airWayName: 'مصر للطيران',
+        arrivalAirportId: ruh.id,
+        departedAirportId: cai.id,
+      },
+      {
+        countryId: egypt.id,
+        approximatePrice: 850,
+        airWayName: 'الخطوط السعودية',
+        arrivalAirportId: jed.id,
+        departedAirportId: cai.id,
+      },
+      {
+        countryId: egypt.id,
+        approximatePrice: 900,
+        airWayName: 'طيران ناس',
+        arrivalAirportId: ruh.id,
+        departedAirportId: ssh.id,
+      },
+      {
+        countryId: egypt.id,
+        approximatePrice: 950,
+        airWayName: 'الخطوط السعودية',
+        arrivalAirportId: jed.id,
+        departedAirportId: ssh.id,
       }
     ]
   })
