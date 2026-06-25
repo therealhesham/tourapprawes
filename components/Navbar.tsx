@@ -19,11 +19,9 @@ interface NavbarProps {
 }
 
 const DEFAULT_LINKS: NavLink[] = [
-  { label: "وجهات", href: "/#", id: "destinations" },
-  { label: "جولات", href: "/#", id: "tours" },
-  { label: "رحلات جوية", href: "/#", id: "flights" },
-  { label: "تأشيرات", href: "/#", id: "visas" },
-  { label: "فنادق", href: "/#", id: "hotels" },
+  { label: "رئيسية", href: "/", id: "home" },
+  { label: "وجهات", href: "/#destinations", id: "destinations" },
+  { label: "اتصل بنا", href: "/#contact", id: "contact" },
 ];
 
 export default function Navbar({

@@ -149,6 +149,7 @@ model CompanyPackage {
   returningFlight   ReturningFlight? @relation("CompanyReturningFlights", fields: [returningFlightId], references: [id])
   cityStays         Json?            @map("city_stays")
   bookings          CustomizedPackage[] @relation("CompanyPackageBookings")
+  createdAt         DateTime         @default(now()) @map("created_at")
 
   @@map("company_packages")
 }

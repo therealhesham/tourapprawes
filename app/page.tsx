@@ -1,11 +1,20 @@
 import Image from "next/image";
+import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import HomeSearchWidget from "@/components/HomeSearchWidget";
+import { prisma } from "@/lib/prisma";
 
-export default function Home() {
+export default async function Home() {
+  const latestPackages = await prisma.companyPackage.findMany({
+    orderBy: {
+      createdAt: "desc"
+    },
+    take: 3
+  });
+
   return (
     <>
-      <Navbar activeLinkId="tours" />
+      <Navbar activeLinkId="home" />
 
       {/* ─── Hero ────────────────────────────────────────────────────── */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
@@ -142,9 +151,9 @@ export default function Home() {
             <Image
               src="/logo.png"
               alt="Rawaes Logo"
-              width={420}
-              height={143}
-              className="h-28 md:h-36 w-auto object-contain"
+              width={550}
+              height={187}
+              className="h-36 md:h-48 w-auto object-contain"
               priority
             />
           </div>
@@ -180,7 +189,7 @@ export default function Home() {
       <HomeSearchWidget />
 
       {/* ─── Packages ────────────────────────────────────────────────── */}
-      <section className="pt-24 pb-20 px-margin-mobile md:px-margin-desktop bg-background">
+      <section id="destinations" className="pt-24 pb-20 px-margin-mobile md:px-margin-desktop bg-background">
         <div className="max-w-container-max mx-auto">
           {/* Section header */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-14 gap-4">
@@ -196,143 +205,69 @@ export default function Home() {
                 باقات حصرية لوجهات متميزة بأسعار تنافسية لا تُفوَّت
               </p>
             </div>
-            <button className="inline-flex items-center gap-2 text-secondary hover:text-secondary-bright font-label-sm text-label-sm uppercase tracking-widest transition-colors duration-300 group">
-              عرض الكل
-              <span className="material-symbols-outlined text-sm group-hover:-translate-x-1 transition-transform duration-300">
-                arrow_left
-              </span>
-            </button>
+            <Link href="/packages">
+              <button className="inline-flex items-center gap-2 text-secondary hover:text-secondary-bright font-label-sm text-label-sm uppercase tracking-widest transition-colors duration-300 group cursor-pointer">
+                عرض الكل
+                <span className="material-symbols-outlined text-sm group-hover:-translate-x-1 transition-transform duration-300">
+                  arrow_left
+                </span>
+              </button>
+            </Link>
           </div>
 
           {/* Cards grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {/* ── Card 1: Maldives (Pool Deck) ── */}
-            <article className="card-hover group cursor-pointer relative rounded-3xl overflow-hidden aspect-[3/4] shadow-lg border border-white/10">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                alt="Maldives Tour"
-                className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
-                src="https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=800&q=80"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-black/45" />
+            {latestPackages.map((pkg) => (
+              <Link href={`/packages?id=${pkg.id}`} key={pkg.id}>
+                <article className="card-hover group cursor-pointer relative rounded-3xl overflow-hidden aspect-[3/4] shadow-lg border border-white/10 h-full">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    alt={pkg.title}
+                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+                    src={pkg.image}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-black/45" />
 
-              {/* LTR Layout container overlay for absolute alignment to match reference image */}
-              <div className="absolute inset-0 p-7 z-10 select-none pointer-events-none" dir="ltr">
-                {/* Top Info */}
-                <div className="absolute top-7 left-7 text-left text-shadow-subtle">
-                  <span className="text-2xl font-bold text-white tracking-wide">Asia</span>
-                  <span className="text-sm font-medium text-white/80 ml-2">Maldives</span>
-                </div>
-                <div className="absolute top-7 right-7 glass-dark text-white/90 px-3 py-1 rounded-full font-label-sm text-label-sm uppercase tracking-wider border border-white/20">
-                  8 أيام
-                </div>
+                  {/* LTR Layout container overlay for absolute alignment to match reference image */}
+                  <div className="absolute inset-0 p-7 z-10 select-none pointer-events-none" dir="ltr">
+                    {/* Top Info */}
+                    <div className="absolute top-7 left-7 text-left text-shadow-subtle">
+                      <span className="text-2xl font-bold text-white tracking-wide">{pkg.name}</span>
+                      <span className="text-sm font-medium text-white/80 block mt-1">{pkg.title}</span>
+                    </div>
+                    <div className="absolute top-7 right-7 glass-dark text-white/90 px-3 py-1 rounded-full font-label-sm text-label-sm uppercase tracking-wider border border-white/20">
+                      {pkg.days}
+                    </div>
 
-                {/* Bottom Info */}
-                <div className="absolute bottom-7 left-7 pointer-events-auto bg-white/10 hover:bg-white/20 text-white w-10 h-10 rounded-full flex items-center justify-center border border-white/20 transition-all duration-300 group-hover:scale-110">
-                  <span className="material-symbols-outlined text-lg">arrow_forward</span>
-                </div>
+                    {/* Bottom Info */}
+                    <div className="absolute bottom-7 left-7 pointer-events-auto bg-white/10 hover:bg-white/20 text-white w-10 h-10 rounded-full flex items-center justify-center border border-white/20 transition-all duration-300 group-hover:scale-110">
+                      <span className="material-symbols-outlined text-lg">arrow_forward</span>
+                    </div>
 
-                <div className="absolute bottom-7 right-7 text-right text-shadow-subtle">
-                  <span className="block text-[10px] font-semibold text-white/70 uppercase tracking-widest">
-                    FROM
-                  </span>
-                  <span className="block text-3xl font-extrabold text-white tracking-tight mt-0.5">
-                    5,950 <span className="text-base font-normal text-secondary-bright">SAR</span>
-                  </span>
-                  <span className="block text-[10px] font-medium text-white/60 uppercase tracking-widest mt-1">
-                    PRICE PER PERSON
-                  </span>
-                </div>
-              </div>
-            </article>
-
-            {/* ── Card 2: Bosnia (Village Bridge) ── */}
-            <article className="card-hover group cursor-pointer relative rounded-3xl overflow-hidden aspect-[3/4] shadow-lg border border-white/10">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                alt="Bosnia Tour"
-                className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
-                src="https://images.unsplash.com/photo-1527004013197-933c4bb611b3?auto=format&fit=crop&w=800&q=80"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-black/45" />
-
-              <div className="absolute inset-0 p-7 z-10 select-none pointer-events-none" dir="ltr">
-                {/* Top Info */}
-                <div className="absolute top-7 left-7 text-left text-shadow-subtle">
-                  <span className="text-2xl font-bold text-white tracking-wide">Europe</span>
-                  <span className="text-sm font-medium text-white/80 ml-2">Bosnia</span>
-                </div>
-                <div className="absolute top-7 right-7 glass-dark text-white/90 px-3 py-1 rounded-full font-label-sm text-label-sm uppercase tracking-wider border border-white/20">
-                  8 أيام
-                </div>
-
-                {/* Bottom Info */}
-                <div className="absolute bottom-7 left-7 pointer-events-auto bg-white/10 hover:bg-white/20 text-white w-10 h-10 rounded-full flex items-center justify-center border border-white/20 transition-all duration-300 group-hover:scale-110">
-                  <span className="material-symbols-outlined text-lg">arrow_forward</span>
-                </div>
-
-                <div className="absolute bottom-7 right-7 text-right text-shadow-subtle">
-                  <span className="block text-[10px] font-semibold text-white/70 uppercase tracking-widest">
-                    FROM
-                  </span>
-                  <span className="block text-3xl font-extrabold text-white tracking-tight mt-0.5">
-                    6,666 <span className="text-base font-normal text-secondary-bright">SAR</span>
-                  </span>
-                  <span className="block text-[10px] font-medium text-white/60 uppercase tracking-widest mt-1">
-                    PRICE PER PERSON
-                  </span>
-                </div>
-              </div>
-            </article>
-
-            {/* ── Card 3: Albania (Beach Resort) ── */}
-            <article className="card-hover group cursor-pointer relative rounded-3xl overflow-hidden aspect-[3/4] shadow-lg border border-white/10">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                alt="Albania Tour"
-                className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
-                src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=800&q=80"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-black/45" />
-
-              <div className="absolute inset-0 p-7 z-10 select-none pointer-events-none" dir="ltr">
-                {/* Top Info */}
-                <div className="absolute top-7 left-7 text-left text-shadow-subtle">
-                  <span className="text-2xl font-bold text-white tracking-wide">Europe</span>
-                  <span className="text-sm font-medium text-white/80 ml-2">Albania</span>
-                </div>
-                <div className="absolute top-7 right-7 glass-dark text-white/90 px-3 py-1 rounded-full font-label-sm text-label-sm uppercase tracking-wider border border-white/20">
-                  5 أيام
-                </div>
-
-                {/* Bottom Info */}
-                <div className="absolute bottom-7 left-7 pointer-events-auto bg-white/10 hover:bg-white/20 text-white w-10 h-10 rounded-full flex items-center justify-center border border-white/20 transition-all duration-300 group-hover:scale-110">
-                  <span className="material-symbols-outlined text-lg">arrow_forward</span>
-                </div>
-
-                <div className="absolute bottom-7 right-7 text-right text-shadow-subtle">
-                  <span className="block text-[10px] font-semibold text-white/70 uppercase tracking-widest">
-                    FROM
-                  </span>
-                  <span className="block text-3xl font-extrabold text-white tracking-tight mt-0.5">
-                    5,400 <span className="text-base font-normal text-secondary-bright">SAR</span>
-                  </span>
-                  <span className="block text-[10px] font-medium text-white/60 uppercase tracking-widest mt-1">
-                    PRICE PER PERSON
-                  </span>
-                </div>
-              </div>
-            </article>
+                    <div className="absolute bottom-7 right-7 text-right text-shadow-subtle">
+                      <span className="block text-[10px] font-semibold text-white/70 uppercase tracking-widest">
+                        تبدأ من
+                      </span>
+                      <span className="block text-3xl font-extrabold text-white tracking-tight mt-0.5">
+                        {pkg.pricing.toLocaleString("en-US")} <span className="text-base font-normal text-secondary-bright">SAR</span>
+                      </span>
+                    </div>
+                  </div>
+                </article>
+              </Link>
+            ))}
           </div>
 
           {/* View more */}
           <div className="mt-12 text-center">
-            <button className="inline-flex items-center gap-2 border border-secondary/40 text-secondary hover:bg-secondary hover:text-on-secondary px-8 py-3 rounded-full font-label-sm text-label-sm uppercase tracking-widest transition-all duration-300 btn-glow group">
-              عرض المزيد من الباقات
-              <span className="material-symbols-outlined text-sm group-hover:-translate-x-1 transition-transform duration-300">
-                arrow_left
-              </span>
-            </button>
+            <Link href="/packages">
+              <button className="inline-flex items-center gap-2 border border-secondary/40 text-secondary hover:bg-secondary hover:text-on-secondary px-8 py-3 rounded-full font-label-sm text-label-sm uppercase tracking-widest transition-all duration-300 btn-glow group cursor-pointer">
+                عرض المزيد من الباقات
+                <span className="material-symbols-outlined text-sm group-hover:-translate-x-1 transition-transform duration-300">
+                  arrow_left
+                </span>
+              </button>
+            </Link>
           </div>
         </div>
       </section>
@@ -396,7 +331,7 @@ export default function Home() {
       </section>
 
       {/* ─── CTA ─────────────────────────────────────────────────────── */}
-      <section className="relative py-24 px-margin-mobile md:px-margin-desktop overflow-hidden">
+      <section id="contact" className="relative py-24 px-margin-mobile md:px-margin-desktop overflow-hidden">
         {/* Dark bg */}
         <div className="absolute inset-0 bg-primary" />
         {/* Gold glow */}

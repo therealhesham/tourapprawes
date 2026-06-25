@@ -357,7 +357,7 @@ export default function PackagesPage() {
   return (
     <>
       <Navbar
-        activeLinkId="tours"
+        activeLinkId="destinations"
         primaryCtaText="صمم رحلتك"
         onPrimaryCtaClick={() => {
           window.location.href = "/booking?showWizard=true";
