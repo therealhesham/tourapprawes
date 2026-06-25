@@ -3,9 +3,15 @@ const { PrismaMariaDb } = require('@prisma/adapter-mariadb')
 require('dotenv').config()
 
 const connectionString = process.env.DATABASE_URL;
-const cleanConnectionString = connectionString.startsWith("mysql://")
+let cleanConnectionString = connectionString.startsWith("mysql://")
   ? connectionString.replace("mysql://", "mariadb://")
   : connectionString;
+
+if (cleanConnectionString) {
+  cleanConnectionString += cleanConnectionString.includes("?")
+    ? "&connectTimeout=15000&acquireTimeout=20000"
+    : "?connectTimeout=15000&acquireTimeout=20000";
+}
 
 const adapter = new PrismaMariaDb(cleanConnectionString);
 const prisma = new PrismaClient({ adapter })
@@ -14,6 +20,7 @@ async function main() {
   console.log('Start seeding data...')
 
   // Clear existing data (optional but good for clean seed)
+  await prisma.companyPackage.deleteMany()
   await prisma.returningFlight.deleteMany()
   await prisma.flight.deleteMany()
   await prisma.internalTransport.deleteMany()
@@ -277,6 +284,92 @@ async function main() {
         approximatePrice: 300,
         cityId: cairo.id, // departure
         arrivalCityId: sharm.id
+      }
+    ]
+  })
+
+  // Prepared Packages (الباقات الجاهزة)
+  await prisma.companyPackage.createMany({
+    data: [
+      {
+        name: "جزيرة بالي، إندونيسيا",
+        title: "سحر الطبيعة الاستوائية",
+        description: "استمتع بجمال الغابات الاستوائية والشواطئ الساحرة في منتجعات بالي الفاخرة مع جولات سياحية لا تُنسى.",
+        pricing: 6500,
+        originalPricing: 7200,
+        days: "7 أيام / 6 ليالي",
+        image: "/images/bali.png",
+        popular: true,
+        rating: 5,
+        reviews: 124,
+        features: JSON.stringify(["flight", "hotel", "restaurant", "directions_car"]),
+        includesText: "طيران، فندق 5 نجوم، إفطار، تنقلات",
+        countryCode: "id",
+        destinationCode: "bali",
+      },
+      {
+        name: "جزر المالديف",
+        title: "عطلة الأحلام فوق الماء",
+        description: "عش تجربة لا تُنسى في الفيلات المائية وسط المياه الفيروزية الصافية والرمال البيضاء للمالديف الاستوائية.",
+        pricing: 12900,
+        originalPricing: null,
+        days: "5 أيام / 4 ليالي",
+        image: "/images/maldives.png",
+        popular: false,
+        rating: 5,
+        reviews: 89,
+        features: JSON.stringify(["flight", "hotel", "restaurant", "sailing"]),
+        includesText: "طيران، فيلا مائية، إقامة شاملة، قارب سريع",
+        countryCode: "mv",
+        destinationCode: "male",
+      },
+      {
+        name: "الجونة، مصر",
+        title: "رفاهية البحر الأحمر",
+        description: "اكتشف روعة البحر الأحمر واستمتع بالأنشطة البحرية الممتعة واليخوت الفاخرة في الجونة.",
+        pricing: 3200,
+        originalPricing: 3800,
+        days: "4 أيام / 3 ليالي",
+        image: "/images/elgouna.png",
+        popular: false,
+        rating: 4,
+        reviews: 210,
+        features: JSON.stringify(["hotel", "restaurant", "directions_car"]),
+        includesText: "فندق 5 نجوم، إفطار، تنقلات",
+        countryCode: "eg",
+        destinationCode: "elgouna",
+      },
+      {
+        name: "إسطنبول و كابادوكيا، تركيا",
+        title: "روعة الشرق والغرب",
+        description: "رحلة تجمع بين عراقة إسطنبول وجمال المناطيد الهوائية في كابادوكيا مع جولات تاريخية رائعة.",
+        pricing: 4800,
+        originalPricing: 5300,
+        days: "8 أيام / 7 ليالي",
+        image: "/images/turkey.png",
+        popular: true,
+        rating: 5,
+        reviews: 145,
+        features: JSON.stringify(["flight", "hotel", "restaurant", "directions_car"]),
+        includesText: "طيران، فنادق 4 نجوم، إفطار، جولة المنطاد، تنقلات",
+        countryCode: "tr",
+        destinationCode: "istanbul",
+      },
+      {
+        name: "كوالالمبور ولنكاوي، ماليزيا",
+        title: "مغامرة آسيوية عائلية",
+        description: "استمتع بصحب كوالالمبور المعاصرة وهدوء شواطئ لنكاوي الساحرة في رحلة عائلية متكاملة.",
+        pricing: 5900,
+        originalPricing: 6400,
+        days: "9 أيام / 8 ليالي",
+        image: "/images/malaysia.png",
+        popular: false,
+        rating: 4,
+        reviews: 95,
+        features: JSON.stringify(["flight", "hotel", "restaurant", "directions_car"]),
+        includesText: "طيران داخلي ودولي، فنادق عائلية، إفطار، تنقلات",
+        countryCode: "my",
+        destinationCode: "kuala",
       }
     ]
   })

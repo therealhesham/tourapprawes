@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 
 interface Option {
@@ -142,6 +142,130 @@ export default function PackagesPage() {
   const [hotelStars, setHotelStars] = useState("");
   const [programType, setProgramType] = useState("");
 
+  // DB Packages & UI filters states
+  const [packages, setPackages] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [selectedRegions, setSelectedRegions] = useState<string[]>([]);
+  const [maxPrice, setMaxPrice] = useState(20000);
+  const [selectedRatings, setSelectedRatings] = useState<number[]>([]);
+  const [sortBy, setSortBy] = useState("price_asc");
+
+  const [selectedPackageToBook, setSelectedPackageToBook] = useState<any | null>(null);
+  const [dbCities, setDbCities] = useState<any[]>([]);
+
+  // Booking Form States
+  const [bookingClientName, setBookingClientName] = useState("");
+  const [bookingClientPhone, setBookingClientPhone] = useState("");
+  const [bookingStartDate, setBookingStartDate] = useState("");
+  const [bookingEndDate, setBookingEndDate] = useState("");
+  const [bookingLoading, setBookingLoading] = useState(false);
+  const [bookingMessage, setBookingMessage] = useState("");
+  const [bookingErrorMsg, setBookingErrorMsg] = useState("");
+
+  useEffect(() => {
+    setLoading(true);
+    
+    // Load packages
+    const loadPkgs = fetch("/api/packages")
+      .then(res => res.json())
+      .then(data => {
+        if (data.error) {
+          setError(data.error);
+        } else if (Array.isArray(data)) {
+          const formatted = data.map((pkg: any) => {
+            let parsedFeatures = [];
+            try {
+              parsedFeatures = typeof pkg.features === "string" 
+                ? JSON.parse(pkg.features) 
+                : pkg.features;
+            } catch (e) {
+              console.error("Error parsing features:", e);
+            }
+            return {
+              ...pkg,
+              features: parsedFeatures,
+              price: pkg.pricing.toLocaleString("en-US"),
+              originalPrice: pkg.originalPricing ? pkg.originalPricing.toLocaleString("en-US") : null,
+            };
+          });
+          setPackages(formatted);
+        }
+      })
+      .catch(err => {
+        console.error("Error loading packages:", err);
+        setError("حدث خطأ أثناء تحميل الباقات.");
+      });
+
+    // Load cities to resolve IDs
+    const loadCities = fetch("/api/admin/cities")
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          const flattened = data.flatMap((dest: any) =>
+            dest.countries.flatMap((c: any) => c.cities.map((city: any) => ({ id: city.id, name: city.name })))
+          );
+          setDbCities(flattened);
+        }
+      })
+      .catch(err => console.error("Error loading cities in packages page:", err));
+
+    Promise.all([loadPkgs, loadCities]).finally(() => setLoading(false));
+  }, []);
+
+  const getCityName = (cityId: string) => {
+    return dbCities.find(c => c.id === cityId)?.name || cityId;
+  };
+
+  const handleBookSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!bookingClientName || !bookingClientPhone || !bookingStartDate || !bookingEndDate || !selectedPackageToBook) {
+      setBookingErrorMsg("يرجى ملء جميع الحقول المطلوبة.");
+      return;
+    }
+
+    setBookingLoading(true);
+    setBookingErrorMsg("");
+    setBookingMessage("");
+
+    try {
+      const res = await fetch("/api/booking", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          clientName: bookingClientName,
+          clientPhone: bookingClientPhone,
+          startDate: bookingStartDate,
+          endDate: bookingEndDate,
+          departingFlightId: selectedPackageToBook.departingFlightId || null,
+          returningFlightId: selectedPackageToBook.returningFlightId || null,
+          pricing: Number(selectedPackageToBook.pricing),
+          cityStays: selectedPackageToBook.cityStays || [],
+          companyPackageId: selectedPackageToBook.id
+        })
+      });
+
+      const data = await res.json();
+      if (data.error) {
+        setBookingErrorMsg(data.error);
+      } else {
+        setBookingMessage("تم تسجيل حجزك بنجاح! سيتواصل معك فريق خدمة العملاء قريباً.");
+        setBookingClientName("");
+        setBookingClientPhone("");
+        setBookingStartDate("");
+        setBookingEndDate("");
+        setTimeout(() => {
+          setSelectedPackageToBook(null);
+          setBookingMessage("");
+        }, 3000);
+      }
+    } catch (err) {
+      setBookingErrorMsg("حدث خطأ أثناء إرسال طلب الحجز. يرجى المحاولة لاحقاً.");
+    } finally {
+      setBookingLoading(false);
+    }
+  };
+
   const handleCountryChange = (val: string) => {
     setCountry(val);
     setDestination(""); // Reset destination when country changes
@@ -185,53 +309,49 @@ export default function PackagesPage() {
 
   const destinationOptions = country ? destinationsByCountry[country] : [];
 
-  const destinationsList = [
-    {
-      id: "bali",
-      name: "جزيرة بالي، إندونيسيا",
-      title: "سحر الطبيعة الاستوائية",
-      description: "استمتع بجمال الغابات الاستوائية والشواطئ الساحرة في منتجعات بالي الفاخرة مع جولات سياحية لا تُنسى.",
-      price: "6,500",
-      originalPrice: "7,200",
-      days: "7 أيام / 6 ليالي",
-      image: "/images/bali.png",
-      popular: true,
-      rating: 5,
-      reviews: 124,
-      features: ["flight", "hotel", "restaurant", "directions_car"],
-      includesText: "طيران، فندق 5 نجوم، إفطار، تنقلات"
-    },
-    {
-      id: "maldives",
-      name: "جزر المالديف",
-      title: "عطلة الأحلام فوق الماء",
-      description: "عش تجربة لا تُنسى في الفيلات المائية وسط المياه الفيروزية الصافية والرمال البيضاء.",
-      price: "12,900",
-      originalPrice: null,
-      days: "5 أيام / 4 ليالي",
-      image: "/images/maldives.png",
-      popular: false,
-      rating: 5,
-      reviews: 89,
-      features: ["flight", "hotel", "restaurant", "sailing"],
-      includesText: "طيران، فيلا مائية، إقامة شاملة، قارب سريع"
-    },
-    {
-      id: "elgouna",
-      name: "الجونة، مصر",
-      title: "رفاهية البحر الأحمر",
-      description: "اكتشف روعة البحر الأحمر واستمتع بالأنشطة البحرية الممتعة واليخوت الفاخرة في الجونة.",
-      price: "3,200",
-      originalPrice: "3,800",
-      days: "4 أيام / 3 ليالي",
-      image: "/images/elgouna.png",
-      popular: false,
-      rating: 4,
-      reviews: 210,
-      features: ["hotel", "restaurant", "directions_car"],
-      includesText: "فندق 5 نجوم، إفطار، تنقلات"
-    }
-  ];
+  const getRegionByCountryCode = (code?: string | null): string => {
+    if (!code) return "";
+    const lower = code.toLowerCase();
+    if (lower === "id" || lower === "mv" || lower === "my") return "آسيا";
+    if (lower === "tr") return "أوروبا";
+    if (lower === "eg") return "أفريقيا";
+    return "";
+  };
+
+  const filteredPackages = packages
+    .filter((pkg) => {
+      // 1. Country filter
+      if (country && pkg.countryCode !== country) return false;
+      // 2. Destination filter
+      if (destination && pkg.destinationCode !== destination) return false;
+      // 3. Hotel Stars filter
+      if (hotelStars && pkg.rating < Number(hotelStars)) return false;
+      // 4. Program Type filter
+      if (programType) {
+        const textToSearch = `${pkg.title} ${pkg.description} ${pkg.includesText}`.toLowerCase();
+        if (programType === "family" && !textToSearch.includes("عائل")) return false;
+        if (programType === "honeymoon" && !(textToSearch.includes("عسل") || textToSearch.includes("الهنيمون"))) return false;
+        if (programType === "adventure" && !textToSearch.includes("مغامر")) return false;
+        if (programType === "relax" && !(textToSearch.includes("استجمام") || textToSearch.includes("هدوء") || textToSearch.includes("شواطئ"))) return false;
+      }
+      // 5. Region filter
+      if (selectedRegions.length > 0) {
+        const reg = getRegionByCountryCode(pkg.countryCode);
+        if (!selectedRegions.includes(reg)) return false;
+      }
+      // 6. Rating filter
+      if (selectedRatings.length > 0 && !selectedRatings.includes(pkg.rating)) return false;
+      // 7. Max Price filter
+      if (pkg.pricing > maxPrice) return false;
+
+      return true;
+    })
+    .sort((a, b) => {
+      if (sortBy === "price_asc") return a.pricing - b.pricing;
+      if (sortBy === "price_desc") return b.pricing - a.pricing;
+      if (sortBy === "rating_desc") return b.rating - a.rating;
+      return 0;
+    });
 
   return (
     <main className="min-h-screen bg-background pb-20 font-body-md">
@@ -337,7 +457,18 @@ export default function PackagesPage() {
               <div className="space-y-3">
                 {["آسيا", "أوروبا", "الشرق الأوسط", "أفريقيا"].map((region) => (
                   <label key={region} className="flex items-center gap-3 cursor-pointer group">
-                    <input type="checkbox" className="rounded text-secondary focus:ring-secondary border-outline-variant/50 w-4 h-4 transition-colors cursor-pointer" />
+                    <input 
+                      type="checkbox" 
+                      checked={selectedRegions.includes(region)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setSelectedRegions([...selectedRegions, region]);
+                        } else {
+                          setSelectedRegions(selectedRegions.filter(r => r !== region));
+                        }
+                      }}
+                      className="rounded text-secondary focus:ring-secondary border-outline-variant/50 w-4 h-4 transition-colors cursor-pointer" 
+                    />
                     <span className="text-sm text-on-surface-variant group-hover:text-secondary transition-colors">{region}</span>
                   </label>
                 ))}
@@ -345,11 +476,19 @@ export default function PackagesPage() {
             </div>
             
             <div className="mb-8">
-              <h4 className="font-bold text-sm mb-4">السعر</h4>
-              <input type="range" className="w-full accent-secondary" min="1000" max="20000" />
+              <h4 className="font-bold text-sm mb-4">السعر الأقصى</h4>
+              <input 
+                type="range" 
+                min="1000" 
+                max="20000" 
+                step="500"
+                value={maxPrice}
+                onChange={(e) => setMaxPrice(Number(e.target.value))}
+                className="w-full accent-secondary cursor-pointer" 
+              />
               <div className="flex justify-between text-xs text-on-surface-variant mt-2">
                 <span>1,000 ر.س</span>
-                <span>20,000 ر.س</span>
+                <span className="font-bold text-secondary">{maxPrice.toLocaleString()} ر.س</span>
               </div>
             </div>
 
@@ -358,7 +497,18 @@ export default function PackagesPage() {
               <div className="space-y-3">
                 {[5, 4, 3].map((star) => (
                   <label key={star} className="flex items-center gap-3 cursor-pointer group">
-                    <input type="checkbox" className="rounded text-secondary focus:ring-secondary border-outline-variant/50 w-4 h-4 transition-colors cursor-pointer" />
+                    <input 
+                      type="checkbox" 
+                      checked={selectedRatings.includes(star)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setSelectedRatings([...selectedRatings, star]);
+                        } else {
+                          setSelectedRatings(selectedRatings.filter(s => s !== star));
+                        }
+                      }}
+                      className="rounded text-secondary focus:ring-secondary border-outline-variant/50 w-4 h-4 transition-colors cursor-pointer" 
+                    />
                     <div className="flex items-center text-secondary text-sm opacity-80 group-hover:opacity-100 transition-opacity">
                       {Array.from({ length: 5 }).map((_, i) => (
                         <span key={i} className="material-symbols-outlined text-[16px]">
@@ -377,13 +527,17 @@ export default function PackagesPage() {
         <div className="flex-1">
           {/* Sorting Bar */}
           <div className="flex justify-between items-center bg-surface p-4 rounded-xl border border-outline-variant/30 mb-6 shadow-sm">
-            <p className="text-sm font-medium text-on-surface">تم العثور على <span className="font-bold text-secondary">3</span> باقات سفر</p>
+            <p className="text-sm font-medium text-on-surface">تم العثور على <span className="font-bold text-secondary">{filteredPackages.length}</span> باقات سفر</p>
             <div className="flex items-center gap-4">
               <div className="relative group hidden sm:block">
-                <select className="bg-transparent border-none text-sm text-on-surface-variant focus:ring-0 py-0 outline-none cursor-pointer appearance-none pr-6 font-medium">
-                  <option>ترتيب حسب: الأقل سعراً</option>
-                  <option>ترتيب حسب: الأعلى سعراً</option>
-                  <option>ترتيب حسب: الأكثر تقييماً</option>
+                <select 
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="bg-transparent border-none text-sm text-on-surface-variant focus:ring-0 py-0 outline-none cursor-pointer appearance-none pr-6 font-medium"
+                >
+                  <option value="price_asc">ترتيب حسب: الأقل سعراً</option>
+                  <option value="price_desc">ترتيب حسب: الأعلى سعراً</option>
+                  <option value="rating_desc">ترتيب حسب: الأكثر تقييماً</option>
                 </select>
                 <span className="material-symbols-outlined absolute top-1/2 right-0 -translate-y-1/2 text-[18px] text-outline pointer-events-none group-hover:text-secondary transition-colors">sort</span>
               </div>
@@ -406,8 +560,17 @@ export default function PackagesPage() {
           </div>
 
           {/* Results List */}
-          <div className={`grid gap-6 ${viewMode === "grid" ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1"}`}>
-            {destinationsList.map((dest) => (
+          {loading ? (
+            <div className="flex justify-center items-center py-20">
+              <div className="w-10 h-10 border-4 border-secondary border-t-transparent rounded-full animate-spin" />
+            </div>
+          ) : error ? (
+            <div className="text-center py-20 text-red-500 font-bold">{error}</div>
+          ) : filteredPackages.length === 0 ? (
+            <div className="text-center py-20 text-slate-500 font-medium">لا توجد باقات سياحية تطابق معايير البحث.</div>
+          ) : (
+            <div className={`grid gap-6 ${viewMode === "grid" ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1"}`}>
+              {filteredPackages.map((dest) => (
               <div 
                 key={dest.id} 
                 className={`bg-surface rounded-2xl border border-outline-variant/30 overflow-hidden hover:shadow-xl transition-all duration-300 card-hover flex ${viewMode === "list" ? "flex-col sm:flex-row" : "flex-col"}`}
@@ -457,7 +620,7 @@ export default function PackagesPage() {
                           {dest.days}
                         </div>
                         <div className="flex items-center gap-1.5 bg-surface-variant/80 px-3 py-1.5 rounded-full border border-outline-variant/10" title={dest.includesText}>
-                          {dest.features.map((icon, i) => (
+                          {dest.features.map((icon: string, i: number) => (
                             <span key={i} className="material-symbols-outlined text-[16px] text-secondary">{icon}</span>
                           ))}
                         </div>
@@ -480,17 +643,191 @@ export default function PackagesPage() {
                         </div>
                       </div>
 
-                      <button className="w-full bg-primary text-white py-3 px-6 rounded-xl font-bold text-sm hover:bg-primary/90 transition-all hover:shadow-lg hover:-translate-y-0.5 cursor-pointer text-center btn-glow">
+                      <button
+                        onClick={() => setSelectedPackageToBook(dest)}
+                        className="w-full bg-primary text-white py-3 px-6 rounded-xl font-bold text-sm hover:bg-primary/90 transition-all hover:shadow-lg hover:-translate-y-0.5 cursor-pointer text-center btn-glow"
+                      >
                         تفاصيل الباقة
                       </button>
                     </div>
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
+      {/* Booking Modal */}
+      {selectedPackageToBook && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-primary/80 backdrop-blur-sm overflow-y-auto" dir="rtl">
+          <div className="w-full max-w-2xl bg-surface rounded-3xl p-6 md:p-8 shadow-2xl relative border border-outline-variant/30 text-right animate-zoom-in">
+            {/* Close Button */}
+            <button
+              onClick={() => {
+                setSelectedPackageToBook(null);
+                setBookingErrorMsg("");
+                setBookingMessage("");
+              }}
+              className="absolute top-6 left-6 text-outline hover:text-primary transition-colors p-2 rounded-full hover:bg-surface-variant cursor-pointer"
+            >
+              <span className="material-symbols-outlined">close</span>
+            </button>
+
+            <h3 className="text-2xl font-bold text-primary mb-6 border-b border-outline-variant/30 pb-4">تفاصيل وحجز البرنامج السياحي</h3>
+
+            {bookingMessage && (
+              <div className="p-4 bg-green-50 border border-green-200 text-green-700 rounded-xl font-bold text-center mb-6">{bookingMessage}</div>
+            )}
+            {bookingErrorMsg && (
+              <div className="p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl font-bold text-center mb-6">{bookingErrorMsg}</div>
+            )}
+
+            <div className="space-y-6 text-on-surface overflow-y-auto max-h-[60vh] pl-2">
+              
+              {/* Package Header Preview */}
+              <div className="bg-primary/5 p-5 rounded-2xl border border-primary/10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                  <span className="text-xs text-secondary font-bold block mb-1">{selectedPackageToBook.name}</span>
+                  <h4 className="text-xl font-bold text-primary">{selectedPackageToBook.title}</h4>
+                  <span className="text-xs text-on-surface-variant block mt-1">المدة: {selectedPackageToBook.days}</span>
+                </div>
+                <div className="text-right">
+                  <span className="text-xs text-on-surface-variant block uppercase tracking-wider">سعر البرنامج</span>
+                  <div className="flex items-baseline gap-1 mt-0.5 justify-end">
+                    <span className="text-3xl font-black text-secondary-bright">{selectedPackageToBook.price}</span>
+                    <span className="text-secondary-bright font-bold text-sm">ر.س</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Itinerary / Cities stay */}
+              {Array.isArray(selectedPackageToBook.cityStays) && selectedPackageToBook.cityStays.length > 0 && (
+                <div className="space-y-3">
+                  <h5 className="font-bold text-primary border-r-4 border-secondary pr-2">خط سير الرحلة والمدن</h5>
+                  <div className="grid grid-cols-1 gap-3 bg-surface-variant/40 p-4 rounded-2xl border border-outline-variant/20">
+                    {selectedPackageToBook.cityStays.map((stay: any, idx: number) => (
+                      <div key={idx} className="flex flex-wrap items-center gap-2 text-xs">
+                        <span className="w-5 h-5 rounded-full bg-secondary text-background flex items-center justify-center font-bold">{idx + 1}</span>
+                        <span className="font-bold text-primary">{getCityName(stay.cityId)}</span>
+                        <span className="text-[10px] text-on-surface-variant bg-surface px-2 py-0.5 rounded border border-outline-variant/10">
+                          فندق: {stay.hotelCategory === "auto" ? "تلقائي" : stay.hotelCategory === "family" ? "عائلي" : stay.hotelCategory === "honeymoon" ? "شهر عسل" : stay.hotelCategory === "budget" ? "اقتصادي" : "فاخر VIP"}
+                        </span>
+                        {stay.transportFromPrevious && (
+                          <span className="text-[10px] text-secondary-bright font-black bg-secondary/10 px-2 py-0.5 rounded">
+                            مواصلات: {
+                              stay.transportFromPrevious.startsWith("db_")
+                                ? "خاصة"
+                                : stay.transportFromPrevious === "flight" ? "طيران داخلي" : stay.transportFromPrevious === "train" ? "قطار" : stay.transportFromPrevious === "bus" ? "باص" : "سيارة خاصة"
+                            }
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Flights configured */}
+              {(selectedPackageToBook.departingFlight || selectedPackageToBook.returningFlight) && (
+                <div className="space-y-3">
+                  <h5 className="font-bold text-primary border-r-4 border-secondary pr-2">تفاصيل الطيران الدولي المشمول</h5>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {selectedPackageToBook.departingFlight && (
+                      <div className="p-3 bg-surface-variant/20 rounded-xl border border-outline-variant/10 text-xs">
+                        <span className="font-bold text-on-surface flex items-center gap-1 mb-1">
+                          <span className="material-symbols-outlined text-sm text-secondary">flight_takeoff</span>
+                          طيران الذهاب: {selectedPackageToBook.departingFlight.airWayName}
+                        </span>
+                        <span className="text-on-surface-variant block">
+                          {selectedPackageToBook.departingFlight.departedAirport?.airportName} ← {selectedPackageToBook.departingFlight.arrivalAirport?.airportName}
+                        </span>
+                      </div>
+                    )}
+                    {selectedPackageToBook.returningFlight && (
+                      <div className="p-3 bg-surface-variant/20 rounded-xl border border-outline-variant/10 text-xs">
+                        <span className="font-bold text-on-surface flex items-center gap-1 mb-1">
+                          <span className="material-symbols-outlined text-sm text-secondary">flight_land</span>
+                          طيران العودة: {selectedPackageToBook.returningFlight.airWayName}
+                        </span>
+                        <span className="text-on-surface-variant block">
+                          {selectedPackageToBook.returningFlight.departedAirport?.airportName} ← {selectedPackageToBook.returningFlight.arrivalAirport?.airportName}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Booking Form Fields */}
+              <form onSubmit={handleBookSubmit} className="space-y-4 pt-4 border-t border-outline-variant/30">
+                <h5 className="font-bold text-primary border-r-4 border-secondary pr-2">تأكيد حجز العميل</h5>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-2">
+                    <label className="text-xs text-on-surface-variant font-bold">الاسم بالكامل</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="مثال: محمد أحمد"
+                      value={bookingClientName}
+                      onChange={(e) => setBookingClientName(e.target.value)}
+                      className="w-full py-2.5 px-3 bg-surface-variant/30 border border-outline-variant/30 rounded-xl focus:border-secondary outline-none text-sm"
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <label className="text-xs text-on-surface-variant font-bold">رقم الجوال</label>
+                    <input
+                      type="tel"
+                      required
+                      placeholder="مثال: 0500000000"
+                      value={bookingClientPhone}
+                      onChange={(e) => setBookingClientPhone(e.target.value)}
+                      className="w-full py-2.5 px-3 bg-surface-variant/30 border border-outline-variant/30 rounded-xl focus:border-secondary outline-none text-sm text-left"
+                      dir="ltr"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-2">
+                    <label className="text-xs text-on-surface-variant font-bold">تاريخ الذهاب</label>
+                    <input
+                      type="date"
+                      required
+                      value={bookingStartDate}
+                      min={new Date().toISOString().split("T")[0]}
+                      onChange={(e) => setBookingStartDate(e.target.value)}
+                      className="w-full py-2.5 px-3 bg-surface-variant/30 border border-outline-variant/30 rounded-xl focus:border-secondary outline-none text-sm cursor-pointer"
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <label className="text-xs text-on-surface-variant font-bold">تاريخ العودة</label>
+                    <input
+                      type="date"
+                      required
+                      value={bookingEndDate}
+                      min={bookingStartDate || new Date().toISOString().split("T")[0]}
+                      onChange={(e) => setBookingEndDate(e.target.value)}
+                      className="w-full py-2.5 px-3 bg-surface-variant/30 border border-outline-variant/30 rounded-xl focus:border-secondary outline-none text-sm cursor-pointer"
+                    />
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={bookingLoading}
+                  className="w-full py-3 bg-secondary text-background font-bold rounded-xl hover:opacity-95 shadow-md btn-glow transition-all cursor-pointer text-center text-sm mt-4"
+                >
+                  {bookingLoading ? "جاري تسجيل الحجز..." : "تأكيد وإرسال طلب الحجز"}
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

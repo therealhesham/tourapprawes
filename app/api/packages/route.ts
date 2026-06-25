@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET() {
   try {
-    const bookings = await prisma.customizedPackage.findMany({
+    const packages = await prisma.companyPackage.findMany({
       include: {
         departingFlight: {
           include: {
@@ -16,30 +16,13 @@ export async function GET() {
             departedAirport: { include: { city: true } },
             arrivalAirport: { include: { city: true } },
           }
-        },
-        companyPackage: true,
+        }
       },
       orderBy: {
-        createdAt: "desc",
-      },
+        pricing: "asc"
+      }
     });
-    return NextResponse.json(bookings);
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
-}
-
-export async function DELETE(req: Request) {
-  try {
-    const { searchParams } = new URL(req.url);
-    const id = searchParams.get("id");
-
-    if (!id) {
-      return NextResponse.json({ error: "Missing id" }, { status: 400 });
-    }
-
-    await prisma.customizedPackage.delete({ where: { id } });
-    return NextResponse.json({ success: true });
+    return NextResponse.json(packages);
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

@@ -12,6 +12,7 @@ export async function POST(req: Request) {
       returningFlightId,
       pricing,
       cityStays,
+      companyPackageId,
     } = await req.json();
 
     if (!clientName || !clientPhone || !startDate || !endDate || pricing === undefined || !cityStays) {
@@ -28,6 +29,7 @@ export async function POST(req: Request) {
         returningFlightId: returningFlightId || null,
         pricing: Number(pricing),
         cityStays: cityStays, // Stored as a JSON object/array
+        companyPackageId: companyPackageId || null,
       },
     });
 

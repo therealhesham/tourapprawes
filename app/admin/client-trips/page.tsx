@@ -10,6 +10,7 @@ type Flight = {
   departedAirport: Airport;
   arrivalAirport: Airport;
 };
+type CompanyPackage = { id: string; name: string; title: string };
 type Booking = {
   id: string;
   clientName: string;
@@ -21,6 +22,7 @@ type Booking = {
   departingFlight?: Flight;
   returningFlight?: Flight;
   createdAt: string;
+  companyPackage?: CompanyPackage | null;
 };
 
 type City = { id: string; name: string };
@@ -156,7 +158,14 @@ export default function AdminClientTripsPage() {
               <tbody>
                 {bookings.map((booking) => (
                   <tr key={booking.id} className="border-b border-outline-variant/10 last:border-0 hover:bg-slate-50/50">
-                    <td className="py-4 font-bold text-primary">{booking.clientName}</td>
+                    <td className="py-4 font-bold text-primary">
+                      <div>{booking.clientName}</div>
+                      {booking.companyPackage && (
+                        <div className="text-xs text-secondary-bright font-black mt-1 bg-secondary/15 px-2 py-0.5 rounded inline-block">
+                          باقة جاهزة: {booking.companyPackage.name} ({booking.companyPackage.title})
+                        </div>
+                      )}
+                    </td>
                     <td className="py-4 text-slate-700">{booking.clientPhone}</td>
                     <td className="py-4 text-slate-700">
                       <div className="font-bold">{booking.startDate}</div>
@@ -202,7 +211,7 @@ export default function AdminClientTripsPage() {
             <h3 className="text-2xl font-bold text-primary mb-6 border-b border-slate-200 pb-4">تفاصيل حجز العميل</h3>
 
             <div className="space-y-6 text-slate-800">
-              {/* Customer Contact Card */}
+               {/* Customer Contact Card */}
               <div className="grid grid-cols-2 gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-100 text-sm">
                 <div>
                   <span className="text-slate-400 block mb-1">اسم العميل:</span>
@@ -212,6 +221,14 @@ export default function AdminClientTripsPage() {
                   <span className="text-slate-400 block mb-1">رقم الهاتف/الجوال:</span>
                   <span className="font-bold text-primary" dir="ltr">{selectedBooking.clientPhone}</span>
                 </div>
+                {selectedBooking.companyPackage && (
+                  <div className="col-span-2">
+                    <span className="text-slate-400 block mb-1">الباقة المحجوزة:</span>
+                    <span className="font-bold text-secondary-bright">
+                      {selectedBooking.companyPackage.name} - {selectedBooking.companyPackage.title}
+                    </span>
+                  </div>
+                )}
                 <div>
                   <span className="text-slate-400 block mb-1">تاريخ الذهاب:</span>
                   <span className="font-bold text-primary">{selectedBooking.startDate}</span>

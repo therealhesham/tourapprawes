@@ -72,6 +72,7 @@ model Flight {
   departedAirportId String             @map("departed_airport_id")
   departedAirport   SaudiAirport       @relation("SaudiDepartedFlights", fields: [departedAirportId], references: [id])
   customizedPackages CustomizedPackage[]
+  companyPackages    CompanyPackage[]   @relation("CompanyDepartingFlights")
 
   @@map("flights")
 }
@@ -99,6 +100,7 @@ model ReturningFlight {
   departedAirportId String             @map("departed_airport_id")
   departedAirport   DestinationAirport @relation("DestinationDepartedFlights", fields: [departedAirportId], references: [id])
   customizedPackages CustomizedPackage[]
+  companyPackages    CompanyPackage[]   @relation("CompanyReturningFlights")
 
   @@map("returning_flights")
 }
@@ -117,15 +119,36 @@ model CustomizedPackage {
   cityStays         Json             @map("city_stays")
   createdAt         DateTime         @default(now()) @map("created_at")
   packageItems      PackageItem[]
+  companyPackageId  String?          @map("company_package_id")
+  companyPackage    CompanyPackage?  @relation("CompanyPackageBookings", fields: [companyPackageId], references: [id])
 
   @@map("customized_packages")
 }
 
 model CompanyPackage {
-  id           String        @id @default(uuid())
-  name         String        @map("name")
-  pricing      Int           @map("pricing")
-  packageItems PackageItem[]
+  id              String        @id @default(uuid())
+  name            String        @map("name")
+  title           String        @map("title")
+  description     String        @db.Text @map("description")
+  pricing         Int           @map("pricing")
+  originalPricing Int?          @map("original_pricing")
+  days            String        @map("days")
+  image           String        @map("image")
+  popular         Boolean       @default(false) @map("popular")
+  rating          Int           @default(5) @map("rating")
+  reviews         Int           @default(0) @map("reviews")
+  features        Json          @map("features")
+  includesText    String        @map("includes_text")
+  countryCode     String?       @map("country_code")
+  destinationCode String?       @map("destination_code")
+  packageItems    PackageItem[]
+
+  departingFlightId String?          @map("departing_flight_id")
+  departingFlight   Flight?          @relation("CompanyDepartingFlights", fields: [departingFlightId], references: [id])
+  returningFlightId String?          @map("returning_flight_id")
+  returningFlight   ReturningFlight? @relation("CompanyReturningFlights", fields: [returningFlightId], references: [id])
+  cityStays         Json?            @map("city_stays")
+  bookings          CustomizedPackage[] @relation("CompanyPackageBookings")
 
   @@map("company_packages")
 }

@@ -4,9 +4,15 @@ import { PrismaMariaDb } from "@prisma/adapter-mariadb";
 const connectionString = process.env.DATABASE_URL || "";
 
 // Convert mysql:// protocol to mariadb:// for compatibility with the mariadb pool
-const cleanConnectionString = connectionString.startsWith("mysql://")
+let cleanConnectionString = connectionString.startsWith("mysql://")
   ? connectionString.replace("mysql://", "mariadb://")
   : connectionString;
+
+if (cleanConnectionString) {
+  cleanConnectionString += cleanConnectionString.includes("?")
+    ? "&connectTimeout=15000&acquireTimeout=20000"
+    : "?connectTimeout=15000&acquireTimeout=20000";
+}
 
 const adapter = new PrismaMariaDb(cleanConnectionString);
 

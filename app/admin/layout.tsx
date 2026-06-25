@@ -8,6 +8,7 @@ import Image from "next/image";
 const sidebarLinks = [
   { label: "لوحة التحكم", href: "/admin", icon: "dashboard" },
   { label: "رحلات العملاء", href: "/admin/client-trips", icon: "assignment" },
+  { label: "الباقات الجاهزة", href: "/admin/packages", icon: "card_travel" },
   { label: "الرحلات الدولية", href: "/admin/flights", icon: "flight_takeoff" },
   { label: "التنقلات الداخلية", href: "/admin/transports", icon: "directions_car" },
   { label: "المدن والوجهات", href: "/admin/cities", icon: "location_city" },
@@ -50,9 +51,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <Image
               src="/logo.png"
               alt="Rawaes Logo"
-              width={160}
-              height={55}
-              className="h-10 w-auto object-contain brightness-0 invert"
+              width={300}
+              height={80}
+              className="h-32 w-auto object-contain brightness-0 invert"
             />
           </Link>
         </div>
@@ -65,11 +66,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <Link
                 key={link.href}
                 href={link.href}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 font-bold ${
-                  isActive
-                    ? "bg-secondary text-on-secondary shadow-md"
-                    : "text-white/80 hover:bg-white/5 hover:text-white"
-                }`}
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 font-bold ${isActive
+                  ? "bg-secondary text-on-secondary shadow-md"
+                  : "text-white/80 hover:bg-white/5 hover:text-white"
+                  }`}
               >
                 <span className="material-symbols-outlined text-xl">{link.icon}</span>
                 <span>{link.label}</span>
