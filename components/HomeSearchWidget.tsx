@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 export default function HomeSearchWidget() {
@@ -8,6 +8,21 @@ export default function HomeSearchWidget() {
   const [country, setCountry] = useState("");
   const [duration, setDuration] = useState("");
   const [price, setPrice] = useState("");
+  const [dbCountries, setDbCountries] = useState<{ id: string; name: string }[]>([]);
+
+  useEffect(() => {
+    fetch("/api/admin/cities")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          const flattened = data.flatMap((dest: any) =>
+            dest.countries.map((c: any) => ({ id: c.id, name: c.name }))
+          );
+          setDbCountries(flattened);
+        }
+      })
+      .catch((err) => console.error("Error loading countries:", err));
+  }, []);
 
   const handleSearch = () => {
     const params = new URLSearchParams();
@@ -43,14 +58,9 @@ export default function HomeSearchWidget() {
                     className="w-full py-3 bg-surface-container-lowest border border-outline-variant/40 rounded-xl focus:border-secondary focus:ring-2 focus:ring-secondary/20 appearance-none font-body-md text-on-surface transition-all cursor-pointer outline-none "
                   >
                     <option value="">جميع الوجهات</option>
-                    <option value="malaysia">ماليزيا</option>
-                    <option value="maldives">المالديف</option>
-                    <option value="thailand">تايلاند</option>
-                    <option value="bosnia">البوسنة</option>
-                    <option value="albania">ألبانيا</option>
-                    <option value="georgia">جورجيا</option>
-                    <option value="egypt">مصر</option>
-                    <option value="morocco">المغرب</option>
+                    {dbCountries.map((c) => (
+                      <option key={c.id} value={c.id}>{c.name}</option>
+                    ))}
                   </select>
                 </div>
               </div>

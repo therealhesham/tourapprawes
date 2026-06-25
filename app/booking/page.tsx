@@ -18,6 +18,7 @@ export default function BookingPage() {
   const [filterDuration, setFilterDuration] = useState("");
   const [filterPrice, setFilterPrice] = useState("");
   const [showWizard, setShowWizard] = useState(false);
+  const [dbCountries, setDbCountries] = useState<{ id: string; name: string }[]>([]);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -30,12 +31,43 @@ export default function BookingPage() {
       if (durationParam) setFilterDuration(durationParam);
       if (priceParam) setFilterPrice(priceParam);
     }
+
+    // Fetch database countries
+    fetch("/api/admin/cities")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          const flattened = data.flatMap((dest: any) =>
+            dest.countries.map((c: any) => ({ id: c.id, name: c.name }))
+          );
+          setDbCountries(flattened);
+        }
+      })
+      .catch((err) => console.error("Error loading countries:", err));
   }, []);
 
-  const flatCountries = Object.values(allCountries).flat();
+  const getMockCountryKey = (countryIdOrUuid: string) => {
+    if (!countryIdOrUuid) return "";
+    const dbCountry = dbCountries.find((c) => c.id === countryIdOrUuid);
+    const countryName = dbCountry ? dbCountry.name : countryIdOrUuid;
+
+    const nameToMockKey: Record<string, string> = {
+      "المالديف": "maldives",
+      "جورجيا": "georgia",
+      "ألبانيا": "albania",
+      "مصر": "egypt",
+      "ماليزيا": "malaysia",
+      "تايلاند": "thailand",
+      "البوسنة": "bosnia",
+      "المغرب": "morocco"
+    };
+
+    return nameToMockKey[countryName] || countryIdOrUuid;
+  };
 
   const filteredPackages = mockPackages.filter((pkg) => {
-    if (filterCountry && pkg.country !== filterCountry) return false;
+    const resolvedCountryKey = getMockCountryKey(filterCountry);
+    if (filterCountry && pkg.country !== resolvedCountryKey) return false;
     if (filterCategory && pkg.category !== filterCategory) return false;
 
     if (filterDuration) {
@@ -101,7 +133,7 @@ export default function BookingPage() {
                     className="w-full py-3 bg-surface-container-lowest border border-outline-variant/40 rounded-xl text-on-surface focus:border-secondary outline-none text-sm transition-all"
                   >
                     <option value="">جميع الدول</option>
-                    {flatCountries.map((c) => (
+                    {dbCountries.map((c) => (
                       <option key={c.id} value={c.id}>{c.name}</option>
                     ))}
                   </select>

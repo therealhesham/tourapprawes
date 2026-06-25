@@ -1,13 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   continents,
   countries,
   cities as allCities,
   hotelCategories,
   transportMethods,
-  getSuggestedHotel,
 } from "../data/mockData";
 
 type CityStay = {
@@ -22,6 +21,8 @@ type BookingState = {
   includeFlight: boolean;
   flightClass?: string;
   flightEstimate?: number;
+  flightId?: string;
+  flightAirway?: string;
   cityStays: CityStay[];
   departureDate: string;
   departureAirport: string;
@@ -49,11 +50,119 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
     departureAirport: "",
   });
 
+  // Dynamic database states
+  const [dbCountries, setDbCountries] = useState<{ id: string; name: string }[]>([]);
+  const [dbCities, setDbCities] = useState<Record<string, { id: string; name: string; hasAirport: boolean }[]>>({});
+  const [dbAirports, setDbAirports] = useState<{ saudiAirports: any[]; destinationAirports: any[] }>({ saudiAirports: [], destinationAirports: [] });
+  const [dbFlights, setDbFlights] = useState<any[]>([]);
+  const [dbTransports, setDbTransports] = useState<any[]>([]);
+  const [dataLoading, setDataLoading] = useState(true);
+
+  // Form submission states
+  const [showContactForm, setShowContactForm] = useState(false);
+  const [clientName, setClientName] = useState("");
+  const [clientPhone, setClientPhone] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [bookingSuccess, setBookingSuccess] = useState(false);
+  const [bookingError, setBookingError] = useState("");
+
   // Transient state for the current city being added
   const [currentCity, setCurrentCity] = useState<Partial<CityStay>>({});
 
-  const flatCountries = Object.values(countries).flat();
-  const availableCities = state.country ? allCities[state.country] : [];
+  useEffect(() => {
+    const fetchCities = fetch("/api/admin/cities").then(res => res.json());
+    const fetchAirports = fetch("/api/admin/airports").then(res => res.json());
+    const fetchFlights = fetch("/api/admin/flights").then(res => res.json());
+    const fetchTransports = fetch("/api/admin/transports").then(res => res.json());
+
+    Promise.all([fetchCities, fetchAirports, fetchFlights, fetchTransports])
+      .then(([citiesData, airportsData, flightsData, transportsData]) => {
+        if (Array.isArray(citiesData)) {
+          const flattenedCountries: { id: string; name: string }[] = [];
+          const citiesRecord: Record<string, { id: string; name: string; hasAirport: boolean }[]> = {};
+
+          citiesData.forEach((dest: any) => {
+            dest.countries.forEach((country: any) => {
+              flattenedCountries.push({ id: country.id, name: country.name });
+              
+              const destinationAirports = airportsData?.destinationAirports || [];
+              citiesRecord[country.id] = country.cities.map((city: any) => {
+                const hasAirport = destinationAirports.some((a: any) => a.cityId === city.id);
+                return {
+                  id: city.id,
+                  name: city.name,
+                  hasAirport: hasAirport
+                };
+              });
+            });
+          });
+          
+          setDbCountries(flattenedCountries);
+          setDbCities(citiesRecord);
+        }
+
+        if (airportsData && !airportsData.error) {
+          setDbAirports(airportsData);
+        }
+
+        if (Array.isArray(flightsData)) {
+          setDbFlights(flightsData);
+        }
+
+        if (Array.isArray(transportsData)) {
+          setDbTransports(transportsData);
+        }
+
+        setDataLoading(false);
+      })
+      .catch(err => {
+        console.error("Error loading dynamic wizard data:", err);
+        setDataLoading(false);
+      });
+  }, []);
+
+  const getSuggestedHotel = (cityId: string, categoryId: string): string => {
+    // Dynamically retrieve the city from dbCities to construct hotel suggestion
+    let cityName = "المدينة";
+    if (state.country && dbCities[state.country]) {
+      const foundCity = dbCities[state.country].find(c => c.id === cityId);
+      if (foundCity) cityName = foundCity.name;
+    }
+
+    const cityNames: Record<string, string> = {
+      kuala_lumpur: "جراند حياة كوالالمبور",
+      langkawi: "منتجع ذا دانا لنكاوي",
+      cameron_highlands: "فندق كاميرون هايلاندز ريزورت",
+      male: "والدورف أستوريا المالديف",
+      bangkok: "فندق ماندارين أورينتال بانكوك",
+      phuket: "منتجع سري بانوا بوكيت",
+      sarajevo: "فندق سويس أوتيل سراييفو",
+      mostar: "فندق ميباس موستار",
+      tirana: "فندق بلازا تيرانا",
+      berat: "فندق كولومبو بيرات",
+      tbilisi: "فندق بيلتمور تبليسي",
+      batumi: "فندق راديسون بلو باتومي",
+      cairo: "فندق ريتز كارلتون النيل",
+      sharm: "منتجع فورسيزونز شرم الشيخ",
+      alexandria: "فندق فورسيزونز سان ستيفانو",
+      casablanca: "فندق فورسيزونز الدار البيضاء",
+      marrakesh: "فندق المامونية",
+    };
+
+    const baseName = cityNames[cityId] || `منتجع فاخر في ${cityName}`;
+    
+    switch(categoryId) {
+      case 'family': return baseName + " (جناح عائلي)";
+      case 'honeymoon': return baseName + " (جناح شهر العسل)";
+      case 'budget': return "فندق اقتصادي مميز";
+      case 'luxury': return baseName + " (إقامة فاخرة VIP)";
+      case 'auto':
+      default:
+        return baseName + " (اختيار روائس الموصى به)";
+    }
+  };
+
+  const availableCities = state.country ? dbCities[state.country] || [] : [];
 
   // Pricing constants and calculations
   const HOTEL_RATES: Record<string, number> = {
@@ -90,6 +199,11 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
 
   const transportCost = state.cityStays.reduce((sum, stay) => {
     if (stay.transportFromPrevious) {
+      if (stay.transportFromPrevious.startsWith("db_")) {
+        const transportId = stay.transportFromPrevious.replace("db_", "");
+        const transport = dbTransports.find(t => t.id === transportId);
+        return sum + (transport ? transport.approximatePrice : 0);
+      }
       return sum + (TRANSPORT_RATES[stay.transportFromPrevious] || 0);
     }
     return sum;
@@ -99,7 +213,7 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
   const totalEstimate = Math.round(flightCost + hotelCost + transportCost);
 
   const lastCityAdded = state.cityStays.length > 0
-    ? allCities[state.country]?.find((c) => c.id === state.cityStays[state.cityStays.length - 1].cityId)
+    ? availableCities.find((c) => c.id === state.cityStays[state.cityStays.length - 1].cityId)
     : null;
 
   const handleNextDestination = () => {
@@ -108,12 +222,14 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
     }
   };
 
-  const handleNextFlight = (include: boolean, fClass?: string, estimate?: number) => {
+  const handleNextFlight = (include: boolean, fClass?: string, estimate?: number, flightId?: string, flightAirway?: string) => {
     setState(prev => ({
       ...prev,
       includeFlight: include,
       flightClass: fClass || "",
-      flightEstimate: estimate || 0
+      flightEstimate: estimate || 0,
+      flightId: flightId || "",
+      flightAirway: flightAirway || ""
     }));
     setView("CITY_DETAILS");
   };
@@ -248,20 +364,26 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
               <label className="block font-label-sm text-secondary uppercase tracking-widest mb-3">
                 اختر الدولة
               </label>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {flatCountries.map((c) => (
-                  <button
-                    key={c.id}
-                    onClick={() => setState({ ...state, country: c.id })}
-                    className={`py-4 px-6 rounded-xl border transition-all duration-300 font-bold text-lg ${state.country === c.id
-                      ? "bg-secondary text-on-secondary border-secondary shadow-[0_0_15px_rgba(212,160,23,0.4)]"
-                      : "bg-surface-container-lowest text-on-surface border-outline-variant/40 hover:border-secondary/50 hover:bg-white/5"
-                      }`}
-                  >
-                    {c.name}
-                  </button>
-                ))}
-              </div>
+              {dataLoading ? (
+                <div className="flex justify-center items-center py-10">
+                  <div className="w-8 h-8 border-4 border-secondary border-t-transparent rounded-full animate-spin" />
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {dbCountries.map((c) => (
+                    <button
+                      key={c.id}
+                      onClick={() => setState({ ...state, country: c.id })}
+                      className={`py-4 px-6 rounded-xl border transition-all duration-300 font-bold text-lg ${state.country === c.id
+                        ? "bg-secondary text-on-secondary border-secondary shadow-[0_0_15px_rgba(212,160,23,0.4)]"
+                        : "bg-surface-container-lowest text-on-surface border-outline-variant/40 hover:border-secondary/50 hover:bg-white/5"
+                        }`}
+                    >
+                      {c.name}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="pt-6 flex justify-between">
@@ -283,124 +405,180 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
         )}
 
         {/* ─── VIEW 1.5: Flight Selection ─── */}
-        {view === "FLIGHT_SELECTION" && (
-          <div className="space-y-6 animate-fade-in-up">
-            <div>
-              <label className="block font-label-sm text-secondary uppercase tracking-widest mb-4">
-                هل ترغب في إضافة حجز طيران؟ (سعر تقديري)
-              </label>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <button
-                  onClick={() => handleNextFlight(true, "economy", 1800)}
-                  className="py-6 px-6 rounded-2xl border text-right transition-all duration-300 bg-surface-container-lowest text-on-surface border-outline-variant/40 hover:border-secondary/50 hover:bg-white/5 flex flex-col gap-2 cursor-pointer"
-                >
-                  <span className="font-bold text-lg text-primary">نعم، طيران اقتصادي (Economy)</span>
-                  <span className="text-secondary font-bold">سعر تقديري: 1,800 SAR للشخص</span>
-                  <span className="text-slate-500 text-sm">شاملاً الحقائب والخدمات الأساسية.</span>
-                </button>
+        {view === "FLIGHT_SELECTION" && (() => {
+          const countryFlights = dbFlights.filter((f) => f.countryId === state.country);
+          return (
+            <div className="space-y-6 animate-fade-in-up">
+              <div>
+                <label className="block font-label-sm text-secondary uppercase tracking-widest mb-4">
+                  {countryFlights.length > 0 
+                    ? "اختر من رحلات الطيران المتاحة لوجهتك:" 
+                    : "هل ترغب في إضافة حجز طيران؟ (سعر تقديري)"}
+                </label>
+                
+                {countryFlights.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {countryFlights.map((flight) => (
+                      <button
+                        key={flight.id}
+                        onClick={() => handleNextFlight(
+                          true,
+                          `درجة أساسية (${flight.airWayName})`,
+                          flight.approximatePrice,
+                          flight.id,
+                          flight.airWayName
+                        )}
+                        className="py-5 px-6 rounded-2xl border text-right transition-all duration-300 bg-surface-container-lowest text-on-surface border-outline-variant/40 hover:border-secondary/50 hover:bg-white/5 flex flex-col gap-2 cursor-pointer"
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="material-symbols-outlined text-secondary">flight_takeoff</span>
+                          <span className="font-bold text-lg text-primary">{flight.airWayName}</span>
+                        </div>
+                        <span className="text-slate-600 text-sm font-bold">
+                          {flight.departedAirport?.airportName} ({flight.departedAirport?.city?.name}) 
+                          ← {flight.arrivalAirport?.airportName} ({flight.arrivalAirport?.city?.name})
+                        </span>
+                        <span className="text-secondary font-black text-lg">{flight.approximatePrice} SAR</span>
+                      </button>
+                    ))}
+                    
+                    <button
+                      onClick={() => handleNextFlight(false, "", 0)}
+                      className="py-5 px-6 rounded-2xl border text-right transition-all duration-300 bg-surface-container-lowest text-on-surface border-outline-variant/40 hover:border-secondary/50 hover:bg-white/5 flex flex-col justify-center items-center gap-2 cursor-pointer border-dashed"
+                    >
+                      <span className="font-bold text-lg text-slate-500">بدون طيران</span>
+                      <span className="text-slate-400 text-sm">سأقوم بحجز الطيران الخارجي بنفسي.</span>
+                    </button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <button
+                      onClick={() => handleNextFlight(true, "economy", 1800, undefined, "طيران تقديري")}
+                      className="py-6 px-6 rounded-2xl border text-right transition-all duration-300 bg-surface-container-lowest text-on-surface border-outline-variant/40 hover:border-secondary/50 hover:bg-white/5 flex flex-col gap-2 cursor-pointer"
+                    >
+                      <span className="font-bold text-lg text-primary">نعم، طيران اقتصادي (Economy)</span>
+                      <span className="text-secondary font-bold">سعر تقديري: 1,800 SAR للشخص</span>
+                      <span className="text-slate-500 text-sm">شاملاً الحقائب والخدمات الأساسية.</span>
+                    </button>
 
-                <button
-                  onClick={() => handleNextFlight(true, "business", 4500)}
-                  className="py-6 px-6 rounded-2xl border text-right transition-all duration-300 bg-surface-container-lowest text-on-surface border-outline-variant/40 hover:border-secondary/50 hover:bg-white/5 flex flex-col gap-2 cursor-pointer"
-                >
-                  <span className="font-bold text-lg text-primary">نعم، درجة رجال الأعمال (Business)</span>
-                  <span className="text-secondary font-bold">سعر تقديري: 4,500 SAR للشخص</span>
-                  <span className="text-slate-500 text-sm">شاملاً الدخول للصالة والخدمات المميزة.</span>
-                </button>
+                    <button
+                      onClick={() => handleNextFlight(true, "business", 4500, undefined, "طيران تقديري")}
+                      className="py-6 px-6 rounded-2xl border text-right transition-all duration-300 bg-surface-container-lowest text-on-surface border-outline-variant/40 hover:border-secondary/50 hover:bg-white/5 flex flex-col gap-2 cursor-pointer"
+                    >
+                      <span className="font-bold text-lg text-primary">نعم، درجة رجال الأعمال (Business)</span>
+                      <span className="text-secondary font-bold">سعر تقديري: 4,500 SAR للشخص</span>
+                      <span className="text-slate-500 text-sm">شاملاً الدخول للصالة والخدمات المميزة.</span>
+                    </button>
 
+                    <button
+                      onClick={() => handleNextFlight(true, "first", 9000, undefined, "طيران تقديري")}
+                      className="py-6 px-6 rounded-2xl border text-right transition-all duration-300 bg-surface-container-lowest text-on-surface border-outline-variant/40 hover:border-secondary/50 hover:bg-white/5 flex flex-col gap-2 cursor-pointer"
+                    >
+                      <span className="font-bold text-lg text-primary">نعم، الدرجة الأولى (First Class)</span>
+                      <span className="text-secondary font-bold">سعر تقديري: 9,000 SAR للشخص</span>
+                      <span className="text-slate-500 text-sm">أقصى درجات الرفاهية والخصوصية.</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              <div className="pt-6 flex justify-between border-t border-slate-100">
                 <button
-                  onClick={() => handleNextFlight(true, "first", 9000)}
-                  className="py-6 px-6 rounded-2xl border text-right transition-all duration-300 bg-surface-container-lowest text-on-surface border-outline-variant/40 hover:border-secondary/50 hover:bg-white/5 flex flex-col gap-2 cursor-pointer"
+                  onClick={() => setView("SELECT_DESTINATION")}
+                  className="border border-slate-200 text-slate-700 hover:bg-slate-50 px-8 py-3 rounded-full font-bold uppercase transition-all"
                 >
-                  <span className="font-bold text-lg text-primary">نعم، الدرجة الأولى (First Class)</span>
-                  <span className="text-secondary font-bold">سعر تقديري: 9,000 SAR للشخص</span>
-                  <span className="text-slate-500 text-sm">أقصى درجات الرفاهية والخصوصية.</span>
+                  رجوع
                 </button>
               </div>
             </div>
-
-            <div className="pt-6 flex justify-between border-t border-slate-100">
-              <button
-                onClick={() => setView("SELECT_DESTINATION")}
-                className="border border-slate-200 text-slate-700 hover:bg-slate-50 px-8 py-3 rounded-full font-bold uppercase transition-all"
-              >
-                رجوع
-              </button>
-            </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* ─── VIEW 2: City Details ─── */}
-        {view === "CITY_DETAILS" && (
-          <div className="space-y-6">
-            {state.cityStays.length > 0 && (
+        {view === "CITY_DETAILS" && (() => {
+          const previousCityId = lastCityAdded?.id;
+          const targetCityId = currentCity.cityId;
+          const customTransports = dbTransports.filter(
+            (t) => t.cityId === previousCityId && t.arrivalCityId === targetCityId
+          );
+
+          return (
+            <div className="space-y-6">
+              {state.cityStays.length > 0 && (
+                <div>
+                  <label className="block font-label-sm text-secondary uppercase tracking-widest mb-3">
+                    وسيلة المواصلات من ({lastCityAdded?.name})
+                  </label>
+                  <select
+                    value={currentCity.transportFromPrevious || ""}
+                    onChange={(e) => setCurrentCity({ ...currentCity, transportFromPrevious: e.target.value })}
+                    className="w-full py-4 px-5 bg-surface-container-lowest border border-outline-variant/40 rounded-xl focus:border-secondary focus:ring-2 focus:ring-secondary/20 text-on-surface outline-none"
+                  >
+                    <option value="">اختر وسيلة المواصلات...</option>
+                    {customTransports.map((t) => (
+                      <option key={t.id} value={`db_${t.id}`}>
+                        {t.transportationName} ({t.approximatePrice} SAR) [موصى به]
+                      </option>
+                    ))}
+                    {transportMethods.map((m) => (
+                      <option key={m.id} value={m.id}>
+                        {m.name} (تقديري: {TRANSPORT_RATES[m.id]} SAR)
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
               <div>
                 <label className="block font-label-sm text-secondary uppercase tracking-widest mb-3">
-                  وسيلة المواصلات من ({lastCityAdded?.name})
+                  المدينة
                 </label>
                 <select
-                  value={currentCity.transportFromPrevious || ""}
-                  onChange={(e) => setCurrentCity({ ...currentCity, transportFromPrevious: e.target.value })}
-                  className="w-full py-4 px-5 bg-surface-container-lowest border border-outline-variant/40 rounded-xl focus:border-secondary focus:ring-2 focus:ring-secondary/20 text-on-surface outline-none"
+                  value={currentCity.cityId || ""}
+                  onChange={(e) => setCurrentCity({ ...currentCity, cityId: e.target.value })}
+                  className="w-full py-4  bg-surface-container-lowest border border-outline-variant/40 rounded-xl focus:border-secondary focus:ring-2 focus:ring-secondary/20 text-on-surface outline-none"
                 >
-                  <option value="">اختر وسيلة المواصلات...</option>
-                  {transportMethods.map((m) => (
-                    <option key={m.id} value={m.id}>{m.name}</option>
+                  <option value="">اختر المدينة...</option>
+                  {availableCities.filter(c => !state.cityStays.find(s => s.cityId === c.id)).map((c) => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
                   ))}
                 </select>
               </div>
-            )}
 
-            <div>
-              <label className="block font-label-sm text-secondary uppercase tracking-widest mb-3">
-                المدينة
-              </label>
-              <select
-                value={currentCity.cityId || ""}
-                onChange={(e) => setCurrentCity({ ...currentCity, cityId: e.target.value })}
-                className="w-full py-4  bg-surface-container-lowest border border-outline-variant/40 rounded-xl focus:border-secondary focus:ring-2 focus:ring-secondary/20 text-on-surface outline-none"
-              >
-                <option value="">اختر المدينة...</option>
-                {availableCities.filter(c => !state.cityStays.find(s => s.cityId === c.id)).map((c) => (
-                  <option key={c.id} value={c.id}>{c.name}</option>
-                ))}
-              </select>
-            </div>
+              <div>
+                <label className="block font-label-sm text-secondary uppercase tracking-widest mb-3">
+                  فئة الفندق
+                </label>
+                <select
+                  value={currentCity.hotelCategory || ""}
+                  onChange={(e) => setCurrentCity({ ...currentCity, hotelCategory: e.target.value })}
+                  className="w-full py-4 px-5 bg-surface-container-lowest border border-outline-variant/40 rounded-xl focus:border-secondary focus:ring-2 focus:ring-secondary/20 text-on-surface outline-none"
+                >
+                  <option value="">اختر فئة الفندق...</option>
+                  {hotelCategories.map((c) => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
+                </select>
+              </div>
 
-            <div>
-              <label className="block font-label-sm text-secondary uppercase tracking-widest mb-3">
-                فئة الفندق
-              </label>
-              <select
-                value={currentCity.hotelCategory || ""}
-                onChange={(e) => setCurrentCity({ ...currentCity, hotelCategory: e.target.value })}
-                className="w-full py-4 px-5 bg-surface-container-lowest border border-outline-variant/40 rounded-xl focus:border-secondary focus:ring-2 focus:ring-secondary/20 text-on-surface outline-none"
-              >
-                <option value="">اختر فئة الفندق...</option>
-                {hotelCategories.map((c) => (
-                  <option key={c.id} value={c.id}>{c.name}</option>
-                ))}
-              </select>
+              <div className="pt-6 flex justify-between">
+                <button
+                  onClick={() => state.cityStays.length === 0 ? setView("FLIGHT_SELECTION") : setView("ADD_MORE_PROMPT")}
+                  className="border border-slate-200 text-slate-700 hover:bg-slate-50 px-8 py-3 rounded-full font-bold uppercase transition-all"
+                >
+                  رجوع
+                </button>
+                <button
+                  onClick={handleNextCityDetails}
+                  disabled={!currentCity.cityId || !currentCity.hotelCategory || (state.cityStays.length > 0 && !currentCity.transportFromPrevious)}
+                  className="gold-shimmer bg-primary text-background px-10 py-3 rounded-full font-bold uppercase tracking-widest btn-glow disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                >
+                  تأكيد المدينة
+                </button>
+              </div>
             </div>
-
-            <div className="pt-6 flex justify-between">
-              <button
-                onClick={() => state.cityStays.length === 0 ? setView("FLIGHT_SELECTION") : setView("ADD_MORE_PROMPT")}
-                className="border border-slate-200 text-slate-700 hover:bg-slate-50 px-8 py-3 rounded-full font-bold uppercase transition-all"
-              >
-                رجوع
-              </button>
-              <button
-                onClick={handleNextCityDetails}
-                disabled={!currentCity.cityId || !currentCity.hotelCategory || (state.cityStays.length > 0 && !currentCity.transportFromPrevious)}
-                className="gold-shimmer bg-primary text-background px-10 py-3 rounded-full font-bold uppercase tracking-widest btn-glow disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-              >
-                تأكيد المدينة
-              </button>
-            </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* ─── VIEW 3: Add More Prompt ─── */}
         {view === "ADD_MORE_PROMPT" && (
@@ -500,7 +678,7 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
               <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8 text-slate-800 border-b border-slate-200/60 pb-6">
                 <div>
                   <p className="text-sm text-slate-500 mb-1 uppercase tracking-widest">الوجهة</p>
-                  <p className="font-bold text-lg text-primary">{flatCountries.find(c => c.id === state.country)?.name}</p>
+                  <p className="font-bold text-lg text-primary">{dbCountries.find(c => c.id === state.country)?.name}</p>
                 </div>
                 <div>
                   <p className="text-sm text-slate-500 mb-1 uppercase tracking-widest">تاريخ البدء</p>
@@ -516,12 +694,11 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
                 </div>
                 <div>
                   <p className="text-sm text-slate-500 mb-1 uppercase tracking-widest">حجز الطيران</p>
-                  <p className="font-bold text-lg text-primary">
+                  <p className="font-bold text-lg text-primary col-span-2 sm:col-span-1">
                     {state.includeFlight ? (
                       <span>
-                        {state.flightClass === "economy" && "اقتصادي"}
-                        {state.flightClass === "business" && "رجال أعمال"}
-                        {state.flightClass === "first" && "درجة أولى"}
+                        {state.flightAirway || "طيران"} 
+                        <span className="text-xs text-slate-500 block">({state.flightClass || "أساسي"})</span>
                         <span className="text-secondary block text-xs mt-0.5">({state.flightEstimate} SAR)</span>
                       </span>
                     ) : (
@@ -536,16 +713,27 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
                 {state.cityStays.map((stay, idx) => {
                   const city = availableCities.find(c => c.id === stay.cityId);
                   const hotel = hotelCategories.find(h => h.id === stay.hotelCategory);
-                  const transport = transportMethods.find(t => t.id === stay.transportFromPrevious);
+                  
+                  let transportName = "";
+                  if (stay.transportFromPrevious) {
+                    if (stay.transportFromPrevious.startsWith("db_")) {
+                      const transportId = stay.transportFromPrevious.replace("db_", "");
+                      const dbT = dbTransports.find(t => t.id === transportId);
+                      transportName = dbT ? dbT.transportationName : "مواصلات مخصصة";
+                    } else {
+                      const staticT = transportMethods.find(t => t.id === stay.transportFromPrevious);
+                      transportName = staticT ? staticT.name : "";
+                    }
+                  }
 
                   return (
                     <div key={idx} className="relative pl-6 md:pl-0 pr-6 border-r-2 border-secondary/30 pb-6 last:pb-0">
                       <div className="absolute top-0 -right-[9px] w-4 h-4 rounded-full bg-secondary shadow-[0_0_10px_rgba(212,160,23,1)]" />
 
-                      {idx > 0 && transport && (
+                      {idx > 0 && transportName && (
                         <div className="mb-4 text-sm text-secondary-bright font-bold flex items-center gap-2">
                           <span className="material-symbols-outlined text-base">directions_car</span>
-                          وسيلة النقل: {transport.name}
+                          وسيلة النقل: {transportName}
                         </div>
                       )}
 
@@ -576,7 +764,7 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 text-sm text-slate-700">
                   {state.includeFlight && (
                     <div className="bg-white p-3 rounded-xl border border-slate-100 flex justify-between items-center shadow-sm">
-                      <span>تذاكر الطيران ({state.flightClass === "economy" ? "اقتصادي" : state.flightClass === "business" ? "رجال أعمال" : "درجة أولى"}):</span>
+                      <span>تذاكر الطيران ({state.flightAirway}):</span>
                       <span className="font-bold text-primary">{state.flightEstimate} SAR</span>
                     </div>
                   )}
@@ -609,16 +797,13 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
             <div className="flex justify-between items-center">
               <button
                 onClick={() => setView("DEPARTURE_INFO")}
-                className="text-slate-700 hover:text-secondary transition-colors font-bold uppercase"
+                className="text-slate-700 hover:text-secondary transition-colors font-bold uppercase cursor-pointer"
               >
                 تعديل التفاصيل
               </button>
               <button
-                onClick={() => {
-                  alert("تم إرسال طلب الحجز بنجاح!");
-                  if (onClose) onClose();
-                }}
-                className="gold-shimmer bg-gradient-to-l from-primary to-primary/80 border border-slate-200 text-on-primary px-12 py-4 rounded-full font-bold text-lg uppercase tracking-widest btn-glow transition-all"
+                onClick={() => setShowContactForm(true)}
+                className="gold-shimmer bg-gradient-to-l from-primary to-primary/80 border border-slate-200 text-on-primary px-12 py-4 rounded-full font-bold text-lg uppercase tracking-widest btn-glow transition-all cursor-pointer"
               >
                 تأكيد الحجز والدفع
               </button>
@@ -626,6 +811,128 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
           </div>
         )}
       </div>
+
+      {/* Contact Form Overlay */}
+      {showContactForm && !bookingSuccess && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-primary/80 backdrop-blur-md">
+          <div className="w-full max-w-md bg-white rounded-3xl p-6 md:p-8 shadow-2xl relative border border-slate-200 text-right animate-zoom-in" dir="rtl">
+            <h3 className="text-xl font-bold text-primary mb-4 flex items-center gap-2">
+              <span className="material-symbols-outlined text-secondary">contact_phone</span>
+              معلومات الاتصال للحجز
+            </h3>
+            <p className="text-sm text-slate-600 mb-6">
+              يرجى إدخال اسمك ورقم جوالك لنقوم بحفظ مسار رحلتك والتواصل معك لتأكيد الحجوزات.
+            </p>
+
+            {bookingError && (
+              <div className="p-3 bg-red-50 border border-red-200 text-red-600 rounded-xl text-sm font-bold mb-4">
+                {bookingError}
+              </div>
+            )}
+
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                setIsSubmitting(true);
+                setBookingError("");
+
+                try {
+                  const res = await fetch("/api/booking", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      clientName,
+                      clientPhone,
+                      startDate: state.startDate,
+                      endDate: state.departureDate,
+                      departingFlightId: state.flightId || null,
+                      returningFlightId: null, // Can map returning flight if needed
+                      pricing: totalEstimate,
+                      cityStays: state.cityStays,
+                    }),
+                  });
+                  const data = await res.json();
+                  if (data.error) {
+                    setBookingError(data.error);
+                  } else {
+                    setBookingSuccess(true);
+                  }
+                } catch (err) {
+                  setBookingError("حدث خطأ أثناء إرسال الطلب. يرجى المحاولة لاحقاً.");
+                } finally {
+                  setIsSubmitting(false);
+                }
+              }}
+              className="space-y-4"
+            >
+              <div className="flex flex-col gap-2">
+                <label className="text-xs text-secondary font-bold">الاسم بالكامل</label>
+                <input
+                  type="text"
+                  required
+                  value={clientName}
+                  onChange={(e) => setClientName(e.target.value)}
+                  className="w-full py-3 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:border-secondary outline-none text-sm"
+                  placeholder="مثال: محمد أحمد"
+                />
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <label className="text-xs text-secondary font-bold">رقم الجوال</label>
+                <input
+                  type="tel"
+                  required
+                  value={clientPhone}
+                  onChange={(e) => setClientPhone(e.target.value)}
+                  className="w-full py-3 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:border-secondary outline-none text-sm text-left"
+                  placeholder="05xxxxxxxx"
+                  dir="ltr"
+                />
+              </div>
+
+              <div className="pt-4 flex justify-between gap-4">
+                <button
+                  type="button"
+                  onClick={() => setShowContactForm(false)}
+                  className="border border-slate-200 text-slate-700 hover:bg-slate-50 px-6 py-3 rounded-xl font-bold text-sm cursor-pointer transition-all flex-1"
+                >
+                  إلغاء
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="gold-shimmer bg-primary text-background px-6 py-3 rounded-xl font-bold text-sm cursor-pointer disabled:opacity-50 transition-all flex-1 flex items-center justify-center gap-2"
+                >
+                  {isSubmitting ? "جاري الإرسال..." : "إرسال الطلب"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Booking Success Screen */}
+      {bookingSuccess && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-primary/80 backdrop-blur-md">
+          <div className="w-full max-w-md bg-white rounded-3xl p-8 shadow-2xl text-center border border-slate-200 animate-zoom-in" dir="rtl">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 text-green-500">
+              <span className="material-symbols-outlined text-4xl">check_circle</span>
+            </div>
+            <h3 className="text-2xl font-bold text-primary mb-3">تم إرسال طلبك بنجاح!</h3>
+            <p className="text-slate-600 mb-8 leading-relaxed">
+              شكراً لك {clientName}. تم حفظ برنامج رحلتك المخصص بـ {totalEstimate.toLocaleString()} SAR. سيتواصل معك مستشار السفر لدينا قريباً عبر الرقم {clientPhone} لمراجعة التفاصيل وتأكيد الحجز.
+            </p>
+            <button
+              onClick={() => {
+                if (onClose) onClose();
+              }}
+              className="gold-shimmer bg-primary text-background w-full py-3 rounded-xl font-bold text-base cursor-pointer"
+            >
+              إغلاق النافذة
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

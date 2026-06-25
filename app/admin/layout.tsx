@@ -7,6 +7,7 @@ import Image from "next/image";
 
 const sidebarLinks = [
   { label: "لوحة التحكم", href: "/admin", icon: "dashboard" },
+  { label: "رحلات العملاء", href: "/admin/client-trips", icon: "assignment" },
   { label: "الرحلات الدولية", href: "/admin/flights", icon: "flight_takeoff" },
   { label: "التنقلات الداخلية", href: "/admin/transports", icon: "directions_car" },
   { label: "المدن والوجهات", href: "/admin/cities", icon: "location_city" },

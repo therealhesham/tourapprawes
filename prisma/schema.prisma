@@ -21,6 +21,7 @@ model Country {
   destination   Destination @relation(fields: [destinationId], references: [id])
   cities        City[]
   flights       Flight[]
+  returningFlights ReturningFlight[]
 
   @@map("countries")
 }
@@ -44,6 +45,7 @@ model SaudiAirport {
   cityId      String   @map("city_id")
   city        City     @relation(fields: [cityId], references: [id])
   flights     Flight[] @relation("SaudiDepartedFlights")
+  returningFlights ReturningFlight[] @relation("SaudiArrivalFlights")
 
   @@map("saudi_airports")
 }
@@ -54,6 +56,7 @@ model DestinationAirport {
   cityId      String   @map("city_id")
   city        City     @relation(fields: [cityId], references: [id])
   flights     Flight[] @relation("DestinationArrivalFlights")
+  returningFlights ReturningFlight[] @relation("DestinationDepartedFlights")
 
   @@map("destination_airports")
 }
@@ -68,6 +71,7 @@ model Flight {
   arrivalAirport    DestinationAirport @relation("DestinationArrivalFlights", fields: [arrivalAirportId], references: [id])
   departedAirportId String             @map("departed_airport_id")
   departedAirport   SaudiAirport       @relation("SaudiDepartedFlights", fields: [departedAirportId], references: [id])
+  customizedPackages CustomizedPackage[]
 
   @@map("flights")
 }
@@ -82,4 +86,57 @@ model InternalTransport {
   arrivalCity        City   @relation("ArrivalCity", fields: [arrivalCityId], references: [id])
 
   @@map("internal_transports")
+}
+
+model ReturningFlight {
+  id                String             @id @default(uuid())
+  countryId         String             @map("country_id")
+  country           Country            @relation(fields: [countryId], references: [id])
+  approximatePrice  Int                @map("approximate_price")
+  airWayName        String             @map("air_way_name")
+  arrivalAirportId  String             @map("arrival_airport_id")
+  arrivalAirport    SaudiAirport       @relation("SaudiArrivalFlights", fields: [arrivalAirportId], references: [id])
+  departedAirportId String             @map("departed_airport_id")
+  departedAirport   DestinationAirport @relation("DestinationDepartedFlights", fields: [departedAirportId], references: [id])
+  customizedPackages CustomizedPackage[]
+
+  @@map("returning_flights")
+}
+
+model CustomizedPackage {
+  id                String           @id @default(uuid())
+  clientName        String           @map("client_name")
+  clientPhone       String           @map("client_phone")
+  startDate         String           @map("start_date")
+  endDate           String           @map("end_date")
+  departingFlightId String?          @map("departing_flight_id")
+  departingFlight   Flight?          @relation(fields: [departingFlightId], references: [id])
+  returningFlightId String?          @map("returning_flight_id")
+  returningFlight   ReturningFlight? @relation(fields: [returningFlightId], references: [id])
+  pricing           Int              @map("pricing")
+  cityStays         Json             @map("city_stays")
+  createdAt         DateTime         @default(now()) @map("created_at")
+  packageItems      PackageItem[]
+
+  @@map("customized_packages")
+}
+
+model CompanyPackage {
+  id           String        @id @default(uuid())
+  name         String        @map("name")
+  pricing      Int           @map("pricing")
+  packageItems PackageItem[]
+
+  @@map("company_packages")
+}
+
+model PackageItem {
+  id                  String             @id @default(uuid())
+  flightId            String?            @map("flight_id")
+  customizedPackageId String?            @map("customized_package_id")
+  customizedPackage   CustomizedPackage? @relation(fields: [customizedPackageId], references: [id])
+  companyPackageId    String?            @map("company_package_id")
+  companyPackage      CompanyPackage?    @relation(fields: [companyPackageId], references: [id])
+
+  @@map("package_items")
 }
