@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
+import Navbar from "@/components/Navbar";
 
 interface Option {
   value: string;
@@ -354,15 +355,23 @@ export default function PackagesPage() {
     });
 
   return (
-    <main className="min-h-screen bg-background pb-20 font-body-md">
-      
-      {/* Search Header Banner */}
-      <section className="bg-primary pt-24 pb-12 px-6 relative">
+    <>
+      <Navbar
+        activeLinkId="tours"
+        primaryCtaText="صمم رحلتك المخصصة"
+        onPrimaryCtaClick={() => {
+          window.location.href = "/booking?showWizard=true";
+        }}
+      />
+      <main className="min-h-screen bg-background pb-20 font-body-md">
+        
+        {/* Search Header Banner */}
+        <section className="bg-background pt-48 md:pt-56 pb-12 px-6 relative">
         <div className="absolute inset-0 opacity-10 overflow-hidden pointer-events-none">
           <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full bg-secondary blur-3xl"></div>
         </div>
         <div className="w-full max-w-[var(--spacing-container-max)] mx-auto relative z-10">
-          <h1 className="text-3xl md:text-4xl font-bold text-white mb-8 text-center">ابحث عن رحلتك القادمة</h1>
+          <h1 className="text-3xl md:text-4xl font-bold text-primary mb-8 text-center">ابحث عن رحلتك القادمة</h1>
           
           {/* Elegant Search Bar */}
           <div className="bg-surface p-4 md:p-6 rounded-2xl shadow-2xl w-full mx-auto grid grid-cols-1 md:grid-cols-2 xl:grid-cols-6 gap-5 items-center relative z-20">
@@ -488,7 +497,7 @@ export default function PackagesPage() {
               />
               <div className="flex justify-between text-xs text-on-surface-variant mt-2">
                 <span>1,000 ر.س</span>
-                <span className="font-bold text-secondary">{maxPrice.toLocaleString()} ر.س</span>
+                <span className="font-bold text-secondary">{maxPrice.toLocaleString("en-US")} ر.س</span>
               </div>
             </div>
 
@@ -829,5 +838,6 @@ export default function PackagesPage() {
         </div>
       )}
     </main>
+    </>
   );
 }
