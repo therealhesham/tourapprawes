@@ -145,7 +145,7 @@ export default async function Home() {
         </div>
 
         {/* Hero Content */}
-        <div className="relative z-20 text-center px-margin-mobile md:px-margin-desktop max-w-5xl mx-auto pb-40">
+        <div className="relative z-20 text-center px-margin-mobile md:px-margin-desktop max-w-5xl mx-auto pb-20 sm:pb-28 md:pb-40">
           {/* Brand Logo in Hero */}
           <div className="flex justify-center mb-10 animate-fade-in-up">
             <Image
@@ -153,7 +153,7 @@ export default async function Home() {
               alt="Rawaes Logo"
               width={550}
               height={187}
-              className="h-36 md:h-48 w-auto object-contain"
+              className="h-24 sm:h-32 md:h-48 w-auto object-contain"
               priority
             />
           </div>
@@ -228,29 +228,33 @@ export default async function Home() {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-black/45" />
 
-                  {/* LTR Layout container overlay for absolute alignment to match reference image */}
-                  <div className="absolute inset-0 p-7 z-10 select-none pointer-events-none" dir="ltr">
+                  {/* LTR Layout container overlay to match reference image with responsive flexbox layout */}
+                  <div className="absolute inset-0 p-6 sm:p-7 z-10 select-none pointer-events-none flex flex-col justify-between" dir="ltr">
                     {/* Top Info */}
-                    <div className="absolute top-7 left-7 text-left text-shadow-subtle">
-                      <span className="text-2xl font-bold text-white tracking-wide">{pkg.name}</span>
-                      <span className="text-sm font-medium text-white/80 block mt-1">{pkg.title}</span>
-                    </div>
-                    <div className="absolute top-7 right-7 glass-dark text-white/90 px-3 py-1 rounded-full font-label-sm text-label-sm uppercase tracking-wider border border-white/20">
-                      {pkg.days}
+                    <div className="flex justify-between items-start w-full gap-4">
+                      <div className="text-left text-shadow-subtle">
+                        <span className="text-xl sm:text-2xl font-bold text-white tracking-wide block leading-tight">{pkg.name}</span>
+                        <span className="text-xs sm:text-sm font-medium text-white/80 block mt-1 leading-normal">{pkg.title}</span>
+                      </div>
+                      <div className="glass-dark text-white/90 px-3 py-1 rounded-full font-label-sm text-label-sm uppercase tracking-wider border border-white/20 shrink-0">
+                        {pkg.days}
+                      </div>
                     </div>
 
                     {/* Bottom Info */}
-                    <div className="absolute bottom-7 left-7 pointer-events-auto bg-white/10 hover:bg-white/20 text-white w-10 h-10 rounded-full flex items-center justify-center border border-white/20 transition-all duration-300 group-hover:scale-110">
-                      <span className="material-symbols-outlined text-lg">arrow_forward</span>
-                    </div>
+                    <div className="flex justify-between items-end w-full gap-4 pt-4">
+                      <div className="pointer-events-auto bg-white/10 hover:bg-white/20 text-white w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center border border-white/20 transition-all duration-300 group-hover:scale-110 shrink-0">
+                        <span className="material-symbols-outlined text-base sm:text-lg">arrow_forward</span>
+                      </div>
 
-                    <div className="absolute bottom-7 right-7 text-right text-shadow-subtle">
-                      <span className="block text-[10px] font-semibold text-white/70 uppercase tracking-widest">
-                        تبدأ من
-                      </span>
-                      <span className="block text-3xl font-extrabold text-white tracking-tight mt-0.5">
-                        {pkg.pricing.toLocaleString("en-US")} <span className="text-base font-normal text-secondary-bright">SAR</span>
-                      </span>
+                      <div className="text-right text-shadow-subtle">
+                        <span className="block text-[10px] font-semibold text-white/70 uppercase tracking-widest">
+                          تبدأ من
+                        </span>
+                        <span className="block text-2xl sm:text-3xl font-extrabold text-white tracking-tight mt-0.5">
+                          {pkg.pricing.toLocaleString("en-US")} <span className="text-xs sm:text-base font-normal text-secondary-bright">SAR</span>
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </article>

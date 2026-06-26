@@ -94,7 +94,7 @@ function ElegantDatePicker({ label, icon }: { label: string, icon: string }) {
         </div>
 
         {isOpen && (
-          <div className="absolute top-[calc(100%+8px)] right-0 w-[calc(100vw-32px)] md:w-[320px] p-5 bg-surface border border-outline-variant/20 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] animate-fade-in-up origin-top cursor-default" onClick={e => e.stopPropagation()}>
+          <div className="absolute top-[calc(100%+8px)] left-1/2 -translate-x-1/2 md:left-auto md:translate-x-0 md:right-0 w-[calc(100vw-48px)] md:w-[320px] p-5 bg-surface border border-outline-variant/20 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] animate-fade-in-up origin-top cursor-default" onClick={e => e.stopPropagation()}>
             <div className="flex flex-col gap-5">
               <div>
                 <label className="text-xs font-bold text-on-surface-variant mb-2 block">تاريخ المغادرة</label>
@@ -151,6 +151,7 @@ export default function PackagesPage() {
   const [maxPrice, setMaxPrice] = useState(20000);
   const [selectedRatings, setSelectedRatings] = useState<number[]>([]);
   const [sortBy, setSortBy] = useState("price_asc");
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
   const [selectedPackageToBook, setSelectedPackageToBook] = useState<any | null>(null);
   const [dbCities, setDbCities] = useState<any[]>([]);
@@ -455,8 +456,23 @@ export default function PackagesPage() {
 
           {/* Left Sidebar - Filters */}
           <aside className="w-full lg:w-1/4">
-            <div className="bg-surface rounded-2xl border border-outline-variant/30 p-6 sticky top-24">
-              <h3 className="font-bold text-lg mb-6 pb-4 border-b border-outline-variant/30 flex items-center gap-2">
+            {/* Mobile Filter Toggle Button */}
+            <button
+              onClick={() => setIsFiltersOpen(!isFiltersOpen)}
+              className="lg:hidden w-full mb-4 bg-surface border border-outline-variant/30 text-primary py-3.5 px-6 rounded-2xl font-bold flex items-center justify-between shadow-sm cursor-pointer"
+            >
+              <span className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-secondary">tune</span>
+                تصفية النتائج
+              </span>
+              <span className="material-symbols-outlined text-outline transition-transform duration-300">
+                {isFiltersOpen ? "expand_less" : "expand_more"}
+              </span>
+            </button>
+
+            {/* Collapsible Content */}
+            <div className={`${isFiltersOpen ? "block" : "hidden"} lg:block bg-surface rounded-2xl border border-outline-variant/30 p-6 sticky top-24`}>
+              <h3 className="hidden lg:flex font-bold text-lg mb-6 pb-4 border-b border-outline-variant/30 items-center gap-2">
                 <span className="material-symbols-outlined text-secondary">tune</span>
                 تصفية النتائج
               </h3>
@@ -602,7 +618,7 @@ export default function PackagesPage() {
 
                     {/* Content Section */}
                     <div className={`p-6 flex flex-col justify-between flex-1 ${viewMode === "list" ? "sm:p-6" : "p-6"}`}>
-                      <div className={`flex justify-between gap-4 h-full ${viewMode === "list" ? "flex-col md:flex-row" : "flex-col"}`}>
+                      <div className={`flex justify-between gap-4 h-full ${viewMode === "list" ? "flex-col sm:flex-row" : "flex-col"}`}>
                         <div className="flex-1">
                           <div className="flex items-center gap-1 text-on-surface-variant text-xs mb-2">
                             <span className="material-symbols-outlined text-[14px] text-secondary">location_on</span>
@@ -637,14 +653,14 @@ export default function PackagesPage() {
                         </div>
 
                         {/* Price & Action Section */}
-                        <div className={`flex flex-col items-start md:items-end justify-center pt-4 md:pt-0 ${viewMode === "list" ? "border-t md:border-t-0 md:border-r border-outline-variant/30 md:pr-6 md:min-w-[200px]" : "border-t border-outline-variant/30 mt-auto"}`}>
-                          <div className="w-full flex md:flex-col justify-between items-end md:items-end mb-4">
+                        <div className={`flex flex-col items-start sm:items-end justify-center pt-4 sm:pt-0 ${viewMode === "list" ? "border-t sm:border-t-0 sm:border-r border-outline-variant/30 sm:pr-6 sm:min-w-[200px]" : "border-t border-outline-variant/30 mt-auto"}`}>
+                          <div className="w-full flex sm:flex-col justify-between items-end sm:items-end mb-4">
                             <div className="text-right w-full">
                               <p className="text-xs font-bold text-on-surface-variant mb-1 uppercase tracking-wider">يبدأ من</p>
                               {dest.originalPrice && (
                                 <p className="text-sm text-outline line-through decoration-error decoration-2">{dest.originalPrice} ر.س</p>
                               )}
-                              <div className="flex items-baseline gap-1 mb-1 justify-end md:justify-start flex-row-reverse md:flex-row">
+                              <div className="flex items-baseline gap-1 mb-1 justify-end sm:justify-start flex-row-reverse sm:flex-row">
                                 <span className="text-3xl font-black text-on-surface tracking-tight">{dest.price}</span>
                                 <span className="text-on-surface-variant font-bold text-sm">ر.س</span>
                               </div>

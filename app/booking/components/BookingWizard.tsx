@@ -364,8 +364,8 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
       )}
 
       {/* Progress Tracker / Title */}
-      <div className="mb-10 text-center">
-        <h2 className="font-headline-lg text-headline-lg text-primary mb-2">
+      <div className="mb-10 text-center px-8 sm:px-0">
+        <h2 className="text-xl sm:text-2xl md:font-headline-lg md:text-headline-lg font-bold text-primary mb-2">
           {view === "SUMMARY" ? "ملخص الحجز" : "صمم رحلتك"}
         </h2>
         <p className="font-body-md text-slate-600">
@@ -449,12 +449,12 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
                   <div className="w-8 h-8 border-4 border-secondary border-t-transparent rounded-full animate-spin" />
                 </div>
               ) : (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
                   {dbCountries.map((c) => (
                     <button
                       key={c.id}
                       onClick={() => setState({ ...state, country: c.id })}
-                      className={`py-4 px-6 rounded-xl border transition-all duration-300 font-bold text-lg ${state.country === c.id
+                      className={`py-3 px-3 md:py-4 md:px-6 rounded-xl border transition-all duration-300 font-bold text-base md:text-lg ${state.country === c.id
                         ? "bg-secondary text-on-secondary border-secondary shadow-[0_0_15px_rgba(212,160,23,0.4)]"
                         : "bg-surface-container-lowest text-on-surface border-outline-variant/40 hover:border-secondary/50 hover:bg-white/5"
                         }`}
@@ -752,7 +752,7 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
                 تفاصيل الرحلة
               </h3>
 
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8 text-slate-800 border-b border-slate-200/60 pb-6">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-8 text-slate-800 border-b border-slate-200/60 pb-6">
                 <div>
                   <p className="text-sm text-slate-500 mb-1 uppercase tracking-widest">الوجهة</p>
                   <p className="font-bold text-lg text-primary">{dbCountries.find(c => c.id === state.country)?.name}</p>

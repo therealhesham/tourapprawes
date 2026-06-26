@@ -34,7 +34,7 @@ export default function HomeSearchWidget() {
   };
 
   return (
-    <section className="relative z-30 -mt-36 md:-mt-44 px-margin-mobile md:px-margin-desktop">
+    <section className="relative z-30 -mt-12 sm:-mt-24 md:-mt-44 px-margin-mobile md:px-margin-desktop">
       <div className="max-w-container-max mx-auto">
         <div className="glass-panel rounded-2xl shadow-2xl overflow-hidden border border-white/60">
           {/* Top accent bar */}
