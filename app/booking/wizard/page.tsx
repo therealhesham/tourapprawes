@@ -15,7 +15,7 @@ export default function WizardPage() {
           }
         }}
       />
-      <main className="min-h-screen bg-background pb-20 pt-32 md:pt-40 font-body-md" dir="rtl">
+      <main className="relative min-h-screen overflow-x-hidden bg-background pb-20 pt-32 md:pt-40 font-body-md" dir="rtl">
         {/* Background Decorative Elements */}
         <div className="absolute top-0 right-0 w-full h-[50vh] bg-gradient-to-b from-primary/5 to-transparent pointer-events-none -z-10" />
         <div className="absolute top-1/4 right-1/4 w-96 h-96 rounded-full blur-[150px] opacity-15 pointer-events-none -z-10"
