@@ -1,285 +1,276 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
 
-import Navbar from "@/components/Navbar";
-import {
-  continents,
-  countries as allCountries,
-  hotelCategories,
-  mockPackages,
-  type TourPackage,
-} from "./data/mockData";
-
-export default function BookingPage() {
-  const [filterCountry, setFilterCountry] = useState("");
-  const [filterCategory, setFilterCategory] = useState("");
-  const [filterDuration, setFilterDuration] = useState("");
-  const [filterPrice, setFilterPrice] = useState("");
-
-  const [dbCountries, setDbCountries] = useState<{ id: string; name: string }[]>([]);
+export default function MyBookingsPage() {
+  const [activeTab, setActiveTab] = useState("upcoming");
+  const [bookings, setBookings] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const params = new URLSearchParams(window.location.search);
-      const countryParam = params.get("country");
-      const durationParam = params.get("duration");
-      const priceParam = params.get("price");
-
-      if (countryParam) setFilterCountry(countryParam);
-      if (durationParam) setFilterDuration(durationParam);
-      if (priceParam) setFilterPrice(priceParam);
-    }
-
-    // Fetch database countries
-    fetch("/api/admin/cities")
-      .then((res) => res.json())
-      .then((data) => {
+    fetch("/api/booking")
+      .then(res => res.json())
+      .then(data => {
         if (Array.isArray(data)) {
-          const flattened = data.flatMap((dest: any) =>
-            dest.countries.map((c: any) => ({ id: c.id, name: c.name }))
-          );
-          setDbCountries(flattened);
+          const formatted = data.map(b => {
+            // Determine if upcoming or past
+            const start = new Date(b.startDate);
+            const now = new Date();
+            const type = start >= now ? "upcoming" : "past";
+
+            return {
+              id: b.id.substring(0, 8).toUpperCase(), // Short ID
+              destination: b.companyPackage?.countryCode || "وجهة مخصصة",
+              title: b.companyPackage?.name || "رحلة مخصصة",
+              image: b.companyPackage?.image || "/images/default.jpg",
+              startDate: b.startDate,
+              endDate: b.endDate,
+              duration: b.companyPackage?.days ? `${b.companyPackage.days} أيام` : "مخصصة",
+              status: type === "upcoming" ? "مؤكد" : "مكتمل", // Simplified status for demo
+              price: b.pricing.toLocaleString("en-US"),
+              persons: 2, // Assuming default 2 for demo if not in schema
+              type: type
+            };
+          });
+          setBookings(formatted);
         }
       })
-      .catch((err) => console.error("Error loading countries:", err));
+      .catch(err => console.error("Error loading bookings:", err))
+      .finally(() => setLoading(false));
   }, []);
 
-  const getMockCountryKey = (countryIdOrUuid: string) => {
-    if (!countryIdOrUuid) return "";
-    const dbCountry = dbCountries.find((c) => c.id === countryIdOrUuid);
-    const countryName = dbCountry ? dbCountry.name : countryIdOrUuid;
+  const filteredBookings = bookings.filter(b => b.type === activeTab);
 
-    const nameToMockKey: Record<string, string> = {
-      "المالديف": "maldives",
-      "جورجيا": "georgia",
-      "ألبانيا": "albania",
-      "مصر": "egypt",
-      "ماليزيا": "malaysia",
-      "تايلاند": "thailand",
-      "البوسنة": "bosnia",
-      "المغرب": "morocco"
-    };
-
-    return nameToMockKey[countryName] || countryIdOrUuid;
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "مؤكد":
+        return "bg-green-100 text-green-700 border-green-200";
+      case "قيد المراجعة":
+        return "bg-yellow-100 text-yellow-700 border-yellow-200";
+      case "مكتمل":
+        return "bg-gray-100 text-gray-700 border-gray-200";
+      case "ملغى":
+        return "bg-red-100 text-red-700 border-red-200";
+      default:
+        return "bg-blue-100 text-blue-700 border-blue-200";
+    }
   };
 
-  const filteredPackages = mockPackages.filter((pkg) => {
-    const resolvedCountryKey = getMockCountryKey(filterCountry);
-    if (filterCountry && pkg.country !== resolvedCountryKey) return false;
-    if (filterCategory && pkg.category !== filterCategory) return false;
-
-    if (filterDuration) {
-      if (filterDuration === "short" && pkg.duration > 5) return false;
-      if (filterDuration === "medium" && (pkg.duration < 6 || pkg.duration > 9)) return false;
-      if (filterDuration === "long" && pkg.duration < 10) return false;
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case "مؤكد": return "check_circle";
+      case "قيد المراجعة": return "pending";
+      case "مكتمل": return "task_alt";
+      case "ملغى": return "cancel";
+      default: return "info";
     }
-
-    if (filterPrice) {
-      if (filterPrice === "low" && pkg.price > 5000) return false;
-      if (filterPrice === "medium" && (pkg.price <= 5000 || pkg.price > 8000)) return false;
-      if (filterPrice === "high" && pkg.price <= 8000) return false;
-    }
-
-    return true;
-  });
+  };
 
   return (
-    <>
-      <Navbar
-        activeLinkId="tours"
-        primaryCtaText="صمم رحلتك"
-        onPrimaryCtaClick={() => {
-          if (typeof window !== "undefined") window.location.href = "/booking/wizard";
+    <div className="min-h-screen bg-white relative overflow-hidden flex flex-col" dir="rtl" style={{ fontFamily: 'inherit' }}>
+      {/* ─── Background Pattern ─────────────────────────────────────── */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+
+          backgroundSize: '100% 100%, 100% 100%, 100% 100%, 40px 40px, 40px 40px',
+          backgroundPosition: 'center center',
+          zIndex: 0
         }}
       />
 
-      {/* ─── Main Content ─── */}
-      <main className="relative min-h-screen pt-44 md:pt-48 pb-20 overflow-hidden bg-background">
-        {/* Background Overlay */}
-        <div className="absolute inset-0 z-0">
-          <Image
-            alt="Luxury Travel Destinations"
-            src="https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=1920&q=80"
-            fill
-            className="object-cover opacity-20 grayscale-30"
-            priority
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-white/95 via-background/90 to-background" />
+      {/* ─── Navbar ─────────────────────────────────────────────────── */}
+      <nav className="relative z-50 pt-6 px-6 md:px-12 flex-shrink-0">
+        <div className="max-w-[1400px] mx-auto flex justify-between items-center bg-white/80 backdrop-blur-md py-4 px-6 rounded-full shadow-[0_4px_30px_rgba(0,0,0,0.03)] border border-gray-100">
+
+          {/* Logo */}
+          <div className="flex items-center">
+            <Link href="/" className="text-2xl font-black text-primary tracking-wide flex items-center gap-2">
+              <span className="text-xl">معاون</span>
+              <span>MOAWEN</span>
+            </Link>
+          </div>
+
+          {/* Navigation Links */}
+          <div className="hidden md:flex items-center gap-8">
+            <Link href="/" className="flex items-center gap-2 text-gray-500 hover:text-primary font-medium text-sm transition-colors">
+              <span className="material-symbols-outlined text-[18px]">home</span>
+              الرئيسية
+            </Link>
+            <Link href="/packages" className="flex items-center gap-2 text-gray-500 hover:text-primary font-medium text-sm transition-colors">
+              <span className="material-symbols-outlined text-[18px]">travel_explore</span>
+              الباقات
+            </Link>
+            <Link href="/booking" className="flex items-center gap-2 text-primary font-bold text-sm bg-gray-100 px-4 py-2 rounded-full">
+              <span className="material-symbols-outlined text-[18px]">luggage</span>
+              حجوزاتي
+            </Link>
+            <Link href="#" className="flex items-center gap-2 text-gray-500 hover:text-primary font-medium text-sm transition-colors">
+              <span className="material-symbols-outlined text-[18px]">favorite</span>
+              المفضلة
+            </Link>
+            <Link href="#" className="flex items-center gap-2 text-gray-500 hover:text-primary font-medium text-sm transition-colors">
+              <span className="material-symbols-outlined text-[18px]">person</span>
+              حسابي
+            </Link>
+          </div>
+
+          {/* Gold Membership Button */}
+          <div className="flex items-center">
+
+          </div>
         </div>
+      </nav>
 
-        {/* Orbs */}
-        <div className="absolute top-1/4 right-1/4 w-96 h-96 rounded-full blur-[150px] opacity-15 pointer-events-none"
-          style={{ background: "radial-gradient(circle, #d4a017, transparent 70%)" }}
-        />
-        <div className="absolute bottom-1/4 left-1/4 w-72 h-72 rounded-full blur-[150px] opacity-10 pointer-events-none"
-          style={{ background: "radial-gradient(circle, #c9a84c, transparent 70%)" }}
-        />
+      {/* ─── Header ─────────────────────────────────────────────────── */}
+      <section className="relative z-10 pt-16 pb-8 text-center px-4">
+        <div className="flex justify-center items-center gap-2 mb-2">
+          <h1 className="text-3xl md:text-4xl font-black text-primary">حجوزاتي</h1>
+          <span className="material-symbols-outlined text-primary text-4xl">luggage</span>
+        </div>
+        <p className="text-gray-500 font-medium">تابع رحلاتك القادمة والسابقة من مكان واحد</p>
+      </section>
 
-        <div className="relative z-20 w-full max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+      {/* ─── Tabs ───────────────────────────────────────────────────── */}
+      <section className="relative z-20 mb-10 flex justify-center">
+        <div className="bg-gray-50 p-1 rounded-full border border-gray-100 shadow-sm flex">
+          <button
+            onClick={() => setActiveTab("upcoming")}
+            className={`px-8 py-2.5 rounded-full text-sm font-bold transition-all ${activeTab === "upcoming"
+              ? "bg-white text-primary shadow-[0_2px_10px_rgba(46,49,146,0.1)]"
+              : "text-gray-500 hover:text-primary"
+              }`}
+          >
+            حجوزات قادمة
+          </button>
+          <button
+            onClick={() => setActiveTab("past")}
+            className={`px-8 py-2.5 rounded-full text-sm font-bold transition-all ${activeTab === "past"
+              ? "bg-white text-primary shadow-[0_2px_10px_rgba(46,49,146,0.1)]"
+              : "text-gray-500 hover:text-primary"
+              }`}
+          >
+            حجوزات سابقة
+          </button>
+        </div>
+      </section>
 
+      {/* ─── Bookings List ─────────────────────────────────────────── */}
+      <main className="relative z-10 max-w-[900px] mx-auto w-full px-6 pb-24 flex-grow">
+        {loading ? (
+          <div className="flex justify-center items-center py-20">
+            <div className="w-12 h-12 border-4 border-gray-200 border-primary rounded-full animate-spin" />
+          </div>
+        ) : filteredBookings.length > 0 ? (
+          <div className="space-y-6">
+            {filteredBookings.map((booking) => (
+              <div key={booking.id} className="bg-white rounded-3xl overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.04)] border border-gray-100 flex flex-col md:flex-row transition-all duration-300 hover:shadow-[0_8px_30px_rgba(28,0,198,0.08)]">
 
-          {/* ─── Search Widget ─── */}
-          <section className="mb-14" dir="rtl">
-            <div className="glass-panel rounded-2xl shadow-xl border border-outline-variant/30 p-6 md:p-8">
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-                {/* Country */}
-                <div className="flex flex-col gap-2">
-                  <label className="text-xs text-secondary font-bold uppercase tracking-wider">
-                    الدولة
-                  </label>
-                  <select
-                    value={filterCountry}
-                    onChange={(e) => setFilterCountry(e.target.value)}
-                    className="w-full py-3 bg-surface-container-lowest border border-outline-variant/40 rounded-xl text-on-surface focus:border-secondary outline-none text-sm transition-all"
-                  >
-                    <option value="">جميع الدول</option>
-                    {dbCountries.map((c) => (
-                      <option key={c.id} value={c.id}>{c.name}</option>
-                    ))}
-                  </select>
+                {/* Image */}
+                <div className="relative w-full md:w-64 h-48 md:h-auto flex-shrink-0">
+                  <Image
+                    src={booking.image}
+                    alt={booking.title}
+                    fill
+                    className="object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-4 md:hidden">
+                    <h3 className="text-white text-lg font-bold">{booking.title}</h3>
+                  </div>
                 </div>
 
-                {/* Category */}
-                <div className="flex flex-col gap-2">
-                  <label className="text-xs text-secondary font-bold uppercase tracking-wider">
-                    التصنيف
-                  </label>
-                  <select
-                    value={filterCategory}
-                    onChange={(e) => setFilterCategory(e.target.value)}
-                    className="w-full py-3  bg-surface-container-lowest border border-outline-variant/40 rounded-xl text-on-surface focus:border-secondary outline-none text-sm transition-all"
-                  >
-                    <option value="">جميع التصنيفات</option>
-                    {hotelCategories.filter(h => h.id !== "auto").map((h) => (
-                      <option key={h.id} value={h.id}>{h.name}</option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Duration */}
-                <div className="flex flex-col gap-2">
-                  <label className="text-xs text-secondary font-bold uppercase tracking-wider">
-                    المدة
-                  </label>
-                  <select
-                    value={filterDuration}
-                    onChange={(e) => setFilterDuration(e.target.value)}
-                    className="w-full py-3  bg-surface-container-lowest border border-outline-variant/40 rounded-xl text-on-surface focus:border-secondary outline-none text-sm transition-all"
-                  >
-                    <option value="">أي مدة</option>
-                    <option value="short">رحلة قصيرة (≤ 5 أيام)</option>
-                    <option value="medium">رحلة متوسطة (6 - 9 أيام)</option>
-                    <option value="long">رحلة طويلة (≥ 10 أيام)</option>
-                  </select>
-                </div>
-
-                {/* Price */}
-                <div className="flex flex-col gap-2">
-                  <label className="text-xs text-secondary font-bold uppercase tracking-wider">
-                    الميزانية (SAR)
-                  </label>
-                  <select
-                    value={filterPrice}
-                    onChange={(e) => setFilterPrice(e.target.value)}
-                    className="w-full py-3  bg-surface-container-lowest border border-outline-variant/40 rounded-xl text-on-surface focus:border-secondary outline-none text-sm transition-all"
-                  >
-                    <option value="">جميع الميزانيات</option>
-                    <option value="low">اقتصادية (≤ 5,000)</option>
-                    <option value="medium">متوسطة (5,000 - 8,000)</option>
-                    <option value="high">فاخرة VIP (≥ 8,000)</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* ─── Packages Display Section ─── */}
-          <section className="w-full">
-            {filteredPackages.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" dir="rtl">
-                {filteredPackages.map((pkg) => (
-                  <article
-                    key={pkg.id}
-                    className="card-hover group cursor-pointer relative rounded-3xl overflow-hidden aspect-[3/4] shadow-2xl border border-white/10 transition-all duration-500"
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      alt={pkg.title}
-                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
-                      src={pkg.image}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-black/30" />
-
-                    {/* Layout contents */}
-                    <div className="absolute inset-0 p-6 z-10 flex flex-col justify-between" dir="ltr">
-                      {/* Top Info */}
-                      <div className="flex justify-between items-start">
-                        <div className="text-left text-shadow-subtle">
-                          <span className="text-xl font-extrabold text-white tracking-wide block uppercase">
-                            {pkg.continent}
-                          </span>
-                          <span className="text-xs font-semibold text-secondary-bright">
-                            {pkg.country.toUpperCase()}
-                          </span>
-                        </div>
-                        <div className="glass-dark text-white/90 px-3 py-1 rounded-full text-xs font-bold border border-white/20">
-                          {pkg.duration} أيام
-                        </div>
+                {/* Details */}
+                <div className="p-6 flex-grow flex flex-col justify-between">
+                  <div>
+                    <div className="flex justify-between items-start mb-2">
+                      <div className="hidden md:block">
+                        <p className="text-gray-400 text-xs font-bold mb-1 tracking-widest">{booking.destination}</p>
+                        <h3 className="text-primary text-xl font-bold">{booking.title}</h3>
                       </div>
 
-                      {/* Bottom Info */}
-                      <div className="text-right text-shadow-strong space-y-2">
-                        <span className="block text-xs font-bold text-white/60 uppercase tracking-widest">
-                          {hotelCategories.find(h => h.id === pkg.category)?.name || pkg.category}
-                        </span>
-                        <h3 className="text-lg font-bold text-white leading-tight">
-                          {pkg.title}
-                        </h3>
-                        <div className="flex justify-between items-end pt-2">
-                          <button
-                            onClick={() => alert(`تم تحديد حجز ${pkg.title}!`)}
-                            className="bg-white/10 hover:bg-white/20 text-white w-9 h-9 rounded-full flex items-center justify-center border border-white/20 transition-all duration-300 transform group-hover:scale-110"
-                          >
-                            <span className="material-symbols-outlined text-base">arrow_forward</span>
-                          </button>
-                          <span className="block text-2xl font-black text-white tracking-tight">
-                            {pkg.price.toLocaleString("en-US")} <span className="text-xs font-normal text-secondary-bright">SAR</span>
-                          </span>
-                        </div>
+                      {/* Status Badge */}
+                      <div className={`flex items-center gap-1 px-3 py-1.5 rounded-full border text-xs font-bold ${getStatusColor(booking.status)}`}>
+                        <span className="material-symbols-outlined text-[16px]">{getStatusIcon(booking.status)}</span>
+                        {booking.status}
                       </div>
                     </div>
-                  </article>
-                ))}
+
+                    <div className="grid grid-cols-2 gap-4 mt-4 mb-4 md:mb-0 bg-gray-50/50 p-3 rounded-xl border border-gray-100">
+                      <div>
+                        <p className="text-gray-400 text-xs font-semibold mb-1">رقم الحجز</p>
+                        <p className="text-primary font-bold text-sm" dir="ltr">{booking.id}</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-400 text-xs font-semibold mb-1">التاريخ</p>
+                        <p className="text-gray-700 font-bold text-sm">{booking.startDate}</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-400 text-xs font-semibold mb-1">المدة</p>
+                        <p className="text-gray-700 font-bold text-sm flex items-center gap-1">
+                          {booking.duration}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-gray-400 text-xs font-semibold mb-1">المسافرون</p>
+                        <p className="text-gray-700 font-bold text-sm flex items-center gap-1">
+                          {booking.persons} أشخاص
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Footer of Card */}
+                  <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-100">
+                    <div>
+                      <p className="text-gray-400 text-xs font-semibold mb-1">إجمالي المبلغ</p>
+                      <div>
+                        <span className="text-primary font-black text-xl">{booking.price}</span>
+                        <span className="text-primary font-bold text-xs ml-1">ريال</span>
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <button className="bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-900 px-4 py-2 rounded-lg font-bold text-sm transition-colors flex items-center gap-1">
+                        <span className="material-symbols-outlined text-[18px]">receipt_long</span>
+                        الفاتورة
+                      </button>
+                      <button className="bg-primary text-white hover:bg-[#1e1b4b] px-4 py-2 rounded-lg font-bold text-sm transition-colors flex items-center gap-1">
+                        <span className="material-symbols-outlined text-[18px]">confirmation_number</span>
+                        التذكرة
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
-            ) : (
-              /* ─── Create Your Own Trip (No Results) ─── */
-              <div className="text-center py-16 px-6 glass-panel rounded-3xl border border-outline-variant/30 max-w-2xl mx-auto animate-fade-in-up" dir="rtl">
-                <span className="material-symbols-outlined text-6xl text-secondary mb-4 animate-bounce">
-                  travel_explore
-                </span>
-                <h3 className="text-2xl font-bold text-primary mb-3">
-                  لم نجد عروضاً تطابق خيارات بحثك الحالية
-                </h3>
-                <p className="text-slate-600 mb-8 max-w-md mx-auto">
-                  لا تقلق، يمكنك تصميم رحلتك المخصصة تماماً بالمدينة والفنادق وخط السير المناسب لك بكامل الحرية وبثوانٍ معدودة!
-                </p>
-                <button
-                  onClick={() => {
-                    if (typeof window !== "undefined") window.location.href = "/booking/wizard";
-                  }}
-                  className="gold-shimmer bg-primary text-background px-10 py-4 rounded-full font-bold text-lg uppercase tracking-widest btn-glow transition-all"
-                >
-                  صمم رحلتك  الآن
-                </button>
-              </div>
-            )}
-          </section>
-        </div>
+            ))}
+          </div>
+        ) : (
+          /* Empty State */
+          <div className="text-center py-20 px-6 bg-white rounded-3xl border border-gray-100 shadow-[0_4px_30px_rgba(0,0,0,0.03)] max-w-2xl mx-auto">
+            <span className="material-symbols-outlined text-6xl text-gray-300 mb-4 block">
+              event_busy
+            </span>
+            <h3 className="text-xl font-bold text-[#1C00C6] mb-2">
+              لا توجد {activeTab === "upcoming" ? "حجوزات قادمة" : "حجوزات سابقة"}
+            </h3>
+            <p className="text-gray-500 mb-8 text-sm">
+              لم تقم بأي حجوزات حتى الآن. استكشف باقاتنا الرائعة وابدأ التخطيط لرحلتك القادمة!
+            </p>
+            <Link
+              href="/packages"
+              className="inline-block bg-primary text-white hover:bg-primary-container px-8 py-3 rounded-full font-bold text-sm transition-colors shadow-lg shadow-primary/20"
+            >
+              استكشف الباقات
+            </Link>
+          </div>
+        )}
       </main>
 
-
-    </>
+      {/* Footer */}
+      <footer className="text-center py-8 text-gray-400 text-sm border-t border-gray-100 flex-shrink-0 bg-white/50 backdrop-blur-sm mt-auto">
+        © {new Date().getFullYear()} معاون MOAWEN - جميع الحقوق محفوظة
+      </footer>
+    </div>
   );
 }

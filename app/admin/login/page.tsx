@@ -57,7 +57,7 @@ export default function LoginPage() {
               alt="Rawaes Logo"
               width={240}
               height={82}
-              className="h-16 w-auto object-contain"
+              className="h-24 w-auto object-contain logo-custom-color"
             />
           </div>
 

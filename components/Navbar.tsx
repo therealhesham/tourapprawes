@@ -45,9 +45,9 @@ export default function Navbar({
             <Image
               src="/logo.png"
               alt="Rawaes Logo"
-              width={340}
-              height={116}
-              className="h-10 sm:h-12 md:h-20 w-auto object-contain opacity-95 hover:opacity-100 transition-opacity"
+              width={450}
+              height={153}
+              className="h-[60px] sm:h-[80px] md:h-[110px] w-auto object-contain opacity-95 hover:opacity-100 transition-opacity logo-custom-color"
             />
           </Link>
 
