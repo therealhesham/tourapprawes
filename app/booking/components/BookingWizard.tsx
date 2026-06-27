@@ -382,7 +382,7 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
                 <div className="w-8 h-8 border-4 border-secondary border-t-transparent rounded-full animate-spin" />
               </div>
             ) : (
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
                 {dbCountries.map((c) => (
                   <button
                     key={c.id}
@@ -548,7 +548,7 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
                     <div className="mt-6 pt-6 border-t border-slate-200 flex justify-end">
                       <button
                         onClick={() => setCitiesConfirmed(true)}
-                        className="gold-shimmer bg-primary text-background px-8 py-3 rounded-xl font-bold uppercase tracking-widest btn-glow transition-all"
+                        className="gold-shimmer bg-primary text-background w-full sm:w-auto px-4 sm:px-8 py-3 rounded-xl font-bold uppercase tracking-widest text-sm sm:text-base btn-glow transition-all"
                       >
                         إنهاء خط السير والمتابعة للملخص
                       </button>
@@ -645,7 +645,7 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
               ملخص الحجز
             </h3>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 mb-8 pb-6 border-b border-white/20">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 pb-6 border-b border-white/20 text-center sm:text-right">
               <div>
                 <p className="text-sm text-white/60 mb-1">الوجهة</p>
                 <p className="font-bold text-lg">{dbCountries.find(c => c.id === state.country)?.name}</p>
