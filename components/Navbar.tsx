@@ -99,9 +99,9 @@ export default function Navbar({
                 {primaryCtaText}
               </button>
             ) : (
-              <button className="gold-shimmer bg-primary text-background px-4 py-2 sm:px-6 sm:py-2.5 md:px-8 md:py-3 rounded-full font-bold text-sm sm:text-base md:text-lg uppercase tracking-widest btn-glow">
+              <Link href="/packages" className="gold-shimmer bg-primary text-background px-4 py-2 sm:px-6 sm:py-2.5 md:px-8 md:py-3 rounded-full font-bold text-sm sm:text-base md:text-lg uppercase tracking-widest btn-glow inline-block text-center">
                 {primaryCtaText}
-              </button>
+              </Link>
             )}
 
             {/* Hamburger Button */}

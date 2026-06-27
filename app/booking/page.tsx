@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import BookingWizard from "./components/BookingWizard";
+
 import Navbar from "@/components/Navbar";
 import {
   continents,
@@ -17,7 +17,7 @@ export default function BookingPage() {
   const [filterCategory, setFilterCategory] = useState("");
   const [filterDuration, setFilterDuration] = useState("");
   const [filterPrice, setFilterPrice] = useState("");
-  const [showWizard, setShowWizard] = useState(false);
+
   const [dbCountries, setDbCountries] = useState<{ id: string; name: string }[]>([]);
 
   useEffect(() => {
@@ -90,7 +90,9 @@ export default function BookingPage() {
       <Navbar
         activeLinkId="tours"
         primaryCtaText="صمم رحلتك"
-        onPrimaryCtaClick={() => setShowWizard(true)}
+        onPrimaryCtaClick={() => {
+          if (typeof window !== "undefined") window.location.href = "/booking/wizard";
+        }}
       />
 
       {/* ─── Main Content ─── */}
@@ -264,7 +266,9 @@ export default function BookingPage() {
                   لا تقلق، يمكنك تصميم رحلتك المخصصة تماماً بالمدينة والفنادق وخط السير المناسب لك بكامل الحرية وبثوانٍ معدودة!
                 </p>
                 <button
-                  onClick={() => setShowWizard(true)}
+                  onClick={() => {
+                    if (typeof window !== "undefined") window.location.href = "/booking/wizard";
+                  }}
                   className="gold-shimmer bg-primary text-background px-10 py-4 rounded-full font-bold text-lg uppercase tracking-widest btn-glow transition-all"
                 >
                   صمم رحلتك  الآن
@@ -275,14 +279,7 @@ export default function BookingPage() {
         </div>
       </main>
 
-      {/* ─── Wizard Overlay / Modal ─── */}
-      {showWizard && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-primary/80 backdrop-blur-md overflow-y-auto">
-          <div className="w-full max-w-4xl my-8 animate-zoom-in">
-            <BookingWizard onClose={() => setShowWizard(false)} />
-          </div>
-        </div>
-      )}
+
     </>
   );
 }

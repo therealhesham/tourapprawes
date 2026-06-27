@@ -361,7 +361,7 @@ export default function PackagesPage() {
         activeLinkId="packages"
         primaryCtaText="صمم رحلتك"
         onPrimaryCtaClick={() => {
-          window.location.href = "/booking?showWizard=true";
+          window.location.href = "/booking/wizard";
         }}
       />
       <main className="min-h-screen bg-background pb-20 font-body-md">
