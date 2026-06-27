@@ -120,8 +120,8 @@ export default async function Home() {
       <section className="relative z-10 pt-24 pb-20 px-6 md:px-12">
         <div className="max-w-[1200px] mx-auto text-center mb-12">
           <div className="flex justify-center items-center gap-2 mb-2">
-            <h2 className="text-2xl md:text-3xl font-black text-primary">عروض الحصرية</h2>
-            <span className="material-symbols-outlined text-primary text-3xl">auto_awesome</span>
+            <h2 className="text-2xl md:text-3xl font-black text-primary">باقاتنا المميزة</h2>
+            {/* <span className="material-symbols-outlined text-primary text-3xl">auto_awesome</span> */}
           </div>
           <p className="text-gray-500 font-medium">مجموعة مخصصة لأروع وجهات السفر الفخمة في العالم</p>
         </div>
