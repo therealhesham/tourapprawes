@@ -391,9 +391,9 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
                       setFlightConfirmed(false); // reset subsequent steps
                       setCitiesConfirmed(false);
                     }}
-                    className={`py-3 px-3 md:py-4 md:px-6 rounded-xl border transition-all duration-300 font-bold text-base md:text-lg ${state.country === c.id
-                      ? "bg-secondary text-on-secondary border-secondary shadow-[0_0_15px_rgba(212,160,23,0.4)]"
-                      : "bg-surface-container-lowest text-on-surface border-outline-variant/40 hover:border-secondary/50 hover:bg-white/5"
+                    className={`py-3 px-3 md:py-4 md:px-6 rounded-xl border transition-all duration-300 text-base md:text-lg ${state.country === c.id
+                      ? "gold-shimmer bg-primary text-white border-primary shadow-lg ring-2 ring-secondary/50 font-black"
+                      : "bg-surface-container-lowest text-on-surface border-outline-variant/40 hover:border-secondary/50 hover:bg-white/5 font-bold"
                       }`}
                   >
                     {c.name}
