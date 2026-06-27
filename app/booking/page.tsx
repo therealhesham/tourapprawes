@@ -89,7 +89,7 @@ export default function BookingPage() {
     <>
       <Navbar
         activeLinkId="tours"
-        primaryCtaText="صمم رحلتك المخصصة"
+        primaryCtaText="صمم رحلتك"
         onPrimaryCtaClick={() => setShowWizard(true)}
       />
 
@@ -267,7 +267,7 @@ export default function BookingPage() {
                   onClick={() => setShowWizard(true)}
                   className="gold-shimmer bg-primary text-background px-10 py-4 rounded-full font-bold text-lg uppercase tracking-widest btn-glow transition-all"
                 >
-                  صمم رحلتك بنفسك الآن
+                  صمم رحلتك  الآن
                 </button>
               </div>
             )}

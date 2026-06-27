@@ -21,6 +21,7 @@ interface NavbarProps {
 
 const DEFAULT_LINKS: NavLink[] = [
   { label: "رئيسية", href: "/", id: "home" },
+  { label: "الباقات", href: "/packages", id: "packages" },
   { label: "وجهات", href: "/#destinations", id: "destinations" },
   { label: "اتصل بنا", href: "/#contact", id: "contact" },
 ];

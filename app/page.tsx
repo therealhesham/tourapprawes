@@ -21,14 +21,14 @@ export default async function Home() {
         {/* Deep luxury gradient backdrop */}
         <div className="absolute inset-0 bg-background z-0">
           {/* Radial gold highlight in center */}
-          <div 
+          <div
             className="absolute inset-0 opacity-80"
             style={{
               background: "radial-gradient(circle at 50% 35%, #fbfaf7 0%, var(--color-background) 80%)"
             }}
           />
           {/* Subtle noise pattern overlay */}
-          <div 
+          <div
             className="absolute inset-0 opacity-[0.02]"
             style={{
               backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`
@@ -51,11 +51,11 @@ export default async function Home() {
             <circle cx="250" cy="250" r="240" strokeWidth="1" />
             <circle cx="250" cy="250" r="235" strokeWidth="0.5" strokeDasharray="3,3" />
             <circle cx="250" cy="250" r="225" strokeWidth="1" />
-            
+
             {/* Geometric star (Rub el Hizb style / 8-pointed star) */}
             <path d="M 250 10 L 320 180 L 490 250 L 320 320 L 250 490 L 180 320 L 10 250 L 180 180 Z" strokeWidth="1.5" />
             <path d="M 250 45 L 295 205 L 455 250 L 295 295 L 250 455 L 205 295 L 45 250 L 205 205 Z" strokeWidth="0.75" strokeDasharray="4,4" />
-            
+
             {/* Secondary 8-pointed star rotated 45 degrees */}
             <g transform="rotate(45 250 250)">
               <path d="M 250 10 L 320 180 L 490 250 L 320 320 L 250 490 L 180 320 L 10 250 L 180 180 Z" strokeWidth="0.75" strokeOpacity="0.7" />
@@ -65,11 +65,11 @@ export default async function Home() {
             {/* Concentric detail lines & compass markings */}
             <line x1="250" y1="10" x2="250" y2="490" strokeWidth="0.5" strokeOpacity="0.5" />
             <line x1="10" y1="250" x2="490" y2="250" strokeWidth="0.5" strokeOpacity="0.5" />
-            
+
             {/* Small inner stars and decorative rings */}
             <circle cx="250" cy="250" r="80" strokeWidth="1" />
             <circle cx="250" cy="250" r="40" strokeWidth="1" />
-            
+
             {/* Center diamond/compass point */}
             <polygon points="250,235 255,250 250,265 245,250" fill="currentColor" />
           </svg>
@@ -89,7 +89,7 @@ export default async function Home() {
             <path d="M-100,200 Q 400,-100 900,200 T 1900,-100" fill="none" stroke="url(#gold-grad)" strokeWidth="1" strokeDasharray="5,5" />
             <path d="M-150,500 Q 500,200 1100,600 T 2100,300" fill="none" stroke="url(#gold-grad)" strokeWidth="1" />
             <path d="M-50,800 Q 600,400 1300,750 T 2300,500" fill="none" stroke="url(#gold-grad)" strokeWidth="1" strokeDasharray="3,6" />
-            
+
             {/* Radial navigation arcs */}
             <circle cx="50%" cy="40%" r="200" fill="none" stroke="#d4a017" strokeWidth="0.5" strokeOpacity="0.1" />
             <circle cx="50%" cy="40%" r="400" fill="none" stroke="#d4a017" strokeWidth="0.5" strokeOpacity="0.08" strokeDasharray="10,15" />
@@ -353,11 +353,6 @@ export default async function Home() {
         />
 
         <div className="relative z-10 max-w-3xl mx-auto text-center">
-          <p className="font-label-sm text-label-sm text-secondary-bright uppercase tracking-widest mb-4 flex items-center justify-center gap-2">
-            <span className="inline-block w-8 h-px bg-secondary-bright" />
-            خدمة VIP
-            <span className="inline-block w-8 h-px bg-secondary-bright" />
-          </p>
 
           <h2 className="font-headline-lg text-headline-lg text-white mb-6">
             هل تبحث عن تجربة{" "}
@@ -459,13 +454,11 @@ export default async function Home() {
           {/* Bottom bar */}
           <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="font-body-md text-body-md text-on-primary-container/50">
-              © 2024 Rawaes Elite Travel. جميع الحقوق محفوظة.
+              Rawaes . جميع الحقوق محفوظة.
             </p>
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-secondary-bright animate-pulse" />
-              <span className="font-label-sm text-label-sm text-on-primary-container/50 uppercase tracking-widest">
-                Luxury Travel Partner
-              </span>
+
             </div>
           </div>
         </div>
