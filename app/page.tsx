@@ -31,8 +31,7 @@ export default async function Home() {
           {/* Logo */}
           <div className="flex items-center">
             <Link href="/" className="text-2xl font-black text-primary tracking-wide flex items-center gap-2">
-              <span className="text-xl">معاون</span>
-              <span>MOAWEN</span>
+              <Image src="/Untitled-3.png" alt="Rawaes Logo" width={450} height={153} className="h-[50px] sm:h-[50px] md:h-[50px] w-auto object-contain opacity-95 hover:opacity-100 transition-opacity logo-custom-color" />
             </Link>
           </div>
 

@@ -59,17 +59,15 @@ export default function Navbar({
                 <Link
                   key={item.id}
                   href={item.href}
-                  className={`relative font-bold text-lg tracking-widest uppercase transition-colors duration-300 group ${
-                    isActive
-                      ? "text-secondary"
-                      : "text-primary/75 hover:text-primary"
-                  }`}
+                  className={`relative font-bold text-lg tracking-widest uppercase transition-colors duration-300 group ${isActive
+                    ? "text-secondary"
+                    : "text-primary/75 hover:text-primary"
+                    }`}
                 >
                   {item.label}
                   <span
-                    className={`absolute -bottom-2 right-0 h-px bg-gradient-to-l from-secondary-bright to-secondary transition-all duration-300 ${
-                      isActive ? "w-full" : "w-0 group-hover:w-full"
-                    }`}
+                    className={`absolute -bottom-2 right-0 h-px bg-gradient-to-l from-secondary-bright to-secondary transition-all duration-300 ${isActive ? "w-full" : "w-0 group-hover:w-full"
+                      }`}
                   />
                 </Link>
               );
@@ -90,7 +88,7 @@ export default function Navbar({
                 {secondaryCtaText}
               </button>
             )}
-            
+
             {onPrimaryCtaClick ? (
               <button
                 onClick={onPrimaryCtaClick}
@@ -129,16 +127,15 @@ export default function Navbar({
                   key={item.id}
                   href={item.href}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className={`text-xl font-bold tracking-widest uppercase py-2 transition-colors border-b border-outline-variant/10 ${
-                    isActive ? "text-secondary font-extrabold" : "text-primary/75"
-                  }`}
+                  className={`text-xl font-bold tracking-widest uppercase py-2 transition-colors border-b border-outline-variant/10 ${isActive ? "text-secondary font-extrabold" : "text-primary/75"
+                    }`}
                 >
                   {item.label}
                 </Link>
               );
             })}
           </nav>
-          
+
           <div className="flex flex-col gap-4 pb-8">
             {onSecondaryCtaClick ? (
               <button
@@ -151,7 +148,7 @@ export default function Navbar({
                 {secondaryCtaText}
               </button>
             ) : (
-              <button 
+              <button
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="w-full text-center text-primary/75 font-bold text-lg py-3 border border-outline-variant/30 rounded-full hover:bg-surface-variant/50"
               >
