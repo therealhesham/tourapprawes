@@ -105,8 +105,8 @@ export default function HomeSearchWidget() {
         {/* Search button */}
         <button
           onClick={handleSearch}
-            minWidth: "150px",
-          }}
+          className="bg-primary text-white py-3 px-6 rounded-xl text-sm font-bold shadow-lg shadow-primary/30 hover:bg-primary/90 transition-all flex items-center justify-center gap-2 mt-4 md:mt-0 w-full md:w-auto"
+          style={{ minWidth: "150px" }}
         >
           <span className="material-symbols-outlined text-lg">search</span>
           البحث عن رحلة
