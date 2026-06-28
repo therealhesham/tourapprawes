@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import SearchWidget from "@/components/SearchWidget";
 
 export default async function Home() {
   // Fetch up to 4 popular packages from the DB
@@ -13,107 +14,79 @@ export default async function Home() {
 
   return (
     <div className="min-h-screen bg-white relative overflow-hidden" dir="rtl" style={{ fontFamily: 'inherit' }}>
-      {/* ─── Background Pattern ─────────────────────────────────────── */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
+      {/* ─── Hero & Navbar Wrapper ─────────────────────────────────────── */}
+      <div 
+        className="relative bg-cover bg-center pt-6 pb-28 overflow-hidden"
+        style={{ backgroundImage: "url('/images/maldives.png')" }}
+      >
+        {/* Dark overlay for text contrast and premium styling */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/35 to-black/75 z-0" />
 
-          backgroundSize: '100% 100%, 100% 100%, 100% 100%, 40px 40px, 40px 40px',
-          backgroundPosition: 'center center',
-          zIndex: 0
-        }}
-      />
+        <div className="relative z-10">
+          {/* ─── Navbar ─────────────────────────────────────────────────── */}
+          <nav className="px-6 md:px-12">
+            <div className="max-w-[1400px] mx-auto flex justify-between items-center bg-white/10 backdrop-blur-md py-4 px-6 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.1)] border border-white/10 text-white">
 
-      {/* ─── Navbar ─────────────────────────────────────────────────── */}
-      <nav className="relative z-50 pt-6 px-6 md:px-12">
-        <div className="max-w-[1400px] mx-auto flex justify-between items-center bg-white/80 backdrop-blur-md py-4 px-6 rounded-full shadow-[0_4px_30px_rgba(0,0,0,0.03)] border border-gray-100">
+              {/* Logo */}
+              <div className="flex items-center">
+                <Link href="/" className="text-2xl font-black text-white tracking-wide flex items-center gap-2">
+                  <Image 
+                    src="/Untitled-3.png" 
+                    alt="Rawaes Logo" 
+                    width={450} 
+                    height={153} 
+                    className="h-[50px] sm:h-[50px] md:h-[50px] w-auto object-contain opacity-95 hover:opacity-100 transition-opacity brightness-0 invert" 
+                  />
+                </Link>
+              </div>
 
-          {/* Logo */}
-          <div className="flex items-center">
-            <Link href="/" className="text-2xl font-black text-primary tracking-wide flex items-center gap-2">
-              <Image src="/Untitled-3.png" alt="Rawaes Logo" width={450} height={153} className="h-[50px] sm:h-[50px] md:h-[50px] w-auto object-contain opacity-95 hover:opacity-100 transition-opacity logo-custom-color" />
-            </Link>
-          </div>
+              {/* Navigation Links */}
+              <div className="hidden md:flex items-center gap-8">
+                <Link href="/" className="flex items-center gap-2 text-white font-bold text-sm bg-white/20 px-4 py-2 rounded-full backdrop-blur-sm hover:bg-white/30 transition-all">
+                  <span className="material-symbols-outlined text-[18px]">home</span>
+                  الرئيسية
+                </Link>
+                <Link href="/packages" className="flex items-center gap-2 text-white/80 hover:text-white font-medium text-sm transition-colors">
+                  <span className="material-symbols-outlined text-[18px]">travel_explore</span>
+                  الباقات
+                </Link>
+                <Link href="/booking" className="flex items-center gap-2 text-white/80 hover:text-white font-medium text-sm transition-colors">
+                  <span className="material-symbols-outlined text-[18px]">luggage</span>
+                  حجوزاتي
+                </Link>
+                <Link href="#" className="flex items-center gap-2 text-white/80 hover:text-white font-medium text-sm transition-colors">
+                  <span className="material-symbols-outlined text-[18px]">favorite</span>
+                  المفضلة
+                </Link>
+                <Link href="#" className="flex items-center gap-2 text-white/80 hover:text-white font-medium text-sm transition-colors">
+                  <span className="material-symbols-outlined text-[18px]">person</span>
+                  حسابي
+                </Link>
+              </div>
 
-          {/* Navigation Links */}
-          <div className="hidden md:flex items-center gap-8">
-            <Link href="/" className="flex items-center gap-2 text-primary font-bold text-sm bg-gray-100 px-4 py-2 rounded-full">
-              <span className="material-symbols-outlined text-[18px]">home</span>
-              الرئيسية
-            </Link>
-            <Link href="/packages" className="flex items-center gap-2 text-gray-500 hover:text-primary font-medium text-sm transition-colors">
-              <span className="material-symbols-outlined text-[18px]">travel_explore</span>
-              الباقات
-            </Link>
-            <Link href="/booking" className="flex items-center gap-2 text-gray-500 hover:text-primary font-medium text-sm transition-colors">
-              <span className="material-symbols-outlined text-[18px]">luggage</span>
-              حجوزاتي
-            </Link>
-            <Link href="#" className="flex items-center gap-2 text-gray-500 hover:text-primary font-medium text-sm transition-colors">
-              <span className="material-symbols-outlined text-[18px]">favorite</span>
-              المفضلة
-            </Link>
-            <Link href="#" className="flex items-center gap-2 text-gray-500 hover:text-primary font-medium text-sm transition-colors">
-              <span className="material-symbols-outlined text-[18px]">person</span>
-              حسابي
-            </Link>
-          </div>
+              {/* Gold Membership Button */}
+              <div className="flex items-center">
+              </div>
+            </div>
+          </nav>
 
-          {/* Gold Membership Button */}
-          <div className="flex items-center">
-
-          </div>
+          {/* ─── Hero Section ───────────────────────────────────────────── */}
+          <section className="pt-24 pb-20 text-center px-4">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-white mb-4 tracking-tight leading-tight text-shadow-strong">
+              معاون MOAWEN
+              <br />
+              باقات سياحية فاخرة
+            </h1>
+            <p className="text-white/80 max-w-xl mx-auto text-sm md:text-base font-medium mt-4 text-shadow-subtle leading-relaxed">
+              اكتشف باقاتنا السياحية الفاخرة المصممة خصيصاً لتمنحك عطلة الأحلام مع معاون MOAWEN
+            </p>
+          </section>
         </div>
-      </nav>
-
-      {/* ─── Hero Section ───────────────────────────────────────────── */}
-      <section className="relative z-10 pt-20 pb-32 text-center px-4">
-        <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-primary mb-4 tracking-tight leading-tight">
-          معاون MOAWEN
-          <br />
-          باقات سياحية فاخرة
-        </h1>
-      </section>
+      </div>
 
       {/* ─── Search Bar (Floating) ──────────────────────────────────── */}
       <div className="relative z-20 -mt-16 px-4">
-        <div className="max-w-[1000px] mx-auto bg-white rounded-full shadow-[0_10px_40px_rgba(28,0,198,0.1)] border border-gray-100 p-3 flex flex-col md:flex-row items-center">
-
-          <div className="flex-1 w-full grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-gray-100 md:divide-x-reverse">
-            {/* Destination */}
-            <div className="px-6 py-3 flex items-center justify-between cursor-pointer hover:bg-gray-50 rounded-full transition-colors">
-              <div>
-                <p className="text-xs font-bold text-gray-400 mb-1">وجهة السفر</p>
-                <p className="text-sm font-bold text-primary">أين وجهتك القادمة؟</p>
-              </div>
-              <span className="material-symbols-outlined text-gray-400">location_on</span>
-            </div>
-
-            {/* Dates */}
-            <div className="px-6 py-3 flex items-center justify-between cursor-pointer hover:bg-gray-50 rounded-full transition-colors">
-              <div>
-                <p className="text-xs font-bold text-gray-400 mb-1">التواريخ</p>
-                <p className="text-sm font-bold text-primary">متى تخطط للسفر؟</p>
-              </div>
-              <span className="material-symbols-outlined text-gray-400">calendar_month</span>
-            </div>
-
-            {/* Budget */}
-            <div className="px-6 py-3 flex items-center justify-between cursor-pointer hover:bg-gray-50 rounded-full transition-colors">
-              <div>
-                <p className="text-xs font-bold text-gray-400 mb-1">الميزانية</p>
-                <p className="text-sm font-bold text-primary">تحديد سقف الميزانية</p>
-              </div>
-              <span className="material-symbols-outlined text-gray-400">account_balance_wallet</span>
-            </div>
-          </div>
-
-          {/* Search Button */}
-          <button className="mt-4 md:mt-0 w-full md:w-auto bg-primary text-white px-10 py-4 rounded-full font-bold text-lg flex items-center justify-center gap-2 hover:bg-[#1e1b4b] transition-colors shadow-lg shadow-primary/30">
-            <span className="material-symbols-outlined">search</span>
-            بحث
-          </button>
-        </div>
+        <SearchWidget />
       </div>
 
       {/* ─── Exclusive Offers Section ───────────────────────────────── */}

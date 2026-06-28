@@ -80,13 +80,13 @@ export default function SearchWidget() {
   const today = new Date().toISOString().split("T")[0];
 
   return (
-    <div className="max-w-[1000px] mx-auto bg-white rounded-full shadow-[0_10px_40px_rgba(28,0,198,0.1)] border border-gray-100 p-3 flex flex-col md:flex-row items-center gap-2 md:gap-0">
-      <div className="flex-1 w-full grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-gray-100 md:divide-x-reverse">
+    <div className="max-w-[1000px] mx-auto bg-white/95 backdrop-blur-md rounded-3xl md:rounded-full shadow-[0_20px_50px_rgba(12,17,32,0.15)] border border-white/80 p-3 flex flex-col md:flex-row items-center gap-2 md:gap-0 transition-all duration-300 hover:shadow-[0_25px_60px_rgba(12,17,32,0.2)]">
+      <div className="flex-1 w-full grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-slate-100 md:divide-x-reverse">
 
         {/* ─── Destination ─────────────────────────────────────────── */}
         <div ref={destRef} className="relative px-6 py-3">
           <div
-            className="flex items-center justify-between cursor-pointer hover:bg-gray-50 rounded-full transition-colors"
+            className="flex items-center justify-between cursor-pointer hover:bg-slate-50/80 rounded-full p-2 transition-all duration-200"
             onClick={() => {
               setShowDestinationDropdown((v) => !v);
               setShowDatePicker(false);
@@ -94,7 +94,7 @@ export default function SearchWidget() {
             }}
           >
             <div className="flex-1">
-              <p className="text-xs font-bold text-gray-400 mb-1">وجهة السفر</p>
+              <p className="text-xs font-bold text-slate-400 mb-1">وجهة السفر</p>
               <input
                 type="text"
                 value={destination}
@@ -109,19 +109,19 @@ export default function SearchWidget() {
                   setShowBudgetPicker(false);
                 }}
                 placeholder="أين وجهتك القادمة؟"
-                className="text-sm font-bold text-primary bg-transparent border-none outline-none ring-0 shadow-none appearance-none w-full p-0 placeholder:font-bold placeholder:text-primary focus:outline-none focus:ring-0 focus:border-none"
+                className="text-sm font-bold text-primary bg-transparent border-none outline-none ring-0 shadow-none appearance-none w-full p-0 placeholder:font-bold placeholder:text-primary/70 focus:outline-none focus:ring-0 focus:border-none"
               />
             </div>
-            <span className="material-symbols-outlined text-gray-400 text-xl mr-2 flex-shrink-0">
+            <span className="material-symbols-outlined text-slate-400 text-xl mr-2 flex-shrink-0">
               location_on
             </span>
           </div>
 
           {/* Destination Dropdown */}
           {showDestinationDropdown && (
-            <div className="absolute top-full right-0 left-0 mt-2 z-50 bg-white border border-gray-100 rounded-2xl shadow-xl overflow-hidden max-h-56 overflow-y-auto">
+            <div className="absolute top-full right-0 left-0 mt-3 z-50 bg-white border border-slate-100 rounded-2xl shadow-2xl overflow-hidden max-h-56 overflow-y-auto transition-all">
               {filteredCities.length === 0 ? (
-                <div className="px-4 py-3 text-sm text-gray-400 text-center">
+                <div className="px-4 py-3 text-sm text-slate-400 text-center">
                   لا توجد نتائج
                 </div>
               ) : (
@@ -129,7 +129,7 @@ export default function SearchWidget() {
                   <button
                     key={city.id}
                     type="button"
-                    className="w-full text-right px-5 py-3 text-sm font-medium text-gray-700 hover:bg-primary/5 hover:text-primary transition-colors flex items-center gap-3"
+                    className="w-full text-right px-5 py-3 text-sm font-medium text-slate-700 hover:bg-primary/5 hover:text-primary transition-colors flex items-center gap-3"
                     onClick={() => {
                       setDestination(city.name);
                       setShowDestinationDropdown(false);
@@ -149,7 +149,7 @@ export default function SearchWidget() {
         {/* ─── Dates ───────────────────────────────────────────────── */}
         <div ref={dateRef} className="relative px-6 py-3">
           <div
-            className="flex items-center justify-between cursor-pointer hover:bg-gray-50 rounded-full transition-colors"
+            className="flex items-center justify-between cursor-pointer hover:bg-slate-50/80 rounded-full p-2 transition-all duration-200"
             onClick={() => {
               setShowDatePicker((v) => !v);
               setShowDestinationDropdown(false);
@@ -157,7 +157,7 @@ export default function SearchWidget() {
             }}
           >
             <div>
-              <p className="text-xs font-bold text-gray-400 mb-1">التواريخ</p>
+              <p className="text-xs font-bold text-slate-400 mb-1">التواريخ</p>
               <p className="text-sm font-bold text-primary">
                 {fromDate && toDate
                   ? `${fromDate} → ${toDate}`
@@ -166,7 +166,7 @@ export default function SearchWidget() {
                   : "متى تخطط للسفر؟"}
               </p>
             </div>
-            <span className="material-symbols-outlined text-gray-400 text-xl mr-2 flex-shrink-0">
+            <span className="material-symbols-outlined text-slate-400 text-xl mr-2 flex-shrink-0">
               calendar_month
             </span>
           </div>
@@ -174,12 +174,12 @@ export default function SearchWidget() {
           {/* Date Picker Dropdown */}
           {showDatePicker && (
             <div
-              className="absolute top-full right-0 mt-2 z-50 bg-white border border-gray-100 rounded-2xl shadow-xl p-5 min-w-[300px]"
+              className="absolute top-full right-0 mt-3 z-50 bg-white border border-slate-100 rounded-2xl shadow-2xl p-5 min-w-[300px]"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex flex-col gap-4">
                 <div>
-                  <label className="text-xs font-bold text-gray-400 block mb-1">
+                  <label className="text-xs font-bold text-slate-400 block mb-1">
                     تاريخ المغادرة
                   </label>
                   <input
@@ -190,11 +190,11 @@ export default function SearchWidget() {
                       setFromDate(e.target.value);
                       if (toDate && e.target.value > toDate) setToDate("");
                     }}
-                    className="w-full border border-gray-200 rounded-xl px-4 py-2 text-sm font-medium text-gray-700 outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition"
+                    className="w-full border border-slate-200 rounded-xl px-4 py-2 text-sm font-medium text-slate-700 outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition"
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-bold text-gray-400 block mb-1">
+                  <label className="text-xs font-bold text-slate-400 block mb-1">
                     تاريخ العودة
                   </label>
                   <input
@@ -202,12 +202,12 @@ export default function SearchWidget() {
                     min={fromDate || today}
                     value={toDate}
                     onChange={(e) => setToDate(e.target.value)}
-                    className="w-full border border-gray-200 rounded-xl px-4 py-2 text-sm font-medium text-gray-700 outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition"
+                    className="w-full border border-slate-200 rounded-xl px-4 py-2 text-sm font-medium text-slate-700 outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition"
                   />
                 </div>
                 <button
                   onClick={() => setShowDatePicker(false)}
-                  className="w-full bg-primary text-white rounded-xl py-2 text-sm font-bold hover:bg-primary/90 transition-colors"
+                  className="w-full bg-primary text-white rounded-xl py-2.5 text-sm font-bold hover:bg-primary/95 transition-colors cursor-pointer"
                 >
                   تأكيد
                 </button>
@@ -219,7 +219,7 @@ export default function SearchWidget() {
         {/* ─── Budget ──────────────────────────────────────────────── */}
         <div ref={budgetRef} className="relative px-6 py-3">
           <div
-            className="flex items-center justify-between cursor-pointer hover:bg-gray-50 rounded-full transition-colors"
+            className="flex items-center justify-between cursor-pointer hover:bg-slate-50/80 rounded-full p-2 transition-all duration-200"
             onClick={() => {
               setShowBudgetPicker((v) => !v);
               setShowDestinationDropdown(false);
@@ -227,12 +227,12 @@ export default function SearchWidget() {
             }}
           >
             <div>
-              <p className="text-xs font-bold text-gray-400 mb-1">الميزانية</p>
+              <p className="text-xs font-bold text-slate-400 mb-1">الميزانية</p>
               <p className="text-sm font-bold text-primary">
                 حتى {budget.toLocaleString("ar-SA")} ريال
               </p>
             </div>
-            <span className="material-symbols-outlined text-gray-400 text-xl mr-2 flex-shrink-0">
+            <span className="material-symbols-outlined text-slate-400 text-xl mr-2 flex-shrink-0">
               account_balance_wallet
             </span>
           </div>
@@ -240,18 +240,18 @@ export default function SearchWidget() {
           {/* Budget Picker Dropdown */}
           {showBudgetPicker && (
             <div
-              className="absolute top-full right-0 mt-2 z-50 bg-white border border-gray-100 rounded-2xl shadow-xl p-5 min-w-[280px]"
+              className="absolute top-full right-0 mt-3 z-50 bg-white border border-slate-100 rounded-2xl shadow-2xl p-5 min-w-[280px]"
               onClick={(e) => e.stopPropagation()}
             >
-              <p className="text-xs font-bold text-gray-400 mb-3">
+              <p className="text-xs font-bold text-slate-400 mb-3">
                 الحد الأقصى للميزانية
               </p>
               <div className="flex items-center justify-between mb-3">
-                <span className="text-xs text-gray-400">0 ريال</span>
+                <span className="text-xs text-slate-400">0 ريال</span>
                 <span className="text-sm font-black text-primary">
                   {budget.toLocaleString("ar-SA")} ريال
                 </span>
-                <span className="text-xs text-gray-400">100k ريال</span>
+                <span className="text-xs text-slate-400">100k ريال</span>
               </div>
               <input
                 type="range"
@@ -270,10 +270,10 @@ export default function SearchWidget() {
                   <button
                     key={v}
                     onClick={() => setBudget(v)}
-                    className={`px-3 py-1 rounded-full text-xs font-bold border transition-colors ${
+                    className={`px-3 py-1 rounded-full text-xs font-bold border transition-colors cursor-pointer ${
                       budget === v
                         ? "bg-primary text-white border-primary"
-                        : "border-gray-200 text-gray-500 hover:border-primary hover:text-primary"
+                        : "border-slate-200 text-slate-500 hover:border-primary hover:text-primary"
                     }`}
                   >
                     {formatBudget(v)} ريال
@@ -282,7 +282,7 @@ export default function SearchWidget() {
               </div>
               <button
                 onClick={() => setShowBudgetPicker(false)}
-                className="w-full mt-4 bg-primary text-white rounded-xl py-2 text-sm font-bold hover:bg-primary/90 transition-colors"
+                className="w-full mt-4 bg-primary text-white rounded-xl py-2.5 text-sm font-bold hover:bg-primary/95 transition-colors cursor-pointer"
               >
                 تأكيد
               </button>
@@ -294,7 +294,7 @@ export default function SearchWidget() {
       {/* ─── Search Button ───────────────────────────────────────────── */}
       <button
         onClick={handleSearch}
-        className="mt-2 md:mt-0 w-full md:w-auto bg-primary text-white px-10 py-4 rounded-full font-bold text-lg flex items-center justify-center gap-2 hover:bg-primary/90 active:scale-95 transition-all shadow-lg shadow-primary/30"
+        className="mt-2 md:mt-0 w-full md:w-auto bg-primary text-white px-10 py-4 rounded-full font-bold text-lg flex items-center justify-center gap-2 hover:bg-primary/95 active:scale-95 transition-all shadow-lg shadow-primary/30 cursor-pointer"
       >
         <span className="material-symbols-outlined">search</span>
         بحث
