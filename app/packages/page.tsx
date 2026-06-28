@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 
 interface Option {
   value: string;
@@ -10,6 +11,14 @@ interface Option {
 }
 
 export default function PackagesPage() {
+  const searchParams = useSearchParams();
+
+  // Read query params from SearchWidget
+  const qDestination = searchParams.get("destination") || "";
+  const qBudget = searchParams.get("budget") ? Number(searchParams.get("budget")) : null;
+  const qFrom = searchParams.get("from") || "";
+  const qTo = searchParams.get("to") || "";
+
   // DB Packages & UI filters states
   const [packages, setPackages] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -51,6 +60,21 @@ export default function PackagesPage() {
 
     Promise.all([loadPkgs, loadCities]).finally(() => setLoading(false));
   }, []);
+
+  // Apply filters from search params
+  const filteredPackages = packages.filter((pkg) => {
+    if (qDestination && !pkg.name?.toLowerCase().includes(qDestination.toLowerCase()) &&
+      !pkg.title?.toLowerCase().includes(qDestination.toLowerCase()) &&
+      !pkg.countryCode?.toLowerCase().includes(qDestination.toLowerCase()) &&
+      !pkg.destinationCode?.toLowerCase().includes(qDestination.toLowerCase())) {
+      return false;
+    }
+    if (qBudget !== null && pkg.pricing > qBudget) {
+      return false;
+    }
+    return true;
+  });
+
 
   return (
     <div className="min-h-screen bg-white relative overflow-hidden flex flex-col" dir="rtl" style={{ fontFamily: 'inherit' }}>
@@ -119,20 +143,55 @@ export default function PackagesPage() {
 
       {/* ─── Packages Grid ─────────────────────────────────────────── */}
       <main className="relative z-10 max-w-[1200px] mx-auto w-full px-6 md:px-12 pb-24 flex-grow">
+
+        {/* Active Filters Bar */}
+        {(qDestination || qBudget !== null || qFrom || qTo) && (
+          <div className="flex flex-wrap gap-2 mb-6 items-center">
+            <span className="text-xs font-bold text-gray-400 ml-1">فلاتر نشطة:</span>
+            {qDestination && (
+              <span className="flex items-center gap-1 bg-primary/10 text-primary text-xs font-bold px-3 py-1.5 rounded-full border border-primary/20">
+                <span className="material-symbols-outlined text-[14px]">location_on</span>
+                {qDestination}
+              </span>
+            )}
+            {qBudget !== null && (
+              <span className="flex items-center gap-1 bg-primary/10 text-primary text-xs font-bold px-3 py-1.5 rounded-full border border-primary/20">
+                <span className="material-symbols-outlined text-[14px]">account_balance_wallet</span>
+                حتى {qBudget.toLocaleString("ar-SA")} ريال
+              </span>
+            )}
+            {qFrom && (
+              <span className="flex items-center gap-1 bg-primary/10 text-primary text-xs font-bold px-3 py-1.5 rounded-full border border-primary/20">
+                <span className="material-symbols-outlined text-[14px]">calendar_month</span>
+                {qFrom}{qTo ? ` → ${qTo}` : ""}
+              </span>
+            )}
+            <Link href="/packages" className="text-xs text-gray-400 hover:text-red-500 transition-colors font-medium mr-1 flex items-center gap-1">
+              <span className="material-symbols-outlined text-[14px]">close</span>
+              مسح الكل
+            </Link>
+          </div>
+        )}
+
         {loading ? (
           <div className="flex justify-center items-center py-20">
             <div className="w-12 h-12 border-4 border-gray-200 border-t-[#1C00C6] rounded-full animate-spin" />
           </div>
         ) : error ? (
           <div className="text-center py-20 text-red-500 font-bold">{error}</div>
-        ) : packages.length === 0 ? (
+        ) : filteredPackages.length === 0 ? (
           <div className="text-center py-20 bg-white rounded-2xl border border-gray-100 shadow-sm text-gray-400">
             <span className="material-symbols-outlined text-5xl block mb-4">search_off</span>
-            <p className="text-lg font-bold">لا توجد باقات حالياً</p>
+            <p className="text-lg font-bold">لا توجد باقات تطابق بحثك</p>
+            <p className="text-sm mt-1">جرب تعديل معايير البحث</p>
+            <Link href="/packages" className="inline-flex items-center gap-2 mt-4 text-primary font-bold text-sm hover:underline">
+              <span className="material-symbols-outlined text-[16px]">refresh</span>
+              عرض كل الباقات
+            </Link>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {packages.map((dest) => (
+            {filteredPackages.map((dest) => (
               <div key={dest.id} className="group bg-white rounded-2xl overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.06)] border border-gray-100 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 block cursor-pointer">
 
                 {/* Image Section */}
@@ -184,6 +243,7 @@ export default function PackagesPage() {
           </div>
         )}
       </main>
+
 
       {/* Footer minimal to match design */}
       <footer className="text-center py-8 text-gray-400 text-sm border-t border-gray-100 flex-shrink-0 bg-white/50 backdrop-blur-sm">
