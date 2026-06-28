@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -10,7 +10,7 @@ interface Option {
   label: string;
 }
 
-export default function PackagesPage() {
+function PackagesPageContent() {
   const searchParams = useSearchParams();
 
   // Read query params from SearchWidget
@@ -250,5 +250,17 @@ export default function PackagesPage() {
         © {new Date().getFullYear()} معاون MOAWEM - جميع الحقوق محفوظة
       </footer>
     </div>
+  );
+}
+
+export default function PackagesPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex justify-center items-center">
+        <div className="w-12 h-12 border-4 border-gray-200 border-t-[#1C00C6] rounded-full animate-spin" />
+      </div>
+    }>
+      <PackagesPageContent />
+    </Suspense>
   );
 }
