@@ -4,6 +4,7 @@ import React, { useState, useEffect, Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import Navbar from "@/components/Navbar";
 
 interface Option {
   value: string;
@@ -90,47 +91,7 @@ function PackagesPageContent() {
       />
 
       {/* ─── Navbar ─────────────────────────────────────────────────── */}
-      <nav className="relative z-50 pt-6 px-6 md:px-12 flex-shrink-0">
-        <div className="max-w-[1400px] mx-auto flex justify-between items-center bg-white/80 backdrop-blur-md py-4 px-6 rounded-full shadow-[0_4px_30px_rgba(0,0,0,0.03)] border border-gray-100">
-
-          {/* Logo */}
-          <div className="flex items-center">
-            <Link href="/" className="text-2xl font-black text-primary tracking-wide flex items-center gap-2">
-              <span className="text-xl">معاون</span>
-              <span>MOAWEM</span>
-            </Link>
-          </div>
-
-          {/* Navigation Links */}
-          <div className="hidden md:flex items-center gap-8">
-            <Link href="/" className="flex items-center gap-2 text-gray-500 hover:text-primary font-medium text-sm transition-colors">
-              <span className="material-symbols-outlined text-[18px]">home</span>
-              الرئيسية
-            </Link>
-            <Link href="/packages" className="flex items-center gap-2 text-primary font-bold text-sm bg-gray-100 px-4 py-2 rounded-full">
-              <span className="material-symbols-outlined text-[18px]">travel_explore</span>
-              الباقات
-            </Link>
-            <Link href="/booking" className="flex items-center gap-2 text-gray-500 hover:text-primary font-medium text-sm transition-colors">
-              <span className="material-symbols-outlined text-[18px]">luggage</span>
-              حجوزاتي
-            </Link>
-            <Link href="#" className="flex items-center gap-2 text-gray-500 hover:text-primary font-medium text-sm transition-colors">
-              <span className="material-symbols-outlined text-[18px]">favorite</span>
-              المفضلة
-            </Link>
-            <Link href="#" className="flex items-center gap-2 text-gray-500 hover:text-primary font-medium text-sm transition-colors">
-              <span className="material-symbols-outlined text-[18px]">person</span>
-              حسابي
-            </Link>
-          </div>
-
-          {/* Gold Membership Button */}
-          <div className="flex items-center">
-
-          </div>
-        </div>
-      </nav>
+      <Navbar theme="light" />
 
       {/* ─── Header ─────────────────────────────────────────────────── */}
       <section className="relative z-10 pt-16 pb-10 text-center px-4">

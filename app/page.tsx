@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import SearchWidget from "@/components/SearchWidget";
+import Navbar from "@/components/Navbar";
 
 export default async function Home() {
   // Fetch up to 4 popular packages from the DB
@@ -24,51 +25,7 @@ export default async function Home() {
 
         <div className="relative z-10">
           {/* ─── Navbar ─────────────────────────────────────────────────── */}
-          <nav className="px-6 md:px-12">
-            <div className="max-w-[1400px] mx-auto flex justify-between items-center bg-white/10 backdrop-blur-md py-4 px-6 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.1)] border border-white/10 text-white">
-
-              {/* Logo */}
-              <div className="flex items-center">
-                <Link href="/" className="text-2xl font-black text-white tracking-wide flex items-center gap-2">
-                  <Image 
-                    src="/Untitled-3.png" 
-                    alt="Rawaes Logo" 
-                    width={450} 
-                    height={153} 
-                    className="h-[50px] sm:h-[50px] md:h-[50px] w-auto object-contain opacity-95 hover:opacity-100 transition-opacity brightness-0 invert" 
-                  />
-                </Link>
-              </div>
-
-              {/* Navigation Links */}
-              <div className="hidden md:flex items-center gap-8">
-                <Link href="/" className="flex items-center gap-2 text-white font-bold text-sm bg-white/20 px-4 py-2 rounded-full backdrop-blur-sm hover:bg-white/30 transition-all">
-                  <span className="material-symbols-outlined text-[18px]">home</span>
-                  الرئيسية
-                </Link>
-                <Link href="/packages" className="flex items-center gap-2 text-white/80 hover:text-white font-medium text-sm transition-colors">
-                  <span className="material-symbols-outlined text-[18px]">travel_explore</span>
-                  الباقات
-                </Link>
-                <Link href="/booking" className="flex items-center gap-2 text-white/80 hover:text-white font-medium text-sm transition-colors">
-                  <span className="material-symbols-outlined text-[18px]">luggage</span>
-                  حجوزاتي
-                </Link>
-                <Link href="#" className="flex items-center gap-2 text-white/80 hover:text-white font-medium text-sm transition-colors">
-                  <span className="material-symbols-outlined text-[18px]">favorite</span>
-                  المفضلة
-                </Link>
-                <Link href="#" className="flex items-center gap-2 text-white/80 hover:text-white font-medium text-sm transition-colors">
-                  <span className="material-symbols-outlined text-[18px]">person</span>
-                  حسابي
-                </Link>
-              </div>
-
-              {/* Gold Membership Button */}
-              <div className="flex items-center">
-              </div>
-            </div>
-          </nav>
+          <Navbar theme="dark" />
 
           {/* ─── Hero Section ───────────────────────────────────────────── */}
           <section className="pt-24 pb-20 text-center px-4">
