@@ -207,6 +207,7 @@ body {
       box-shadow 0.35s ease;
   }
 
+
   .card-hover:hover {
     transform: translateY(-8px);
     box-shadow: 0 24px 60px rgba(12, 17, 32, 0.16), 0 8px 20px rgba(160, 120, 32, 0.1);
