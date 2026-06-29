@@ -76,8 +76,8 @@ export default function Navbar({ theme = "light" }: NavbarProps) {
           <Link
             href="/booking/wizard"
             className={`flex items-center gap-2 px-6 py-2.5 rounded-full font-bold text-sm transition-all shadow-md ${isDark
-                ? "bg-white text-primary hover:bg-slate-100"
-                : "bg-primary text-white hover:bg-primary/90 shadow-primary/30"
+              ? "bg-white text-primary hover:bg-slate-100"
+              : "bg-primary text-white hover:bg-primary/90 shadow-primary/30"
               }`}
           >
             <span className="material-symbols-outlined text-[18px]">edit_calendar</span>

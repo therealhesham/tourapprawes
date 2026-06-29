@@ -16,7 +16,7 @@ export default async function Home() {
   return (
     <div className="min-h-screen bg-white relative overflow-hidden" dir="rtl" style={{ fontFamily: 'inherit' }}>
       {/* ─── Hero & Navbar Wrapper ─────────────────────────────────────── */}
-      <div 
+      <div
         className="relative bg-cover bg-center pt-6 pb-28 overflow-hidden"
         style={{ backgroundImage: "url('/images/maldives.png')" }}
       >
@@ -25,7 +25,7 @@ export default async function Home() {
 
         <div className="relative z-10">
           {/* ─── Navbar ─────────────────────────────────────────────────── */}
-          <Navbar theme="dark" />
+          <Navbar theme="light" />
 
           {/* ─── Hero Section ───────────────────────────────────────────── */}
           <section className="pt-24 pb-20 text-center px-4">
