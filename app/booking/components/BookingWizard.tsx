@@ -10,6 +10,7 @@ type CityStay = {
   cityId: string;
   hotelCategory: string;
   transportFromPrevious?: string;
+  nights?: number;
 };
 
 type BookingState = {
@@ -58,7 +59,7 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
   const [bookingError, setBookingError] = useState("");
 
   // Transient state for the current city being added
-  const [currentCity, setCurrentCity] = useState<Partial<CityStay>>({});
+  const [currentCity, setCurrentCity] = useState<Partial<CityStay>>({ nights: 1 });
 
   useEffect(() => {
     const fetchCities = fetch("/api/admin/cities").then(res => res.json());
@@ -147,11 +148,9 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
     const baseName = cityNames[cityId] || `منتجع فاخر في ${cityName}`;
 
     switch (categoryId) {
-      case 'family': return baseName + " (جناح عائلي)";
-      case 'honeymoon': return baseName + " (جناح شهر العسل)";
       case 'budget': return "فندق اقتصادي مميز";
+      case 'medium': return baseName + " (إقامة متوسطة)";
       case 'luxury': return baseName + " (إقامة فاخرة VIP)";
-      case 'auto':
       default:
         return baseName + " (اختيار روائس الموصى به)";
     }
@@ -161,9 +160,7 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
 
   const HOTEL_RATES: Record<string, number> = {
     budget: 250,
-    auto: 450,
-    family: 450,
-    honeymoon: 700,
+    medium: 450,
     luxury: 1200,
   };
 
@@ -182,12 +179,15 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
     return Math.max(1, Math.ceil(diff / (1000 * 60 * 60 * 24)));
   })();
 
+  const totalNights = totalDays > 1 ? totalDays - 1 : 1;
+  const nightsAllocated = state.cityStays.reduce((sum, stay) => sum + (stay.nights || 1), 0);
+  const nightsRemaining = Math.max(0, totalNights - nightsAllocated);
+
   const hotelCost = (() => {
     if (state.cityStays.length === 0) return 0;
-    const daysPerCity = totalDays / state.cityStays.length;
     return state.cityStays.reduce((sum, stay) => {
       const rate = HOTEL_RATES[stay.hotelCategory] || 450;
-      return sum + (rate * daysPerCity);
+      return sum + (rate * (stay.nights || 1));
     }, 0);
   })();
 
@@ -299,7 +299,7 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
         ...prev,
         cityStays: [...prev.cityStays, currentCity as CityStay],
       }));
-      setCurrentCity({});
+      setCurrentCity({ nights: 1 });
     }
   };
 
@@ -407,6 +407,9 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
         {/* ─── STEP 3: Flight Selection ─── */}
         {isCountrySectionComplete && (() => {
           const countryFlights = dbFlights.filter((f) => f.countryId === state.country);
+          const defaultFlightEstimate = countryFlights.length > 0 ? countryFlights[0].approximatePrice : 1800;
+          const defaultAirway = countryFlights.length > 0 ? countryFlights[0].airWayName : "طيران تقديري";
+
           return (
             <section className="glass-panel p-6 md:p-8 rounded-3xl border border-slate-200/60 shadow-xl animate-fade-in-up transition-all" style={{ animationDelay: '100ms' }}>
               <h3 className="text-xl font-bold text-primary mb-6 flex items-center gap-2">
@@ -415,75 +418,43 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
               </h3>
 
               {!flightConfirmed ? (
-                <div className="space-y-4">
-                  <label className="block font-label-sm text-secondary uppercase tracking-widest mb-4">
-                    {countryFlights.length > 0
-                      ? "اختر من رحلات الطيران المتاحة لوجهتك:"
-                      : "هل ترغب في إضافة حجز طيران؟ (سعر تقديري)"}
-                  </label>
-
-                  {countryFlights.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {countryFlights.map((flight) => (
-                        <button
-                          key={flight.id}
-                          onClick={() => handleNextFlight(true, `درجة أساسية (${flight.airWayName})`, flight.approximatePrice, flight.id, flight.airWayName)}
-                          className="py-5 px-6 rounded-2xl border text-right transition-all duration-300 bg-surface-container-lowest text-on-surface border-outline-variant/40 hover:border-secondary/50 hover:bg-white/5 flex flex-col gap-2 cursor-pointer"
-                        >
-                          <div className="flex items-center gap-2">
-                            <span className="material-symbols-outlined text-secondary">flight_takeoff</span>
-                            <span className="font-bold text-lg text-primary">{flight.airWayName}</span>
-                          </div>
-                          <span className="text-slate-600 text-sm font-bold">
-                            {flight.departedAirport?.airportName} ({flight.departedAirport?.city?.name})
-                            ← {flight.arrivalAirport?.airportName} ({flight.arrivalAirport?.city?.name})
-                          </span>
-                          <span className="text-secondary font-black text-lg">{flight.approximatePrice} SAR</span>
-                        </button>
-                      ))}
-                      <button
-                        onClick={() => handleNextFlight(false, "", 0)}
-                        className="py-5 px-6 rounded-2xl border text-right transition-all duration-300 bg-surface-container-lowest text-on-surface border-outline-variant/40 hover:border-secondary/50 hover:bg-white/5 flex flex-col justify-center items-center gap-2 cursor-pointer border-dashed"
-                      >
-                        <span className="font-bold text-lg text-slate-500">بدون طيران</span>
-                        <span className="text-slate-400 text-sm">سأقوم بحجز الطيران الخارجي بنفسي.</span>
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <button
-                        onClick={() => handleNextFlight(true, "economy", 1800, undefined, "طيران تقديري")}
-                        className="py-6 px-6 rounded-2xl border text-right transition-all duration-300 bg-surface-container-lowest text-on-surface border-outline-variant/40 hover:border-secondary/50 hover:bg-white/5 flex flex-col gap-2 cursor-pointer"
-                      >
-                        <span className="font-bold text-lg text-primary">نعم، طيران اقتصادي (Economy)</span>
-                        <span className="text-secondary font-bold">سعر تقديري: 1,800 SAR للشخص</span>
-                        <span className="text-slate-500 text-sm">شاملاً الحقائب والخدمات الأساسية.</span>
-                      </button>
-                      <button
-                        onClick={() => handleNextFlight(true, "business", 4500, undefined, "طيران تقديري")}
-                        className="py-6 px-6 rounded-2xl border text-right transition-all duration-300 bg-surface-container-lowest text-on-surface border-outline-variant/40 hover:border-secondary/50 hover:bg-white/5 flex flex-col gap-2 cursor-pointer"
-                      >
-                        <span className="font-bold text-lg text-primary">نعم، درجة رجال الأعمال (Business)</span>
-                        <span className="text-secondary font-bold">سعر تقديري: 4,500 SAR للشخص</span>
-                        <span className="text-slate-500 text-sm">شاملاً الدخول للصالة والخدمات المميزة.</span>
-                      </button>
-                      <button
-                        onClick={() => handleNextFlight(true, "first", 9000, undefined, "طيران تقديري")}
-                        className="py-6 px-6 rounded-2xl border text-right transition-all duration-300 bg-surface-container-lowest text-on-surface border-outline-variant/40 hover:border-secondary/50 hover:bg-white/5 flex flex-col gap-2 cursor-pointer"
-                      >
-                        <span className="font-bold text-lg text-primary">نعم، الدرجة الأولى (First Class)</span>
-                        <span className="text-secondary font-bold">سعر تقديري: 9,000 SAR للشخص</span>
-                        <span className="text-slate-500 text-sm">أقصى درجات الرفاهية والخصوصية.</span>
-                      </button>
-                    </div>
-                  )}
+                <div className="space-y-6">
+                  <div className="flex items-center gap-4 bg-surface-container-lowest p-5 rounded-2xl border border-outline-variant/40">
+                    <input
+                      type="checkbox"
+                      id="includeFlightCheckbox"
+                      checked={state.includeFlight}
+                      onChange={(e) => {
+                        const isChecked = e.target.checked;
+                        setState(prev => ({
+                          ...prev,
+                          includeFlight: isChecked,
+                          flightEstimate: isChecked ? defaultFlightEstimate : 0,
+                          flightAirway: isChecked ? defaultAirway : "",
+                          flightId: isChecked && countryFlights.length > 0 ? countryFlights[0].id : "",
+                        }));
+                      }}
+                      className="w-6 h-6 accent-secondary rounded cursor-pointer"
+                    />
+                    <label htmlFor="includeFlightCheckbox" className="font-bold text-lg text-primary cursor-pointer select-none">
+                      إضافة حجز طيران (سعر تقديري: {defaultFlightEstimate} SAR للشخص)
+                    </label>
+                  </div>
+                  <div className="flex justify-end">
+                    <button
+                      onClick={() => setFlightConfirmed(true)}
+                      className="gold-shimmer bg-primary text-background w-full sm:w-auto px-4 sm:px-8 py-3 rounded-xl font-bold uppercase tracking-widest text-sm sm:text-base btn-glow transition-all"
+                    >
+                      متابعة
+                    </button>
+                  </div>
                 </div>
               ) : (
                 <div className="flex justify-between items-center bg-slate-50 border border-slate-200/60 p-4 rounded-xl">
                   <div>
                     <span className="text-slate-500 text-sm block">الخيار المحدد:</span>
                     <span className="font-bold text-primary text-lg">
-                      {state.includeFlight ? `${state.flightAirway} (${state.flightEstimate} SAR)` : "بدون طيران"}
+                      {state.includeFlight ? `مع طيران (${state.flightEstimate} SAR)` : "بدون طيران"}
                     </span>
                   </div>
                   <button onClick={() => { setFlightConfirmed(false); setCitiesConfirmed(false); }} className="text-secondary text-sm font-bold underline">تغيير الاختيار</button>
@@ -537,7 +508,7 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
                               {transportName}
                             </div>
                           )}
-                          <div className="font-bold text-lg text-primary">{city?.name}</div>
+                          <div className="font-bold text-lg text-primary">{city?.name} ({stay.nights || 1} ليالي)</div>
                           <div className="text-sm text-slate-600 mt-1">الفندق المقترح: {getSuggestedHotel(stay.cityId, stay.hotelCategory)}</div>
                         </li>
                       );
@@ -545,7 +516,10 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
                   </ul>
 
                   {!citiesConfirmed && (
-                    <div className="mt-6 pt-6 border-t border-slate-200 flex justify-end">
+                    <div className="mt-6 pt-6 border-t border-slate-200 flex flex-col sm:flex-row justify-between items-center gap-4">
+                      {nightsRemaining > 0 ? (
+                        <span className="text-amber-600 font-bold text-sm">متبقي {nightsRemaining} ليالي لم يتم توزيعها.</span>
+                      ) : <div />}
                       <button
                         onClick={() => setCitiesConfirmed(true)}
                         className="gold-shimmer bg-primary text-background w-full sm:w-auto px-4 sm:px-8 py-3 rounded-xl font-bold uppercase tracking-widest text-sm sm:text-base btn-glow transition-all"
@@ -585,6 +559,19 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
                       </select>
                     </div>
                   )}
+
+                  <div>
+                    <label className="block font-label-sm text-secondary uppercase tracking-widest mb-3">عدد الليالي</label>
+                    <input
+                      type="number"
+                      min="1"
+                      max={nightsRemaining > 0 ? nightsRemaining : undefined}
+                      value={currentCity.nights || 1}
+                      onChange={(e) => setCurrentCity({ ...currentCity, nights: parseInt(e.target.value) || 1 })}
+                      className="w-full py-4 bg-surface-container-lowest border border-outline-variant/40 rounded-xl focus:border-secondary outline-none px-4"
+                    />
+                    {nightsRemaining > 0 && <p className="text-xs text-slate-500 mt-1">المتبقي من إجمالي الرحلة: {nightsRemaining} ليالي</p>}
+                  </div>
 
                   <div>
                     <label className="block font-label-sm text-secondary uppercase tracking-widest mb-3">المدينة</label>
@@ -639,35 +626,35 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
 
         {/* ─── STEP 5: Summary ─── */}
         {citiesConfirmed && (
-          <section className="bg-primary p-6 md:p-8 rounded-3xl border border-primary-dark shadow-2xl animate-fade-in-up transition-all text-white" style={{ animationDelay: '200ms' }}>
-            <h3 className="text-2xl font-bold mb-8 border-b border-white/20 pb-4 flex items-center gap-2">
-              <span className="material-symbols-outlined text-secondary-bright">receipt_long</span>
+          <section className="glass-panel p-6 md:p-8 rounded-3xl border border-slate-200/60 shadow-xl animate-fade-in-up transition-all" style={{ animationDelay: '200ms' }}>
+            <h3 className="text-2xl font-bold text-primary mb-8 border-b border-slate-200/60 pb-4 flex items-center gap-2">
+              <span className="material-symbols-outlined text-secondary">receipt_long</span>
               ملخص الحجز
             </h3>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 pb-6 border-b border-white/20 text-center sm:text-right">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 pb-6 border-b border-slate-200/60 text-center sm:text-right">
               <div>
-                <p className="text-sm text-white/60 mb-1">الوجهة</p>
-                <p className="font-bold text-lg">{dbCountries.find(c => c.id === state.country)?.name}</p>
+                <p className="text-sm text-slate-500 mb-1">الوجهة</p>
+                <p className="font-bold text-lg text-primary">{dbCountries.find(c => c.id === state.country)?.name}</p>
               </div>
               <div>
-                <p className="text-sm text-white/60 mb-1">الذهاب</p>
-                <p className="font-bold text-lg">{state.startDate}</p>
+                <p className="text-sm text-slate-500 mb-1">الذهاب</p>
+                <p className="font-bold text-lg text-primary">{state.startDate}</p>
               </div>
               <div>
-                <p className="text-sm text-white/60 mb-1">العودة</p>
-                <p className="font-bold text-lg">{state.departureDate}</p>
+                <p className="text-sm text-slate-500 mb-1">العودة</p>
+                <p className="font-bold text-lg text-primary">{state.departureDate}</p>
               </div>
               <div>
-                <p className="text-sm text-white/60 mb-1">المدة الإجمالية</p>
-                <p className="font-bold text-lg">{totalDays} يوم / {totalDays - 1 > 0 ? totalDays - 1 : 1} ليلة</p>
+                <p className="text-sm text-slate-500 mb-1">المدة الإجمالية</p>
+                <p className="font-bold text-lg text-primary">{totalDays} يوم / {totalDays - 1 > 0 ? totalDays - 1 : 1} ليلة</p>
               </div>
             </div>
 
             {lastCityAdded && !lastCityAdded.hasAirport && (
-              <div className="mb-6 p-4 bg-amber-500/20 border border-amber-400/50 rounded-xl text-amber-50 space-y-2">
+              <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 space-y-2">
                 <div className="font-bold flex items-center gap-2">
-                  <span className="material-symbols-outlined text-amber-300">info</span>
+                  <span className="material-symbols-outlined text-amber-500">info</span>
                   تنويه بخصوص مطار العودة
                 </div>
                 <p className="text-sm">
@@ -679,31 +666,31 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 text-sm">
               {state.includeFlight && (
-                <div className="bg-white/10 p-4 rounded-xl border border-white/20 flex justify-between items-center">
+                <div className="bg-slate-50 p-4 rounded-xl border border-slate-200/60 flex justify-between items-center text-slate-700">
                   <span>الطيران ({state.flightAirway}):</span>
-                  <span className="font-bold text-secondary-bright">{state.flightEstimate} SAR</span>
+                  <span className="font-bold text-secondary">{flightCost} SAR</span>
                 </div>
               )}
               {hotelCost > 0 && (
-                <div className="bg-white/10 p-4 rounded-xl border border-white/20 flex justify-between items-center">
-                  <span>الفنادق ({totalDays} ليالي):</span>
-                  <span className="font-bold text-secondary-bright">{Math.round(hotelCost)} SAR</span>
+                <div className="bg-slate-50 p-4 rounded-xl border border-slate-200/60 flex justify-between items-center text-slate-700">
+                  <span>الفنادق ({nightsAllocated} ليالي):</span>
+                  <span className="font-bold text-secondary">{Math.round(hotelCost)} SAR</span>
                 </div>
               )}
               {transportCost > 0 && (
-                <div className="bg-white/10 p-4 rounded-xl border border-white/20 flex justify-between items-center">
+                <div className="bg-slate-50 p-4 rounded-xl border border-slate-200/60 flex justify-between items-center text-slate-700">
                   <span>المواصلات الداخلية:</span>
-                  <span className="font-bold text-secondary-bright">{transportCost} SAR</span>
+                  <span className="font-bold text-secondary">{transportCost} SAR</span>
                 </div>
               )}
             </div>
 
-            <div className="bg-black/20 p-6 rounded-2xl flex flex-col md:flex-row justify-between items-center gap-6">
+            <div className="bg-slate-50 border border-slate-200/60 p-6 rounded-2xl flex flex-col md:flex-row justify-between items-center gap-6">
               <div>
-                <p className="text-base font-bold mb-1">إجمالي التكلفة التقديرية (للشخص الواحد):</p>
-                <p className="text-xs text-white/50">* هذا السعر تقديري وقابل للتغيير حسب توفر الحجوزات والمواسم.</p>
+                <p className="text-base font-bold text-primary mb-1">إجمالي التكلفة التقديرية (للشخص الواحد):</p>
+                <p className="text-xs text-slate-500">* هذا السعر تقديري وقابل للتغيير حسب توفر الحجوزات والمواسم.</p>
               </div>
-              <div className="text-3xl md:text-4xl font-black text-secondary-bright">
+              <div className="text-3xl md:text-4xl font-black text-secondary">
                 {totalEstimate.toLocaleString("en-US")} SAR
               </div>
             </div>
@@ -711,9 +698,9 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
             <div className="mt-8 flex justify-center">
               <button
                 onClick={() => setShowContactForm(true)}
-                className="gold-shimmer bg-secondary text-on-secondary px-12 py-4 rounded-full font-bold text-xl tracking-widest btn-glow transition-all w-full md:w-auto"
+                className="gold-shimmer bg-primary text-white px-12 py-4 rounded-full font-bold text-xl tracking-widest btn-glow transition-all w-full md:w-auto"
               >
-                تأكيد الحجز والدفع
+                تأكيد الحجز
               </button>
             </div>
           </section>
@@ -722,7 +709,7 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
 
       {/* Contact Form Overlay (Kept as Modal to ensure focus on form) */}
       {showContactForm && !bookingSuccess && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-primary/80 backdrop-blur-md">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-md">
           <div className="w-full max-w-md bg-white rounded-3xl p-6 md:p-8 shadow-2xl relative border border-slate-200 text-right animate-zoom-in" dir="rtl">
             <h3 className="text-xl font-bold text-primary mb-4 flex items-center gap-2">
               <span className="material-symbols-outlined text-secondary">contact_phone</span>

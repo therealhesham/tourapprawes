@@ -58,11 +58,9 @@ export const cities: Record<string, { id: string, name: string, hasAirport: bool
 };
 
 export const hotelCategories = [
-  { id: 'auto', name: 'تلقائي (السيستم يختار)' },
-  { id: 'family', name: 'عائلات' },
-  { id: 'honeymoon', name: 'شهر عسل' },
-  { id: 'budget', name: 'اقتصادي' },
   { id: 'luxury', name: 'فاخر' },
+  { id: 'medium', name: 'متوسط' },
+  { id: 'budget', name: 'اقتصادي' },
 ];
 
 export const transportMethods = [
@@ -96,11 +94,9 @@ export const getSuggestedHotel = (cityId: string, categoryId: string): string =>
   const baseName = cityNames[cityId] || "فندق روائس ريزورت";
   
   switch(categoryId) {
-    case 'family': return baseName + " (جناح عائلي)";
-    case 'honeymoon': return baseName + " (جناح شهر العسل)";
     case 'budget': return "فندق اقتصادي مميز";
+    case 'medium': return baseName + " (إقامة متوسطة)";
     case 'luxury': return baseName + " (إقامة فاخرة VIP)";
-    case 'auto':
     default:
       return baseName + " (اختيار روائس الموصى به)";
   }

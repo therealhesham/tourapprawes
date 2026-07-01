@@ -46,6 +46,98 @@ export default async function Home() {
         <SearchWidget />
       </div>
 
+      {/* ─── Services Quick Access ───────────────────────────────────── */}
+      <section className="relative z-10 pt-10 pb-4 px-4">
+        <div className="max-w-[1100px] mx-auto">
+          <div
+            className="bg-white rounded-3xl shadow-[0_8px_40px_rgba(0,0,0,0.08)] border border-gray-100 px-6 py-6"
+            dir="rtl"
+          >
+            <div className="flex flex-wrap justify-around items-center gap-4">
+
+              {/* الباقات السياحية */}
+              <a
+                href="/packages"
+                className="group flex flex-col items-center gap-3 cursor-pointer select-none"
+              >
+                <div
+                  className="w-16 h-16 rounded-2xl flex items-center justify-center shadow-md transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg"
+                  style={{ background: "linear-gradient(135deg, #1C00C6 0%, #100073 100%)" }}
+                >
+                  <span className="material-symbols-outlined text-white text-3xl">travel_explore</span>
+                </div>
+                <span className="text-sm font-bold text-gray-700 group-hover:text-primary transition-colors">الباقات السياحية</span>
+              </a>
+
+              <div className="hidden md:block w-px h-16 bg-gray-100" />
+
+              {/* حجوزات الطيران */}
+              <a
+                href="#"
+                className="group flex flex-col items-center gap-3 cursor-pointer select-none"
+              >
+                <div
+                  className="w-16 h-16 rounded-2xl flex items-center justify-center shadow-md transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg"
+                  style={{ background: "linear-gradient(135deg, #d4a017 0%, #a07820 100%)" }}
+                >
+                  <span className="material-symbols-outlined text-white text-3xl">flight_takeoff</span>
+                </div>
+                <span className="text-sm font-bold text-gray-700 group-hover:text-[#a07820] transition-colors">حجوزات الطيران</span>
+              </a>
+
+              <div className="hidden md:block w-px h-16 bg-gray-100" />
+
+              {/* حجوزات الفنادق */}
+              <a
+                href="#"
+                className="group flex flex-col items-center gap-3 cursor-pointer select-none"
+              >
+                <div
+                  className="w-16 h-16 rounded-2xl flex items-center justify-center shadow-md transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg"
+                  style={{ background: "linear-gradient(135deg, #1e1b4b 0%, #0c0a20 100%)" }}
+                >
+                  <span className="material-symbols-outlined text-white text-3xl">hotel</span>
+                </div>
+                <span className="text-sm font-bold text-gray-700 group-hover:text-[#1e1b4b] transition-colors">حجوزات الفنادق</span>
+              </a>
+
+              <div className="hidden md:block w-px h-16 bg-gray-100" />
+
+              {/* استخراج التاشيرات */}
+              <a
+                href="#"
+                className="group flex flex-col items-center gap-3 cursor-pointer select-none"
+              >
+                <div
+                  className="w-16 h-16 rounded-2xl flex items-center justify-center shadow-md transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg"
+                  style={{ background: "linear-gradient(135deg, #f5d98a 0%, #c9a84c 100%)" }}
+                >
+                  <span className="material-symbols-outlined text-white text-3xl">description</span>
+                </div>
+                <span className="text-sm font-bold text-gray-700 group-hover:text-[#c9a84c] transition-colors">استخراج التاشيرات</span>
+              </a>
+
+              <div className="hidden md:block w-px h-16 bg-gray-100" />
+
+              {/* خدمات اخري */}
+              <a
+                href="#"
+                className="group flex flex-col items-center gap-3 cursor-pointer select-none"
+              >
+                <div
+                  className="w-16 h-16 rounded-2xl flex items-center justify-center shadow-md transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg"
+                  style={{ background: "linear-gradient(135deg, #585e70 0%, #303031 100%)" }}
+                >
+                  <span className="material-symbols-outlined text-white text-3xl">dashboard</span>
+                </div>
+                <span className="text-sm font-bold text-gray-700 group-hover:text-[#585e70] transition-colors">خدمات اخري</span>
+              </a>
+
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ─── Exclusive Offers Section ───────────────────────────────── */}
       <section className="relative z-10 pt-24 pb-20 px-6 md:px-12">
         <div className="max-w-[1200px] mx-auto text-center mb-12">
