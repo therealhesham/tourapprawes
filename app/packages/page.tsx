@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 interface Option {
   value: string;
@@ -206,10 +207,7 @@ function PackagesPageContent() {
       </main>
 
 
-      {/* Footer minimal to match design */}
-      <footer className="text-center py-8 text-gray-400 text-sm border-t border-gray-100 flex-shrink-0 bg-white/50 backdrop-blur-sm">
-        © {new Date().getFullYear()} معاون MOAWEM - جميع الحقوق محفوظة
-      </footer>
+      <Footer />
     </div>
   );
 }

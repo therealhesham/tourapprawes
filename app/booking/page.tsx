@@ -4,11 +4,13 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 export default function MyBookingsPage() {
   const [activeTab, setActiveTab] = useState("upcoming");
   const [bookings, setBookings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [invoiceBooking, setInvoiceBooking] = useState<any | null>(null);
 
   useEffect(() => {
     fetch("/api/booking")
@@ -18,20 +20,29 @@ export default function MyBookingsPage() {
           const formatted = data.map(b => {
             // Determine if upcoming or past
             const start = new Date(b.startDate);
+            const end = new Date(b.endDate);
             const now = new Date();
             const type = start >= now ? "upcoming" : "past";
 
+            // Duration from package days, otherwise computed from booking dates
+            const diffDays = Math.round((end.getTime() - start.getTime()) / 86400000);
+            const duration = b.companyPackage?.days
+              ? `${b.companyPackage.days} أيام`
+              : diffDays > 0 ? `${diffDays} أيام` : "";
+
             return {
               id: b.id.substring(0, 8).toUpperCase(), // Short ID
-              destination: b.companyPackage?.countryCode || "وجهة مخصصة",
+              fullId: b.id,
+              destination: b.companyPackage?.countryCode || null,
               title: b.companyPackage?.name || "رحلة مخصصة",
-              image: b.companyPackage?.image || "/images/default.jpg",
+              image: b.companyPackage?.image || null,
               startDate: b.startDate,
               endDate: b.endDate,
-              duration: b.companyPackage?.days ? `${b.companyPackage.days} أيام` : "مخصصة",
-              status: type === "upcoming" ? "مؤكد" : "مكتمل", // Simplified status for demo
+              duration,
+              clientName: b.clientName,
+              clientPhone: b.clientPhone,
+              createdAt: b.createdAt,
               price: b.pricing.toLocaleString("en-US"),
-              persons: 2, // Assuming default 2 for demo if not in schema
               type: type
             };
           });
@@ -44,30 +55,11 @@ export default function MyBookingsPage() {
 
   const filteredBookings = bookings.filter(b => b.type === activeTab);
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "مؤكد":
-        return "bg-green-100 text-green-700 border-green-200";
-      case "قيد المراجعة":
-        return "bg-yellow-100 text-yellow-700 border-yellow-200";
-      case "مكتمل":
-        return "bg-gray-100 text-gray-700 border-gray-200";
-      case "ملغى":
-        return "bg-red-100 text-red-700 border-red-200";
-      default:
-        return "bg-blue-100 text-blue-700 border-blue-200";
-    }
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "مؤكد": return "check_circle";
-      case "قيد المراجعة": return "pending";
-      case "مكتمل": return "task_alt";
-      case "ملغى": return "cancel";
-      default: return "info";
-    }
-  };
+  // Badge derived from booking dates (no status column in the database)
+  const getBadge = (type: string) =>
+    type === "upcoming"
+      ? { label: "قادمة", icon: "event_upcoming", classes: "bg-green-100 text-green-700 border-green-200" }
+      : { label: "منتهية", icon: "task_alt", classes: "bg-gray-100 text-gray-700 border-gray-200" };
 
   return (
     <div className="min-h-screen bg-white relative overflow-hidden flex flex-col" dir="rtl" style={{ fontFamily: 'inherit' }}>
@@ -131,12 +123,18 @@ export default function MyBookingsPage() {
 
                 {/* Image */}
                 <div className="relative w-full md:w-64 h-48 md:h-auto flex-shrink-0">
-                  <Image
-                    src={booking.image}
-                    alt={booking.title}
-                    fill
-                    className="object-cover"
-                  />
+                  {booking.image ? (
+                    <Image
+                      src={booking.image}
+                      alt={booking.title}
+                      fill
+                      className="object-cover"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 bg-gray-100 flex items-center justify-center">
+                      <span className="material-symbols-outlined text-5xl text-gray-300">travel_explore</span>
+                    </div>
+                  )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-4 md:hidden">
                     <h3 className="text-white text-lg font-bold">{booking.title}</h3>
                   </div>
@@ -147,14 +145,16 @@ export default function MyBookingsPage() {
                   <div>
                     <div className="flex justify-between items-start mb-2">
                       <div className="hidden md:block">
-                        <p className="text-gray-400 text-xs font-bold mb-1 tracking-widest">{booking.destination}</p>
+                        {booking.destination && (
+                          <p className="text-gray-400 text-xs font-bold mb-1 tracking-widest">{booking.destination}</p>
+                        )}
                         <h3 className="text-primary text-xl font-bold">{booking.title}</h3>
                       </div>
 
-                      {/* Status Badge */}
-                      <div className={`flex items-center gap-1 px-3 py-1.5 rounded-full border text-xs font-bold ${getStatusColor(booking.status)}`}>
-                        <span className="material-symbols-outlined text-[16px]">{getStatusIcon(booking.status)}</span>
-                        {booking.status}
+                      {/* Status Badge (derived from booking dates) */}
+                      <div className={`flex items-center gap-1 px-3 py-1.5 rounded-full border text-xs font-bold ${getBadge(booking.type).classes}`}>
+                        <span className="material-symbols-outlined text-[16px]">{getBadge(booking.type).icon}</span>
+                        {getBadge(booking.type).label}
                       </div>
                     </div>
 
@@ -174,9 +174,9 @@ export default function MyBookingsPage() {
                         </p>
                       </div>
                       <div>
-                        <p className="text-gray-400 text-xs font-semibold mb-1">المسافرون</p>
+                        <p className="text-gray-400 text-xs font-semibold mb-1">اسم العميل</p>
                         <p className="text-gray-700 font-bold text-sm flex items-center gap-1">
-                          {booking.persons} أشخاص
+                          {booking.clientName}
                         </p>
                       </div>
                     </div>
@@ -192,13 +192,12 @@ export default function MyBookingsPage() {
                       </div>
                     </div>
                     <div className="flex gap-2">
-                      <button className="bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-900 px-4 py-2 rounded-lg font-bold text-sm transition-colors flex items-center gap-1">
+                      <button
+                        onClick={() => setInvoiceBooking(booking)}
+                        className="bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-900 px-4 py-2 rounded-lg font-bold text-sm transition-colors flex items-center gap-1"
+                      >
                         <span className="material-symbols-outlined text-[18px]">receipt_long</span>
                         الفاتورة
-                      </button>
-                      <button className="bg-primary text-white hover:bg-[#1e1b4b] px-4 py-2 rounded-lg font-bold text-sm transition-colors flex items-center gap-1">
-                        <span className="material-symbols-outlined text-[18px]">confirmation_number</span>
-                        التذكرة
                       </button>
                     </div>
                   </div>
@@ -228,10 +227,93 @@ export default function MyBookingsPage() {
         )}
       </main>
 
-      {/* Footer */}
-      <footer className="text-center py-8 text-gray-400 text-sm border-t border-gray-100 flex-shrink-0 bg-white/50 backdrop-blur-sm mt-auto">
-        © {new Date().getFullYear()} معاون MOAWEN - جميع الحقوق محفوظة
-      </footer>
+      {/* ─── Invoice Modal ─────────────────────────────────────────── */}
+      {invoiceBooking && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 print:bg-white print:p-0"
+          onClick={() => setInvoiceBooking(null)}
+        >
+          <div
+            className="invoice-print bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden print:shadow-none print:rounded-none print:max-w-none"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Invoice Header */}
+            <div className="bg-primary text-white p-6 flex justify-between items-center">
+              <div>
+                <h2 className="text-xl font-black mb-1">فاتورة الحجز</h2>
+                <p className="text-white/70 text-xs font-bold" dir="ltr">#{invoiceBooking.id}</p>
+              </div>
+              <button
+                onClick={() => setInvoiceBooking(null)}
+                className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors print:hidden"
+                aria-label="إغلاق"
+              >
+                <span className="material-symbols-outlined text-[20px]">close</span>
+              </button>
+            </div>
+
+            {/* Invoice Body */}
+            <div className="p-6 space-y-4">
+              <div className="flex justify-between items-center pb-4 border-b border-gray-100">
+                <span className="text-gray-400 text-sm font-semibold">الرحلة</span>
+                <span className="text-primary font-bold">{invoiceBooking.title}</span>
+              </div>
+              <div className="flex justify-between items-center pb-4 border-b border-gray-100">
+                <span className="text-gray-400 text-sm font-semibold">اسم العميل</span>
+                <span className="text-gray-800 font-bold">{invoiceBooking.clientName}</span>
+              </div>
+              <div className="flex justify-between items-center pb-4 border-b border-gray-100">
+                <span className="text-gray-400 text-sm font-semibold">رقم الجوال</span>
+                <span className="text-gray-800 font-bold" dir="ltr">{invoiceBooking.clientPhone}</span>
+              </div>
+              <div className="flex justify-between items-center pb-4 border-b border-gray-100">
+                <span className="text-gray-400 text-sm font-semibold">تاريخ الرحلة</span>
+                <span className="text-gray-800 font-bold">{invoiceBooking.startDate} — {invoiceBooking.endDate}</span>
+              </div>
+              {invoiceBooking.duration && (
+                <div className="flex justify-between items-center pb-4 border-b border-gray-100">
+                  <span className="text-gray-400 text-sm font-semibold">المدة</span>
+                  <span className="text-gray-800 font-bold">{invoiceBooking.duration}</span>
+                </div>
+              )}
+              <div className="flex justify-between items-center pb-4 border-b border-gray-100">
+                <span className="text-gray-400 text-sm font-semibold">تاريخ إصدار الحجز</span>
+                <span className="text-gray-800 font-bold">
+                  {new Date(invoiceBooking.createdAt).toLocaleDateString("ar-SA")}
+                </span>
+              </div>
+
+              {/* Total */}
+              <div className="flex justify-between items-center bg-gray-50 rounded-xl p-4 border border-gray-100">
+                <span className="text-gray-600 font-bold">الإجمالي</span>
+                <div>
+                  <span className="text-primary font-black text-2xl">{invoiceBooking.price}</span>
+                  <span className="text-primary font-bold text-sm mr-1">ريال</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Invoice Footer */}
+            <div className="p-6 pt-0 flex gap-3 print:hidden">
+              <button
+                onClick={() => window.print()}
+                className="flex-1 bg-primary text-white hover:bg-[#1e1b4b] px-4 py-3 rounded-xl font-bold text-sm transition-colors flex items-center justify-center gap-2"
+              >
+                <span className="material-symbols-outlined text-[18px]">print</span>
+                طباعة الفاتورة
+              </button>
+              <button
+                onClick={() => setInvoiceBooking(null)}
+                className="flex-1 bg-gray-100 text-gray-600 hover:bg-gray-200 px-4 py-3 rounded-xl font-bold text-sm transition-colors"
+              >
+                إغلاق
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <Footer />
     </div>
   );
 }

@@ -384,3 +384,18 @@ html {
   background: rgba(160, 120, 32, 0.2);
   color: #0c1120;
 }
+/* Print only the invoice modal when printing from the bookings page */
+@media print {
+  body:has(.invoice-print) * {
+    visibility: hidden;
+  }
+  .invoice-print,
+  .invoice-print * {
+    visibility: visible;
+  }
+  .invoice-print {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+  }
+}

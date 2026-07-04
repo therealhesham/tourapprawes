@@ -3,6 +3,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import SearchWidget from "@/components/SearchWidget";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 export default async function Home() {
   // Fetch up to 4 popular packages from the DB
@@ -194,10 +195,7 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Footer minimal to match design */}
-      <footer className="text-center py-8 text-gray-400 text-sm border-t border-gray-100 mt-10">
-        © {new Date().getFullYear()} معاون MOAWEN - جميع الحقوق محفوظة
-      </footer>
+      <Footer />
     </div>
   );
 }
