@@ -39,6 +39,7 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
   });
 
   const [flightConfirmed, setFlightConfirmed] = useState(false);
+  const [flightChoice, setFlightChoice] = useState<"yes" | "no" | null>(null);
   const [citiesConfirmed, setCitiesConfirmed] = useState(false);
 
   // Dynamic database states
@@ -389,6 +390,7 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
                     onClick={() => {
                       setState({ ...state, country: c.id });
                       setFlightConfirmed(false); // reset subsequent steps
+                      setFlightChoice(null);
                       setCitiesConfirmed(false);
                     }}
                     className={`py-3 px-3 md:py-4 md:px-6 rounded-xl border transition-all duration-300 text-base md:text-lg ${state.country === c.id
@@ -419,31 +421,53 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
 
               {!flightConfirmed ? (
                 <div className="space-y-6">
-                  <div className="flex items-center gap-4 bg-surface-container-lowest p-5 rounded-2xl border border-outline-variant/40">
-                    <input
-                      type="checkbox"
-                      id="includeFlightCheckbox"
-                      checked={state.includeFlight}
-                      onChange={(e) => {
-                        const isChecked = e.target.checked;
+                  <p className="font-bold text-lg text-primary">هل ترغب بإضافة حجز طيران؟</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
+                    <button
+                      onClick={() => {
+                        setFlightChoice("yes");
                         setState(prev => ({
                           ...prev,
-                          includeFlight: isChecked,
-                          flightEstimate: isChecked ? defaultFlightEstimate : 0,
-                          flightAirway: isChecked ? defaultAirway : "",
-                          flightId: isChecked && countryFlights.length > 0 ? countryFlights[0].id : "",
+                          includeFlight: true,
+                          flightEstimate: defaultFlightEstimate,
+                          flightAirway: defaultAirway,
+                          flightId: countryFlights.length > 0 ? countryFlights[0].id : "",
                         }));
                       }}
-                      className="w-6 h-6 accent-secondary rounded cursor-pointer"
-                    />
-                    <label htmlFor="includeFlightCheckbox" className="font-bold text-lg text-primary cursor-pointer select-none">
-                      إضافة حجز طيران (سعر تقديري: {defaultFlightEstimate} SAR للشخص)
-                    </label>
+                      className={`py-4 px-4 md:px-6 rounded-xl border transition-all duration-300 text-base md:text-lg ${flightChoice === "yes"
+                        ? "gold-shimmer bg-primary text-white border-primary shadow-lg ring-2 ring-secondary/50 font-black"
+                        : "bg-surface-container-lowest text-on-surface border-outline-variant/40 hover:border-secondary/50 hover:bg-white/5 font-bold"
+                        }`}
+                    >
+                      نعم، أرغب بإضافة حجز طيران
+                      <span className={`block text-sm mt-1 font-normal ${flightChoice === "yes" ? "text-white/80" : "text-slate-500"}`}>
+                        سعر تقديري: {defaultFlightEstimate} SAR للشخص
+                      </span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        setFlightChoice("no");
+                        setState(prev => ({
+                          ...prev,
+                          includeFlight: false,
+                          flightEstimate: 0,
+                          flightAirway: "",
+                          flightId: "",
+                        }));
+                      }}
+                      className={`py-4 px-4 md:px-6 rounded-xl border transition-all duration-300 text-base md:text-lg ${flightChoice === "no"
+                        ? "gold-shimmer bg-primary text-white border-primary shadow-lg ring-2 ring-secondary/50 font-black"
+                        : "bg-surface-container-lowest text-on-surface border-outline-variant/40 hover:border-secondary/50 hover:bg-white/5 font-bold"
+                        }`}
+                    >
+                      لا، سأقوم بحجز الطيران بنفسي
+                    </button>
                   </div>
                   <div className="flex justify-end">
                     <button
                       onClick={() => setFlightConfirmed(true)}
-                      className="gold-shimmer bg-primary text-background w-full sm:w-auto px-4 sm:px-8 py-3 rounded-xl font-bold uppercase tracking-widest text-sm sm:text-base btn-glow transition-all"
+                      disabled={flightChoice === null}
+                      className={`gold-shimmer bg-primary text-background w-full sm:w-auto px-4 sm:px-8 py-3 rounded-xl font-bold uppercase tracking-widest text-sm sm:text-base btn-glow transition-all ${flightChoice === null ? "opacity-50 cursor-not-allowed" : ""}`}
                     >
                       متابعة
                     </button>

@@ -10,8 +10,8 @@ let cleanConnectionString = connectionString.startsWith("mysql://")
 
 if (cleanConnectionString) {
   cleanConnectionString += cleanConnectionString.includes("?")
-    ? "&connectTimeout=15000&acquireTimeout=20000"
-    : "?connectTimeout=15000&acquireTimeout=20000";
+    ? "&connectTimeout=5000&acquireTimeout=8000"
+    : "?connectTimeout=5000&acquireTimeout=8000";
 }
 
 const adapter = new PrismaMariaDb(cleanConnectionString);

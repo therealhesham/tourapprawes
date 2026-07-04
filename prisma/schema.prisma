@@ -156,13 +156,13 @@ model CompanyPackage {
 
 model OtpCode {
   id        String   @id @default(uuid())
-  phone     String   @map("phone")
+  phone     String   @map("phone") @unique
   codeHash  String   @map("code_hash")
   expiresAt DateTime @map("expires_at")
   attempts  Int      @default(0) @map("attempts")
   createdAt DateTime @default(now()) @map("created_at")
 
-  @@index([phone])
+  @@index([phone, createdAt])
   @@map("otp_codes")
 }
 
