@@ -75,10 +75,10 @@ export default function Footer() {
           <div className="flex flex-col items-center md:items-start gap-4 text-center md:text-right">
             <Link href="/" className="inline-flex">
               <Image
-                src="/Untitled-3.png"
+                src="/logo-main.png"
                 alt="Rawaes Logo"
-                width={450}
-                height={153}
+                width={697}
+                height={238}
                 className="h-[54px] w-auto object-contain opacity-95 hover:opacity-100 transition-opacity"
               />
             </Link>

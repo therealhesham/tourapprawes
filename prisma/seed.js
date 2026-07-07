@@ -1,5 +1,6 @@
 const { PrismaClient } = require('@prisma/client')
 const { PrismaMariaDb } = require('@prisma/adapter-mariadb')
+const crypto = require('crypto')
 require('dotenv').config()
 
 const connectionString = process.env.DATABASE_URL;
@@ -16,8 +17,28 @@ if (cleanConnectionString) {
 const adapter = new PrismaMariaDb(cleanConnectionString);
 const prisma = new PrismaClient({ adapter })
 
+// Same "salt:hash" scrypt format verified by lib/auth.ts
+function hashPassword(password) {
+  const salt = crypto.randomBytes(16).toString('hex')
+  const hash = crypto.scryptSync(password, salt, 64).toString('hex')
+  return `${salt}:${hash}`
+}
+
+async function seedAdmin() {
+  const username = process.env.ADMIN_USER || 'admin'
+  const password = process.env.ADMIN_PASS || 'admin123'
+  await prisma.admin.upsert({
+    where: { username },
+    update: { passwordHash: hashPassword(password) },
+    create: { username, passwordHash: hashPassword(password), name: 'Administrator' },
+  })
+  console.log(`Admin user "${username}" seeded.`)
+}
+
 async function main() {
   console.log('Start seeding data...')
+
+  await seedAdmin()
 
   // Clear existing data (optional but good for clean seed)
   await prisma.companyPackage.deleteMany()
@@ -377,7 +398,11 @@ async function main() {
   console.log('Seeding finished successfully.')
 }
 
-main()
+// `node prisma/seed.js` runs the full seed (wipes and recreates all data);
+// `node prisma/seed.js --admin-only` seeds/updates only the admin account
+const run = process.argv.includes('--admin-only') ? seedAdmin : main
+
+run()
   .then(async () => {
     await prisma.$disconnect()
   })

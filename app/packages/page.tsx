@@ -154,7 +154,7 @@ function PackagesPageContent() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {filteredPackages.map((dest) => (
-              <div key={dest.id} className="group bg-white rounded-2xl overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.06)] border border-gray-100 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 block cursor-pointer">
+              <Link key={dest.id} href={`/packages/${dest.id}`} className="group bg-white rounded-2xl overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.06)] border border-gray-100 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 block cursor-pointer">
 
                 {/* Image Section */}
                 <div className="relative h-64 w-full overflow-hidden">
@@ -200,7 +200,7 @@ function PackagesPageContent() {
                     {dest.days}
                   </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         )}

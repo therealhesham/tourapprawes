@@ -62,11 +62,11 @@ export default function Navbar({ theme = "light" }: NavbarProps) {
           <div className="flex items-center">
             <Link href="/" className={isDark ? "text-2xl font-black text-white tracking-wide flex items-center gap-2" : "text-2xl font-black text-primary tracking-wide flex items-center gap-2"}>
               <Image
-                src="/Untitled-3.png"
+                src="/logo-main.png"
                 alt="Rawaes Logo"
-                width={450}
-                height={153}
-                className={`h-[50px] sm:h-[50px] md:h-[50px] w-auto object-contain opacity-95 hover:opacity-100 transition-opacity `}
+                width={697}
+                height={238}
+                className={`h-[56px] w-auto object-contain opacity-95 hover:opacity-100 transition-opacity `}
               />
             </Link>
           </div>

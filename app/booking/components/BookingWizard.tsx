@@ -26,6 +26,9 @@ type BookingState = {
   departureAirport: string;
 };
 
+// Where an in-progress wizard is stashed when submitting requires a login first
+const WIZARD_SNAPSHOT_KEY = "bookingWizardSnapshot";
+
 export default function BookingWizard({ onClose }: { onClose?: () => void }) {
   const [state, setState] = useState<BookingState>({
     startDate: "",
@@ -61,6 +64,25 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
 
   // Transient state for the current city being added
   const [currentCity, setCurrentCity] = useState<Partial<CityStay>>({ nights: 1 });
+
+  // Restore an in-progress wizard stashed before a login redirect
+  useEffect(() => {
+    try {
+      const saved = sessionStorage.getItem(WIZARD_SNAPSHOT_KEY);
+      if (!saved) return;
+      sessionStorage.removeItem(WIZARD_SNAPSHOT_KEY);
+      const snapshot = JSON.parse(saved);
+      if (snapshot.state) setState(snapshot.state);
+      setFlightConfirmed(!!snapshot.flightConfirmed);
+      setFlightChoice(snapshot.flightChoice ?? null);
+      setCitiesConfirmed(!!snapshot.citiesConfirmed);
+      setClientName(snapshot.clientName || "");
+      setClientPhone(snapshot.clientPhone || "");
+      setShowContactForm(true);
+    } catch {
+      sessionStorage.removeItem(WIZARD_SNAPSHOT_KEY);
+    }
+  }, []);
 
   useEffect(() => {
     const fetchCities = fetch("/api/admin/cities").then(res => res.json());
@@ -769,6 +791,15 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
                       cityStays: state.cityStays,
                     }),
                   });
+                  if (res.status === 401) {
+                    // Stash the wizard so it survives the login round-trip
+                    sessionStorage.setItem(
+                      WIZARD_SNAPSHOT_KEY,
+                      JSON.stringify({ state, flightConfirmed, flightChoice, citiesConfirmed, clientName, clientPhone })
+                    );
+                    window.location.href = "/login?callbackUrl=" + encodeURIComponent("/booking/wizard");
+                    return;
+                  }
                   const data = await res.json();
                   if (data.error) {
                     setBookingError(data.error);

@@ -20,6 +20,12 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
+  // The package wizard is public — auth is only enforced when the
+  // booking is actually submitted (POST /api/booking)
+  if (pathname.startsWith("/booking/wizard")) {
+    return NextResponse.next();
+  }
+
   // Client area — requires any authenticated session
   if (!token) {
     const url = new URL("/login", req.url);

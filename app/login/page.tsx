@@ -76,10 +76,10 @@ function LoginForm() {
         <div className="flex justify-center mb-8">
           <Link href="/">
             <Image
-              src="/Untitled-3.png"
+              src="/logo-main.png"
               alt="Rawaes Logo"
-              width={450}
-              height={153}
+              width={697}
+              height={238}
               className="h-[60px] w-auto object-contain"
             />
           </Link>

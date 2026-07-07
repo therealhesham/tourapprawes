@@ -24,6 +24,21 @@ export function hashOtp(phone: string, code: string): string {
     .digest("hex");
 }
 
+// Password hashing for admin accounts (scrypt, stored as "salt:hash")
+export function hashPassword(password: string): string {
+  const salt = crypto.randomBytes(16).toString("hex");
+  const hash = crypto.scryptSync(password, salt, 64).toString("hex");
+  return `${salt}:${hash}`;
+}
+
+export function verifyPassword(password: string, stored: string): boolean {
+  const [salt, hash] = stored.split(":");
+  if (!salt || !hash) return false;
+  const candidate = crypto.scryptSync(password, salt, 64);
+  const expected = Buffer.from(hash, "hex");
+  return candidate.length === expected.length && crypto.timingSafeEqual(candidate, expected);
+}
+
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
@@ -34,14 +49,24 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        const adminUser = process.env.ADMIN_USER || "admin";
-        const adminPass = process.env.ADMIN_PASS || "admin123";
+        if (!credentials?.username || !credentials?.password) return null;
 
-        if (
-          credentials?.username === adminUser &&
-          credentials?.password === adminPass
-        ) {
-          return { id: "1", name: "Administrator", email: "admin@rawaes.com", role: "admin" } as any;
+        const admin = await prisma.admin.findUnique({
+          where: { username: credentials.username },
+        });
+        if (admin) {
+          if (!verifyPassword(credentials.password, admin.passwordHash)) return null;
+          return { id: admin.id, name: admin.name, role: "admin" } as any;
+        }
+
+        // Bootstrap fallback: env credentials work only until an admin is seeded
+        const adminCount = await prisma.admin.count();
+        if (adminCount === 0) {
+          const adminUser = process.env.ADMIN_USER || "admin";
+          const adminPass = process.env.ADMIN_PASS || "admin123";
+          if (credentials.username === adminUser && credentials.password === adminPass) {
+            return { id: "env-admin", name: "Administrator", role: "admin" } as any;
+          }
         }
         return null;
       },
