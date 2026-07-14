@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import Icon from "@/components/Icon";
 
 export default function MyBookingsPage() {
   const [activeTab, setActiveTab] = useState("upcoming");
@@ -81,7 +82,7 @@ export default function MyBookingsPage() {
       <section className="relative z-10 pt-16 pb-8 text-center px-4">
         <div className="flex justify-center items-center gap-2 mb-2">
           <h1 className="text-3xl md:text-4xl font-black text-primary">حجوزاتي</h1>
-          <span className="material-symbols-outlined text-primary text-4xl">luggage</span>
+          <Icon name="luggage" className="text-primary text-4xl" />
         </div>
         <p className="text-gray-500 font-medium">تابع رحلاتك القادمة والسابقة من مكان واحد</p>
       </section>
@@ -132,7 +133,7 @@ export default function MyBookingsPage() {
                     />
                   ) : (
                     <div className="absolute inset-0 bg-gray-100 flex items-center justify-center">
-                      <span className="material-symbols-outlined text-5xl text-gray-300">travel_explore</span>
+                      <Icon name="travel_explore" className="text-5xl text-gray-300" />
                     </div>
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-4 md:hidden">
@@ -153,7 +154,7 @@ export default function MyBookingsPage() {
 
                       {/* Status Badge (derived from booking dates) */}
                       <div className={`flex items-center gap-1 px-3 py-1.5 rounded-full border text-xs font-bold ${getBadge(booking.type).classes}`}>
-                        <span className="material-symbols-outlined text-[16px]">{getBadge(booking.type).icon}</span>
+                        <Icon name={getBadge(booking.type).icon} className="text-[16px]" />
                         {getBadge(booking.type).label}
                       </div>
                     </div>
@@ -196,7 +197,7 @@ export default function MyBookingsPage() {
                         onClick={() => setInvoiceBooking(booking)}
                         className="bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-900 px-4 py-2 rounded-lg font-bold text-sm transition-colors flex items-center gap-1"
                       >
-                        <span className="material-symbols-outlined text-[18px]">receipt_long</span>
+                        <Icon name="receipt_long" className="text-[18px]" />
                         الفاتورة
                       </button>
                     </div>
@@ -208,9 +209,7 @@ export default function MyBookingsPage() {
         ) : (
           /* Empty State */
           <div className="text-center py-20 px-6 bg-white rounded-3xl border border-gray-100 shadow-[0_4px_30px_rgba(0,0,0,0.03)] max-w-2xl mx-auto">
-            <span className="material-symbols-outlined text-6xl text-gray-300 mb-4 block">
-              event_busy
-            </span>
+            <Icon name="event_busy" className="text-6xl text-gray-300 mb-4 block" />
             <h3 className="text-xl font-bold text-[#1C00C6] mb-2">
               لا توجد {activeTab === "upcoming" ? "حجوزات قادمة" : "حجوزات سابقة"}
             </h3>
@@ -248,7 +247,7 @@ export default function MyBookingsPage() {
                 className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors print:hidden"
                 aria-label="إغلاق"
               >
-                <span className="material-symbols-outlined text-[20px]">close</span>
+                <Icon name="close" className="text-[20px]" />
               </button>
             </div>
 
@@ -299,7 +298,7 @@ export default function MyBookingsPage() {
                 onClick={() => window.print()}
                 className="flex-1 bg-primary text-white hover:bg-[#1e1b4b] px-4 py-3 rounded-xl font-bold text-sm transition-colors flex items-center justify-center gap-2"
               >
-                <span className="material-symbols-outlined text-[18px]">print</span>
+                <Icon name="print" className="text-[18px]" />
                 طباعة الفاتورة
               </button>
               <button

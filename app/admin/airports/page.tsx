@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Icon from "@/components/Icon";
 
 type City = { id: string; name: string };
 type Airport = { id: string; airportName: string; cityId: string; city: City };
@@ -151,7 +152,7 @@ export default function AdminAirportsPage() {
         {/* Saudi Airport Form */}
         <div className="glass-panel p-6 rounded-2xl border border-white/60 shadow-md">
           <h3 className="text-lg font-bold text-primary mb-4 flex items-center gap-2">
-            <span className="material-symbols-outlined text-secondary">flight_takeoff</span>
+            <Icon name="flight_takeoff" className="text-secondary" />
             إضافة مطار مغادرة (داخل السعودية)
           </h3>
 
@@ -196,7 +197,7 @@ export default function AdminAirportsPage() {
         {/* Destination Airport Form */}
         <div className="glass-panel p-6 rounded-2xl border border-white/60 shadow-md">
           <h3 className="text-lg font-bold text-primary mb-4 flex items-center gap-2">
-            <span className="material-symbols-outlined text-secondary">flight_land</span>
+            <Icon name="flight_land" className="text-secondary" />
             إضافة مطار وصول (خارجي / في الوجهة)
           </h3>
 
@@ -246,7 +247,7 @@ export default function AdminAirportsPage() {
         {/* Saudi Airports Table */}
         <div className="glass-panel p-6 rounded-3xl border border-white/60 shadow-xl">
           <h3 className="text-lg font-bold text-primary mb-4 border-b border-outline-variant/30 pb-3 flex items-center gap-2">
-            <span className="material-symbols-outlined text-secondary">flight_takeoff</span>
+            <Icon name="flight_takeoff" className="text-secondary" />
             مطارات المغادرة السعودية المسجلة
           </h3>
 
@@ -276,7 +277,7 @@ export default function AdminAirportsPage() {
                           onClick={() => handleDelete(airport.id, "saudi")}
                           className="text-red-500 hover:text-red-700 font-bold flex items-center gap-1 cursor-pointer mr-auto"
                         >
-                          <span className="material-symbols-outlined text-xs">delete</span>
+                          <Icon name="delete" className="text-xs" />
                           حذف
                         </button>
                       </td>
@@ -291,7 +292,7 @@ export default function AdminAirportsPage() {
         {/* Destination Airports Table */}
         <div className="glass-panel p-6 rounded-3xl border border-white/60 shadow-xl">
           <h3 className="text-lg font-bold text-primary mb-4 border-b border-outline-variant/30 pb-3 flex items-center gap-2">
-            <span className="material-symbols-outlined text-secondary">flight_land</span>
+            <Icon name="flight_land" className="text-secondary" />
             مطارات الوصول الخارجية المسجلة
           </h3>
 
@@ -321,7 +322,7 @@ export default function AdminAirportsPage() {
                           onClick={() => handleDelete(airport.id, "destination")}
                           className="text-red-500 hover:text-red-700 font-bold flex items-center gap-1 cursor-pointer mr-auto"
                         >
-                          <span className="material-symbols-outlined text-xs">delete</span>
+                          <Icon name="delete" className="text-xs" />
                           حذف
                         </button>
                       </td>

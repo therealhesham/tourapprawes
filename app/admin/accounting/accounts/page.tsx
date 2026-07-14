@@ -12,6 +12,7 @@ import {
   PrimaryBtn,
   ACCOUNT_TYPE_LABELS,
 } from "../ui";
+import Icon from "@/components/Icon";
 
 type Account = {
   id: string;
@@ -108,7 +109,7 @@ export default function AccountsPage() {
         subtitle="الحسابات المحاسبية وأرصدتها الحالية"
         actions={
           <PrimaryBtn onClick={() => setShowForm(true)}>
-            <span className="material-symbols-outlined">add_circle</span>
+            <Icon name="add_circle" />
             حساب جديد
           </PrimaryBtn>
         }
@@ -145,10 +146,10 @@ export default function AccountsPage() {
                         {!a.isSystem && (
                           <>
                             <button onClick={() => toggleActive(a)} className="text-slate-400 hover:text-primary" title={a.isActive ? "تعطيل" : "تفعيل"}>
-                              <span className="material-symbols-outlined text-xl">{a.isActive ? "toggle_on" : "toggle_off"}</span>
+                              <Icon name={a.isActive ? "toggle_on" : "toggle_off"} className="text-xl" />
                             </button>
                             <button onClick={() => remove(a.id)} className="text-red-400 hover:text-red-600" title="حذف">
-                              <span className="material-symbols-outlined text-xl">delete</span>
+                              <Icon name="delete" className="text-xl" />
                             </button>
                           </>
                         )}

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import Icon from "@/components/Icon";
 
 interface City {
   id: string;
@@ -112,9 +113,7 @@ export default function SearchWidget() {
                 className="text-sm font-bold text-primary bg-transparent border-none outline-none ring-0 shadow-none appearance-none w-full p-0 placeholder:font-bold placeholder:text-primary/70 focus:outline-none focus:ring-0 focus:border-none"
               />
             </div>
-            <span className="material-symbols-outlined text-slate-400 text-xl mr-2 flex-shrink-0">
-              location_on
-            </span>
+            <Icon name="location_on" className="text-slate-400 text-xl mr-2 flex-shrink-0" />
           </div>
 
           {/* Destination Dropdown */}
@@ -135,9 +134,7 @@ export default function SearchWidget() {
                       setShowDestinationDropdown(false);
                     }}
                   >
-                    <span className="material-symbols-outlined text-[16px] text-primary/50">
-                      location_on
-                    </span>
+                    <Icon name="location_on" className="text-[16px] text-primary/50" />
                     {city.name}
                   </button>
                 ))
@@ -166,9 +163,7 @@ export default function SearchWidget() {
                   : "متى تخطط للسفر؟"}
               </p>
             </div>
-            <span className="material-symbols-outlined text-slate-400 text-xl mr-2 flex-shrink-0">
-              calendar_month
-            </span>
+            <Icon name="calendar_month" className="text-slate-400 text-xl mr-2 flex-shrink-0" />
           </div>
 
           {/* Date Picker Dropdown */}
@@ -232,9 +227,7 @@ export default function SearchWidget() {
                 حتى {budget.toLocaleString("ar-SA")} ريال
               </p>
             </div>
-            <span className="material-symbols-outlined text-slate-400 text-xl mr-2 flex-shrink-0">
-              account_balance_wallet
-            </span>
+            <Icon name="account_balance_wallet" className="text-slate-400 text-xl mr-2 flex-shrink-0" />
           </div>
 
           {/* Budget Picker Dropdown */}
@@ -296,7 +289,7 @@ export default function SearchWidget() {
         onClick={handleSearch}
         className="mt-2 md:mt-0 w-full md:w-auto bg-primary text-white px-10 py-4 rounded-full font-bold text-lg flex items-center justify-center gap-2 hover:bg-primary/95 active:scale-95 transition-all shadow-lg shadow-primary/30 cursor-pointer"
       >
-        <span className="material-symbols-outlined">search</span>
+        <Icon name="search" />
         بحث
       </button>
     </div>

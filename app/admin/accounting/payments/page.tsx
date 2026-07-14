@@ -15,6 +15,7 @@ import {
   METHOD_LABELS,
   docNo,
 } from "../ui";
+import Icon from "@/components/Icon";
 
 type Voucher = {
   id: string;
@@ -136,7 +137,7 @@ export default function PaymentsPage() {
         subtitle="مصروفات عامة وتكاليف الرحلات — مع ضريبة المدخلات القابلة للخصم"
         actions={
           <PrimaryBtn onClick={() => setShowForm(true)}>
-            <span className="material-symbols-outlined">add_circle</span>
+            <Icon name="add_circle" />
             سند صرف جديد
           </PrimaryBtn>
         }
@@ -191,7 +192,7 @@ export default function PaymentsPage() {
                   <td className="py-3 px-4">
                     {!v.cancelledAt && (
                       <button onClick={() => remove(v.id)} className="text-red-400 hover:text-red-600" title="إلغاء بقيد عكسي">
-                        <span className="material-symbols-outlined text-xl">cancel</span>
+                        <Icon name="cancel" className="text-xl" />
                       </button>
                     )}
                   </td>

@@ -15,6 +15,7 @@ import {
   METHOD_LABELS,
   docNo,
 } from "../ui";
+import Icon from "@/components/Icon";
 
 type Receipt = {
   id: string;
@@ -142,7 +143,7 @@ export default function ReceiptsPage() {
         subtitle="تحصيل دفعات العملاء نقداً أو بنكياً"
         actions={
           <PrimaryBtn onClick={() => setShowForm(true)}>
-            <span className="material-symbols-outlined">add_circle</span>
+            <Icon name="add_circle" />
             سند قبض جديد
           </PrimaryBtn>
         }
@@ -189,7 +190,7 @@ export default function ReceiptsPage() {
                   <td className="py-3 px-4">
                     {!r.cancelledAt && (
                       <button onClick={() => remove(r.id)} className="text-red-400 hover:text-red-600" title="إلغاء بقيد عكسي">
-                        <span className="material-symbols-outlined text-xl">cancel</span>
+                        <Icon name="cancel" className="text-xl" />
                       </button>
                     )}
                   </td>

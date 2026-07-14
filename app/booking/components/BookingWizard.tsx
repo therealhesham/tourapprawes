@@ -5,6 +5,7 @@ import {
   hotelCategories,
   transportMethods,
 } from "../data/mockData";
+import Icon from "@/components/Icon";
 
 type CityStay = {
   cityId: string;
@@ -349,7 +350,7 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
         {/* ─── STEP 1: Date Range Selection ─── */}
         <section className="glass-panel p-6 md:p-8 rounded-3xl border border-slate-200/60 shadow-xl animate-fade-in-up transition-all">
           <h3 className="text-xl font-bold text-primary mb-6 flex items-center gap-2">
-            <span className="material-symbols-outlined text-secondary">calendar_month</span>
+            <Icon name="calendar_month" className="text-secondary" />
             1. تواريخ الرحلة
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -397,7 +398,7 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
         {isDateSectionComplete && (
           <section className="glass-panel p-6 md:p-8 rounded-3xl border border-slate-200/60 shadow-xl animate-fade-in-up transition-all" style={{ animationDelay: '100ms' }}>
             <h3 className="text-xl font-bold text-primary mb-6 flex items-center gap-2">
-              <span className="material-symbols-outlined text-secondary">public</span>
+              <Icon name="public" className="text-secondary" />
               2. الوجهة السياحية
             </h3>
             {dataLoading ? (
@@ -437,7 +438,7 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
           return (
             <section className="glass-panel p-6 md:p-8 rounded-3xl border border-slate-200/60 shadow-xl animate-fade-in-up transition-all" style={{ animationDelay: '100ms' }}>
               <h3 className="text-xl font-bold text-primary mb-6 flex items-center gap-2">
-                <span className="material-symbols-outlined text-secondary">flight</span>
+                <Icon name="flight" className="text-secondary" />
                 3. خيارات الطيران
               </h3>
 
@@ -521,7 +522,7 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
           return (
             <section className="glass-panel p-6 md:p-8 rounded-3xl border border-slate-200/60 shadow-xl animate-fade-in-up transition-all" style={{ animationDelay: '100ms' }}>
               <h3 className="text-xl font-bold text-primary mb-6 flex items-center gap-2">
-                <span className="material-symbols-outlined text-secondary">location_city</span>
+                <Icon name="location_city" className="text-secondary" />
                 4. خط السير وتفاصيل الإقامة
               </h3>
 
@@ -550,7 +551,7 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
                           <div className="absolute top-0 -right-[9px] w-4 h-4 rounded-full bg-secondary shadow-[0_0_10px_rgba(212,160,23,1)]" />
                           {idx > 0 && transportName && (
                             <div className="mb-2 text-sm text-secondary-bright font-bold flex items-center gap-2">
-                              <span className="material-symbols-outlined text-base">directions_car</span>
+                              <Icon name="directions_car" className="text-base" />
                               {transportName}
                             </div>
                           )}
@@ -674,7 +675,7 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
         {citiesConfirmed && (
           <section className="glass-panel p-6 md:p-8 rounded-3xl border border-slate-200/60 shadow-xl animate-fade-in-up transition-all" style={{ animationDelay: '200ms' }}>
             <h3 className="text-2xl font-bold text-primary mb-8 border-b border-slate-200/60 pb-4 flex items-center gap-2">
-              <span className="material-symbols-outlined text-secondary">receipt_long</span>
+              <Icon name="receipt_long" className="text-secondary" />
               ملخص الحجز
             </h3>
 
@@ -700,7 +701,7 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
             {lastCityAdded && !lastCityAdded.hasAirport && (
               <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 space-y-2">
                 <div className="font-bold flex items-center gap-2">
-                  <span className="material-symbols-outlined text-amber-500">info</span>
+                  <Icon name="info" className="text-amber-500" />
                   تنويه بخصوص مطار العودة
                 </div>
                 <p className="text-sm">
@@ -758,7 +759,7 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-md">
           <div className="w-full max-w-md bg-white rounded-3xl p-6 md:p-8 shadow-2xl relative border border-slate-200 text-right animate-zoom-in" dir="rtl">
             <h3 className="text-xl font-bold text-primary mb-4 flex items-center gap-2">
-              <span className="material-symbols-outlined text-secondary">contact_phone</span>
+              <Icon name="contact_phone" className="text-secondary" />
               معلومات الاتصال للحجز
             </h3>
             <p className="text-sm text-slate-600 mb-6">
@@ -840,7 +841,7 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-primary/80 backdrop-blur-md">
           <div className="w-full max-w-md bg-white rounded-3xl p-8 shadow-2xl text-center border border-slate-200 animate-zoom-in" dir="rtl">
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 text-green-500">
-              <span className="material-symbols-outlined text-4xl">check_circle</span>
+              <Icon name="check_circle" className="text-4xl" />
             </div>
             <h3 className="text-2xl font-bold text-primary mb-3">تم إرسال طلبك بنجاح!</h3>
             <p className="text-slate-600 mb-8 leading-relaxed">

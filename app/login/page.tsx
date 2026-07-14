@@ -5,6 +5,7 @@ import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import Icon from "@/components/Icon";
 
 function LoginForm() {
   const router = useRouter();
@@ -87,9 +88,7 @@ function LoginForm() {
 
         <div className="bg-white rounded-3xl border border-gray-100 shadow-[0_4px_30px_rgba(0,0,0,0.05)] p-8">
           <div className="text-center mb-8">
-            <span className="material-symbols-outlined text-primary text-5xl mb-3 block">
-              {step === "phone" ? "smartphone" : "pin"}
-            </span>
+            <Icon name={step === "phone" ? "smartphone" : "pin"} className="text-primary text-5xl mb-3 block" />
             <h1 className="text-2xl font-black text-primary mb-2">
               {step === "phone" ? "تسجيل الدخول" : "أدخل كود التحقق"}
             </h1>
@@ -134,7 +133,7 @@ function LoginForm() {
                   <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 ) : (
                   <>
-                    <span className="material-symbols-outlined text-[20px]">sms</span>
+                    <Icon name="sms" className="text-[20px]" />
                     إرسال كود التحقق
                   </>
                 )}
@@ -182,7 +181,7 @@ function LoginForm() {
                   <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 ) : (
                   <>
-                    <span className="material-symbols-outlined text-[20px]">login</span>
+                    <Icon name="login" className="text-[20px]" />
                     تسجيل الدخول
                   </>
                 )}

@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import SearchWidget from "@/components/SearchWidget";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import Icon from "@/components/Icon";
 
 export default async function Home() {
   // Fetch up to 4 popular packages from the DB
@@ -65,7 +66,7 @@ export default async function Home() {
                   className="w-16 h-16 rounded-2xl flex items-center justify-center shadow-md transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg"
                   style={{ background: "linear-gradient(135deg, #1C00C6 0%, #100073 100%)" }}
                 >
-                  <span className="material-symbols-outlined text-white text-3xl">travel_explore</span>
+                  <Icon name="travel_explore" className="text-white text-3xl" />
                 </div>
                 <span className="text-sm font-bold text-gray-700 group-hover:text-primary transition-colors">الباقات السياحية</span>
               </a>
@@ -81,7 +82,7 @@ export default async function Home() {
                   className="w-16 h-16 rounded-2xl flex items-center justify-center shadow-md transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg"
                   style={{ background: "linear-gradient(135deg, #d4a017 0%, #a07820 100%)" }}
                 >
-                  <span className="material-symbols-outlined text-white text-3xl">flight_takeoff</span>
+                  <Icon name="flight_takeoff" className="text-white text-3xl" />
                 </div>
                 <span className="text-sm font-bold text-gray-700 group-hover:text-[#a07820] transition-colors">حجوزات الطيران</span>
               </a>
@@ -97,7 +98,7 @@ export default async function Home() {
                   className="w-16 h-16 rounded-2xl flex items-center justify-center shadow-md transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg"
                   style={{ background: "linear-gradient(135deg, #1e1b4b 0%, #0c0a20 100%)" }}
                 >
-                  <span className="material-symbols-outlined text-white text-3xl">hotel</span>
+                  <Icon name="hotel" className="text-white text-3xl" />
                 </div>
                 <span className="text-sm font-bold text-gray-700 group-hover:text-[#1e1b4b] transition-colors">حجوزات الفنادق</span>
               </a>
@@ -113,7 +114,7 @@ export default async function Home() {
                   className="w-16 h-16 rounded-2xl flex items-center justify-center shadow-md transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg"
                   style={{ background: "linear-gradient(135deg, #f5d98a 0%, #c9a84c 100%)" }}
                 >
-                  <span className="material-symbols-outlined text-white text-3xl">description</span>
+                  <Icon name="description" className="text-white text-3xl" />
                 </div>
                 <span className="text-sm font-bold text-gray-700 group-hover:text-[#c9a84c] transition-colors">استخراج التاشيرات</span>
               </a>
@@ -129,7 +130,7 @@ export default async function Home() {
                   className="w-16 h-16 rounded-2xl flex items-center justify-center shadow-md transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg"
                   style={{ background: "linear-gradient(135deg, #585e70 0%, #303031 100%)" }}
                 >
-                  <span className="material-symbols-outlined text-white text-3xl">dashboard</span>
+                  <Icon name="dashboard" className="text-white text-3xl" />
                 </div>
                 <span className="text-sm font-bold text-gray-700 group-hover:text-[#585e70] transition-colors">خدمات اخري</span>
               </a>
@@ -144,7 +145,7 @@ export default async function Home() {
         <div className="max-w-[1200px] mx-auto text-center mb-12">
           <div className="flex justify-center items-center gap-2 mb-2">
             <h2 className="text-2xl md:text-3xl font-black text-primary">باقاتنا المميزة</h2>
-            {/* <span className="material-symbols-outlined text-primary text-3xl">auto_awesome</span> */}
+            {/* <Icon name="auto_awesome" className="text-primary text-3xl" /> */}
           </div>
           <p className="text-gray-500 font-medium">مجموعة مخصصة لأروع وجهات السفر الفخمة في العالم</p>
         </div>
@@ -164,13 +165,13 @@ export default async function Home() {
 
                 {/* Heart Icon */}
                 <div className="absolute top-4 left-4 w-8 h-8 bg-white/30 backdrop-blur-md rounded-full flex items-center justify-center border border-white/40 cursor-pointer hover:bg-white/50 transition-colors z-10">
-                  <span className="material-symbols-outlined text-[16px] text-white">favorite</span>
+                  <Icon name="favorite" className="text-[16px] text-white" />
                 </div>
 
                 {/* Rating Badge */}
                 <div className="absolute top-4 right-4 bg-[#FBBF24] text-white text-xs font-bold px-2 py-1 rounded-md flex items-center gap-1 shadow-md z-10">
                   <span>{dest.rating || "4.95"}</span>
-                  <span className="material-symbols-outlined text-[14px]">star</span>
+                  <Icon name="star" className="text-[14px]" />
                 </div>
 
                 {/* Bottom Gradient & City Name */}
@@ -186,7 +187,7 @@ export default async function Home() {
                   <span className="text-primary font-bold text-sm ml-1">ريال</span>
                 </div>
                 <div className="text-gray-500 text-sm font-medium flex items-center gap-1 bg-gray-50 px-2 py-1 rounded-md">
-                  <span className="material-symbols-outlined text-[16px] text-gray-400">schedule</span>
+                  <Icon name="schedule" className="text-[16px] text-gray-400" />
                   {dest.days} أيام
                 </div>
               </div>

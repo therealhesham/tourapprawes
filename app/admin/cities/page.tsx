@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Icon from "@/components/Icon";
 
 type City = { id: string; name: string };
 type Country = { id: string; name: string; cities: City[] };
@@ -277,7 +278,7 @@ export default function AdminCitiesPage() {
         <div className="lg:col-span-2 space-y-6">
           <div className="glass-panel p-6 md:p-8 rounded-3xl border border-white/60 shadow-xl min-h-[500px]">
             <h3 className="text-xl font-bold text-primary mb-6 flex items-center gap-2 border-b border-outline-variant/30 pb-4">
-              <span className="material-symbols-outlined text-secondary">list_alt</span>
+              <Icon name="list_alt" className="text-secondary" />
               الوجهات والدول المسجلة
             </h3>
 
@@ -295,14 +296,14 @@ export default function AdminCitiesPage() {
                     {/* Destination Title */}
                     <div className="flex justify-between items-center mb-4">
                       <span className="text-lg font-black text-primary flex items-center gap-2">
-                        <span className="material-symbols-outlined text-secondary text-base">map</span>
+                        <Icon name="map" className="text-secondary text-base" />
                         {dest.destination}
                       </span>
                       <button
                         onClick={() => handleDelete(dest.id, "destination")}
                         className="text-red-500 hover:text-red-700 text-sm font-bold flex items-center gap-1 cursor-pointer"
                       >
-                        <span className="material-symbols-outlined text-sm">delete</span>
+                        <Icon name="delete" className="text-sm" />
                         حذف
                       </button>
                     </div>
@@ -318,14 +319,14 @@ export default function AdminCitiesPage() {
                             {/* Country Header */}
                             <div className="flex justify-between items-center mb-2">
                               <span className="font-bold text-primary flex items-center gap-2">
-                                <span className="material-symbols-outlined text-secondary text-sm">public</span>
+                                <Icon name="public" className="text-secondary text-sm" />
                                 {c.name}
                               </span>
                               <button
                                 onClick={() => handleDelete(c.id, "country")}
                                 className="text-red-500 hover:text-red-700 text-xs font-bold flex items-center gap-1 cursor-pointer"
                               >
-                                <span className="material-symbols-outlined text-xs">delete</span>
+                                <Icon name="delete" className="text-xs" />
                                 حذف
                               </button>
                             </div>
@@ -342,7 +343,7 @@ export default function AdminCitiesPage() {
                                       onClick={() => handleDelete(city.id, "city")}
                                       className="text-red-400 hover:text-red-600 transition-colors cursor-pointer"
                                     >
-                                      <span className="material-symbols-outlined text-xs">close</span>
+                                      <Icon name="close" className="text-xs" />
                                     </button>
                                   </div>
                                 ))}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Icon from "@/components/Icon";
 
 type City = { id: string; name: string };
 type Transport = {
@@ -131,7 +132,7 @@ export default function AdminTransportsPage() {
         <div className="lg:col-span-1">
           <div className="glass-panel p-6 rounded-2xl border border-white/60 shadow-md sticky top-6">
             <h3 className="text-lg font-bold text-primary mb-4 flex items-center gap-2">
-              <span className="material-symbols-outlined text-secondary">add_circle</span>
+              <Icon name="add_circle" className="text-secondary" />
               إضافة تسعيرة نقل داخلي
             </h3>
 
@@ -205,7 +206,7 @@ export default function AdminTransportsPage() {
         <div className="lg:col-span-2">
           <div className="glass-panel p-6 md:p-8 rounded-3xl border border-white/60 shadow-xl min-h-[500px]">
             <h3 className="text-xl font-bold text-primary mb-6 flex items-center gap-2 border-b border-outline-variant/30 pb-4">
-              <span className="material-symbols-outlined text-secondary">directions_car</span>
+              <Icon name="directions_car" className="text-secondary" />
               تسعيرات النقل الداخلي المسجلة
             </h3>
 
@@ -243,7 +244,7 @@ export default function AdminTransportsPage() {
                             onClick={() => handleDelete(transport.id)}
                             className="text-red-500 hover:text-red-700 font-bold flex items-center gap-1 cursor-pointer mr-auto"
                           >
-                            <span className="material-symbols-outlined text-xs">delete</span>
+                            <Icon name="delete" className="text-xs" />
                             حذف
                           </button>
                         </td>

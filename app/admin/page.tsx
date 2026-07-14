@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Icon from "@/components/Icon";
 
 type Stats = {
   destinations: number;
@@ -62,7 +63,7 @@ export default function AdminDashboard() {
           >
             <div className="flex justify-between items-start">
               <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${card.color} flex items-center justify-center`}>
-                <span className="material-symbols-outlined text-secondary text-2xl">{card.icon}</span>
+                <Icon name={card.icon} className="text-secondary text-2xl" />
               </div>
               <span className="text-3xl font-black text-primary tracking-tight">{card.value}</span>
             </div>
@@ -70,7 +71,7 @@ export default function AdminDashboard() {
               <p className="text-sm font-bold text-slate-500">{card.label}</p>
               <p className="text-xs text-secondary-bright mt-1 font-bold flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                 إدارة البيانات
-                <span className="material-symbols-outlined text-[10px] transform rotate-180">arrow_forward</span>
+                <Icon name="arrow_forward" className="text-[10px] transform rotate-180" />
               </p>
             </div>
           </Link>
@@ -80,7 +81,7 @@ export default function AdminDashboard() {
       {/* Quick Actions */}
       <div className="glass-panel p-6 md:p-8 rounded-3xl border border-white/60 shadow-xl mt-8">
         <h3 className="text-xl font-bold text-primary mb-6 flex items-center gap-2 border-b border-outline-variant/30 pb-4">
-          <span className="material-symbols-outlined text-secondary">flash_on</span>
+          <Icon name="flash_on" className="text-secondary" />
           روابط الوصول السريع
         </h3>
         
@@ -89,7 +90,7 @@ export default function AdminDashboard() {
             href="/admin/flights"
             className="flex items-center justify-center gap-3 p-4 bg-primary text-background rounded-xl font-bold hover:shadow-lg transition-all btn-glow"
           >
-            <span className="material-symbols-outlined">add_circle</span>
+            <Icon name="add_circle" />
             إضافة تسعيرة رحلة دولية
           </Link>
 
@@ -97,7 +98,7 @@ export default function AdminDashboard() {
             href="/admin/transports"
             className="flex items-center justify-center gap-3 p-4 bg-primary text-background rounded-xl font-bold hover:shadow-lg transition-all btn-glow"
           >
-            <span className="material-symbols-outlined">add_circle</span>
+            <Icon name="add_circle" />
             إضافة تسعيرة تنقل داخلي
           </Link>
 
@@ -105,7 +106,7 @@ export default function AdminDashboard() {
             href="/admin/cities"
             className="flex items-center justify-center gap-3 p-4 bg-primary text-background rounded-xl font-bold hover:shadow-lg transition-all btn-glow"
           >
-            <span className="material-symbols-outlined">add_circle</span>
+            <Icon name="add_circle" />
             إضافة مدينة أو دولة جديدة
           </Link>
 
@@ -113,7 +114,7 @@ export default function AdminDashboard() {
             href="/admin/airports"
             className="flex items-center justify-center gap-3 p-4 bg-primary text-background rounded-xl font-bold hover:shadow-lg transition-all btn-glow"
           >
-            <span className="material-symbols-outlined">add_circle</span>
+            <Icon name="add_circle" />
             إضافة مطار جديد
           </Link>
         </div>

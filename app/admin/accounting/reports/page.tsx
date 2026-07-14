@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { fmtMoney, fmtDate, PageHeader, Spinner, Alert, Field, inputCls, PrimaryBtn, docNo } from "../ui";
+import Icon from "@/components/Icon";
 
 type Account = { id: string; code: string; name: string };
 
@@ -71,7 +72,7 @@ export default function ReportsPage() {
             onClick={() => window.print()}
             className="flex items-center gap-2 px-5 py-2.5 bg-white border border-slate-200 text-primary rounded-xl font-bold hover:shadow print:hidden"
           >
-            <span className="material-symbols-outlined">print</span>
+            <Icon name="print" />
             طباعة التقرير
           </button>
         }
@@ -86,7 +87,7 @@ export default function ReportsPage() {
               tab === t.key ? "bg-primary text-white shadow-lg" : "bg-white text-slate-500 hover:bg-slate-50 border border-slate-200"
             }`}
           >
-            <span className="material-symbols-outlined text-lg">{t.icon}</span>
+            <Icon name={t.icon} className="text-lg" />
             {t.label}
           </button>
         ))}

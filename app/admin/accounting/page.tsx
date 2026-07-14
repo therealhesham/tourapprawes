@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { fmtMoney, fmtDate, PageHeader, Spinner, docNo } from "./ui";
+import Icon from "@/components/Icon";
 
 type Summary = {
   totalRevenue: number;
@@ -72,7 +73,7 @@ export default function AccountingDashboard() {
           >
             <div className="flex justify-between items-start">
               <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${card.color} flex items-center justify-center`}>
-                <span className="material-symbols-outlined text-secondary text-2xl">{card.icon}</span>
+                <Icon name={card.icon} className="text-secondary text-2xl" />
               </div>
             </div>
             <div>
@@ -85,7 +86,7 @@ export default function AccountingDashboard() {
 
       <div className="glass-panel p-6 rounded-3xl border border-white/60 shadow-xl">
         <h3 className="text-xl font-bold text-primary mb-6 flex items-center gap-2 border-b border-outline-variant/30 pb-4">
-          <span className="material-symbols-outlined text-secondary">flash_on</span>
+          <Icon name="flash_on" className="text-secondary" />
           عمليات سريعة
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
@@ -95,7 +96,7 @@ export default function AccountingDashboard() {
               href={l.href}
               className="flex items-center justify-center gap-3 p-4 bg-primary text-background rounded-xl font-bold hover:shadow-lg transition-all btn-glow"
             >
-              <span className="material-symbols-outlined">{l.icon}</span>
+              <Icon name={l.icon} />
               {l.label}
             </Link>
           ))}
@@ -104,7 +105,7 @@ export default function AccountingDashboard() {
 
       <div className="glass-panel p-6 rounded-3xl border border-white/60 shadow-xl">
         <h3 className="text-xl font-bold text-primary mb-4 flex items-center gap-2 border-b border-outline-variant/30 pb-4">
-          <span className="material-symbols-outlined text-secondary">history</span>
+          <Icon name="history" className="text-secondary" />
           آخر القيود
         </h3>
         {data.recentEntries.length === 0 ? (

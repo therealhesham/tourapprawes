@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
+import Icon from "@/components/Icon";
 
 interface NavbarProps {
   theme?: "light" | "dark";
@@ -75,7 +76,7 @@ export default function Navbar({ theme = "light" }: NavbarProps) {
           <div className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => (
               <Link key={link.label} href={link.href} className={getLinkClasses(link.activePath ?? link.href)}>
-                <span className="material-symbols-outlined text-[18px]">{link.icon}</span>
+                <Icon name={link.icon} className="text-[18px]" />
                 {link.label}
               </Link>
             ))}
@@ -84,12 +85,12 @@ export default function Navbar({ theme = "light" }: NavbarProps) {
                 onClick={() => signOut({ callbackUrl: "/" })}
                 className={getLinkClasses("/logout")}
               >
-                <span className="material-symbols-outlined text-[18px]">logout</span>
+                <Icon name="logout" className="text-[18px]" />
                 تسجيل الخروج
               </button>
             ) : (
               <Link href="/login" className={getLinkClasses("/login")}>
-                <span className="material-symbols-outlined text-[18px]">person</span>
+                <Icon name="person" className="text-[18px]" />
                 تسجيل الدخول
               </Link>
             )}
@@ -104,7 +105,7 @@ export default function Navbar({ theme = "light" }: NavbarProps) {
                 : "bg-primary text-white hover:bg-primary/90 shadow-primary/30"
                 }`}
             >
-              <span className="material-symbols-outlined text-[18px]">edit_calendar</span>
+              <Icon name="edit_calendar" className="text-[18px]" />
               صمم باقتك
             </Link>
 
@@ -147,7 +148,7 @@ export default function Navbar({ theme = "light" }: NavbarProps) {
                   onClick={() => setMenuOpen(false)}
                   className={getMobileLinkClasses(link.activePath ?? link.href)}
                 >
-                  <span className="material-symbols-outlined text-[20px]">{link.icon}</span>
+                  <Icon name={link.icon} className="text-[20px]" />
                   {link.label}
                 </Link>
               ))}
@@ -159,7 +160,7 @@ export default function Navbar({ theme = "light" }: NavbarProps) {
                   }}
                   className={getMobileLinkClasses("/logout")}
                 >
-                  <span className="material-symbols-outlined text-[20px]">logout</span>
+                  <Icon name="logout" className="text-[20px]" />
                   تسجيل الخروج
                 </button>
               ) : (
@@ -168,7 +169,7 @@ export default function Navbar({ theme = "light" }: NavbarProps) {
                   onClick={() => setMenuOpen(false)}
                   className={getMobileLinkClasses("/login")}
                 >
-                  <span className="material-symbols-outlined text-[20px]">person</span>
+                  <Icon name="person" className="text-[20px]" />
                   تسجيل الدخول
                 </Link>
               )}
@@ -184,7 +185,7 @@ export default function Navbar({ theme = "light" }: NavbarProps) {
                 : "bg-primary text-white hover:bg-primary/90 shadow-primary/30"
                 }`}
             >
-              <span className="material-symbols-outlined text-[18px]">edit_calendar</span>
+              <Icon name="edit_calendar" className="text-[18px]" />
               صمم باقتك
             </Link>
           </div>

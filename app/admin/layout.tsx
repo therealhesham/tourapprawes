@@ -4,6 +4,7 @@ import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
+import Icon from "@/components/Icon";
 
 const sidebarLinks = [
   { label: "لوحة التحكم", href: "/admin", icon: "dashboard" },
@@ -83,7 +84,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   : "text-white/80 hover:bg-white/5 hover:text-white"
                   }`}
               >
-                <span className="material-symbols-outlined text-xl">{link.icon}</span>
+                <Icon name={link.icon} className="text-xl" />
                 <span>{link.label}</span>
               </Link>
             );
@@ -101,7 +102,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   : "text-white/80 hover:bg-white/5 hover:text-white"
                   }`}
               >
-                <span className="material-symbols-outlined text-xl">{link.icon}</span>
+                <Icon name={link.icon} className="text-xl" />
                 <span>{link.label}</span>
               </Link>
             );
@@ -114,7 +115,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             href="/"
             className="flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-bold text-white/80 hover:bg-white/5 hover:text-white"
           >
-            <span className="material-symbols-outlined text-xl">open_in_new</span>
+            <Icon name="open_in_new" className="text-xl" />
             <span>عرض موقع العميل</span>
           </Link>
 
@@ -122,7 +123,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             onClick={() => signOut({ callbackUrl: "/admin/login" })}
             className="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-bold text-red-400 hover:bg-red-500/10 hover:text-red-300 cursor-pointer text-right"
           >
-            <span className="material-symbols-outlined text-xl">logout</span>
+            <Icon name="logout" className="text-xl" />
             <span>تسجيل الخروج</span>
           </button>
         </div>
@@ -133,7 +134,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         {/* Header */}
         <header className="glass-panel border-b border-outline-variant/30 h-16 shrink-0 flex items-center justify-between px-6 z-30">
           <div className="flex items-center gap-3">
-            <span className="material-symbols-outlined text-secondary text-2xl">admin_panel_settings</span>
+            <Icon name="admin_panel_settings" className="text-secondary text-2xl" />
             <h1 className="text-lg font-bold text-primary">لوحة إدارة السفر والسياحة</h1>
           </div>
 

@@ -16,6 +16,7 @@ import {
   INVOICE_STATUS,
   docNo,
 } from "../ui";
+import Icon from "@/components/Icon";
 
 type Invoice = {
   id: string;
@@ -156,7 +157,7 @@ export default function InvoicesPage() {
         subtitle="إصدار ومتابعة فواتير ضريبة القيمة المضافة"
         actions={
           <PrimaryBtn onClick={() => setShowForm(true)}>
-            <span className="material-symbols-outlined">add_circle</span>
+            <Icon name="add_circle" />
             فاتورة جديدة
           </PrimaryBtn>
         }
@@ -211,11 +212,11 @@ export default function InvoicesPage() {
                           className="text-secondary hover:text-primary"
                           title="عرض وطباعة"
                         >
-                          <span className="material-symbols-outlined text-xl">print</span>
+                          <Icon name="print" className="text-xl" />
                         </Link>
                         {inv.status !== "CANCELLED" && (
                           <button onClick={() => cancelInvoice(inv.id)} className="text-red-400 hover:text-red-600" title="إلغاء">
-                            <span className="material-symbols-outlined text-xl">cancel</span>
+                            <Icon name="cancel" className="text-xl" />
                           </button>
                         )}
                       </div>
@@ -292,7 +293,7 @@ export default function InvoicesPage() {
                       disabled={items.length === 1}
                       className="text-red-400 hover:text-red-600 disabled:opacity-30"
                     >
-                      <span className="material-symbols-outlined">delete</span>
+                      <Icon name="delete" />
                     </button>
                   </div>
                 ))}
@@ -301,7 +302,7 @@ export default function InvoicesPage() {
                 onClick={() => setItems([...items, { description: "", quantity: "1", unitPrice: "" }])}
                 className="mt-2 text-secondary font-bold text-sm flex items-center gap-1"
               >
-                <span className="material-symbols-outlined text-lg">add</span>
+                <Icon name="add" className="text-lg" />
                 إضافة بند
               </button>
             </div>

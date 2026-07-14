@@ -7,6 +7,7 @@ import { useParams } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { hotelCategories, transportMethods } from "@/app/booking/data/mockData";
+import Icon from "@/components/Icon";
 
 // Where an in-progress booking form is stashed when submitting requires a login first
 const PKG_BOOKING_SNAPSHOT_KEY = "packageBookingSnapshot";
@@ -123,10 +124,10 @@ export default function PackageDetailsPage() {
         </div>
       ) : error || !pkg ? (
         <div className="flex-grow flex flex-col justify-center items-center py-32 text-center px-4">
-          <span className="material-symbols-outlined text-6xl text-gray-300 mb-4">search_off</span>
+          <Icon name="search_off" className="text-6xl text-gray-300 mb-4" />
           <p className="text-xl font-bold text-gray-500 mb-2">{error || "الباقة غير موجودة"}</p>
           <Link href="/packages" className="inline-flex items-center gap-2 mt-4 text-primary font-bold hover:underline">
-            <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
+            <Icon name="arrow_forward" className="text-[18px]" />
             العودة إلى الباقات
           </Link>
         </div>
@@ -150,7 +151,7 @@ export default function PackageDetailsPage() {
                 )}
                 <span className="bg-[#FBBF24] text-white text-xs font-bold px-2 py-1 rounded-md flex items-center gap-1 shadow-md">
                   <span>{pkg.rating}</span>
-                  <span className="material-symbols-outlined text-[14px]">star</span>
+                  <Icon name="star" className="text-[14px]" />
                   {pkg.reviews > 0 && <span className="font-medium">({pkg.reviews} تقييم)</span>}
                 </span>
               </div>
@@ -166,7 +167,7 @@ export default function PackageDetailsPage() {
               {/* Description */}
               <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
                 <h2 className="text-lg font-black text-primary mb-3 flex items-center gap-2">
-                  <span className="material-symbols-outlined text-secondary">description</span>
+                  <Icon name="description" className="text-secondary" />
                   عن الباقة
                 </h2>
                 <p className="text-gray-600 leading-relaxed whitespace-pre-line">{pkg.description}</p>
@@ -176,13 +177,13 @@ export default function PackageDetailsPage() {
               {features.length > 0 && (
                 <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
                   <h2 className="text-lg font-black text-primary mb-4 flex items-center gap-2">
-                    <span className="material-symbols-outlined text-secondary">stars</span>
+                    <Icon name="stars" className="text-secondary" />
                     مميزات الباقة
                   </h2>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {features.map((f, i) => (
                       <div key={i} className="flex items-center gap-2 text-sm text-gray-700 bg-gray-50 rounded-xl px-4 py-3">
-                        <span className="material-symbols-outlined text-[18px] text-green-600">check_circle</span>
+                        <Icon name="check_circle" className="text-[18px] text-green-600" />
                         {f}
                       </div>
                     ))}
@@ -194,7 +195,7 @@ export default function PackageDetailsPage() {
               {cityStays.length > 0 && (
                 <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
                   <h2 className="text-lg font-black text-primary mb-4 flex items-center gap-2">
-                    <span className="material-symbols-outlined text-secondary">route</span>
+                    <Icon name="route" className="text-secondary" />
                     مسار الرحلة
                   </h2>
                   <div className="flex flex-col">
@@ -215,19 +216,19 @@ export default function PackageDetailsPage() {
                           <div className="flex flex-wrap gap-2 mt-2">
                             {stay.nights ? (
                               <span className="flex items-center gap-1 bg-primary/5 text-primary text-xs font-bold px-3 py-1.5 rounded-full">
-                                <span className="material-symbols-outlined text-[14px]">dark_mode</span>
+                                <Icon name="dark_mode" className="text-[14px]" />
                                 {stay.nights} {stay.nights > 2 ? "ليالي" : stay.nights === 2 ? "ليلتان" : "ليلة"}
                               </span>
                             ) : null}
                             {stay.hotelCategory && (
                               <span className="flex items-center gap-1 bg-primary/5 text-primary text-xs font-bold px-3 py-1.5 rounded-full">
-                                <span className="material-symbols-outlined text-[14px]">hotel</span>
+                                <Icon name="hotel" className="text-[14px]" />
                                 فندق {hotelLabel(stay.hotelCategory)}
                               </span>
                             )}
                             {stay.transportFromPrevious && (
                               <span className="flex items-center gap-1 bg-primary/5 text-primary text-xs font-bold px-3 py-1.5 rounded-full">
-                                <span className="material-symbols-outlined text-[14px]">directions_bus</span>
+                                <Icon name="directions_bus" className="text-[14px]" />
                                 {transportLabel(stay.transportFromPrevious)}
                               </span>
                             )}
@@ -243,14 +244,14 @@ export default function PackageDetailsPage() {
               {(pkg.departingFlight || pkg.returningFlight) && (
                 <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
                   <h2 className="text-lg font-black text-primary mb-4 flex items-center gap-2">
-                    <span className="material-symbols-outlined text-secondary">flight</span>
+                    <Icon name="flight" className="text-secondary" />
                     رحلات الطيران
                   </h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {pkg.departingFlight && (
                       <div className="border border-gray-100 rounded-xl p-4 bg-gray-50/50">
                         <p className="text-xs font-bold text-secondary mb-2 flex items-center gap-1">
-                          <span className="material-symbols-outlined text-[16px]">flight_takeoff</span>
+                          <Icon name="flight_takeoff" className="text-[16px]" />
                           رحلة الذهاب
                         </p>
                         <p className="font-bold text-gray-800 text-sm">{pkg.departingFlight.airWayName}</p>
@@ -262,7 +263,7 @@ export default function PackageDetailsPage() {
                     {pkg.returningFlight && (
                       <div className="border border-gray-100 rounded-xl p-4 bg-gray-50/50">
                         <p className="text-xs font-bold text-secondary mb-2 flex items-center gap-1">
-                          <span className="material-symbols-outlined text-[16px]">flight_land</span>
+                          <Icon name="flight_land" className="text-[16px]" />
                           رحلة العودة
                         </p>
                         <p className="font-bold text-gray-800 text-sm">{pkg.returningFlight.airWayName}</p>
@@ -279,7 +280,7 @@ export default function PackageDetailsPage() {
               {pkg.includesText && (
                 <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
                   <h2 className="text-lg font-black text-primary mb-3 flex items-center gap-2">
-                    <span className="material-symbols-outlined text-secondary">inventory_2</span>
+                    <Icon name="inventory_2" className="text-secondary" />
                     الباقة تشمل
                   </h2>
                   <p className="text-gray-600 leading-relaxed whitespace-pre-line">{pkg.includesText}</p>
@@ -302,7 +303,7 @@ export default function PackageDetailsPage() {
                 <p className="text-xs text-gray-400 mb-4">للشخص الواحد · شامل الضريبة</p>
 
                 <div className="flex items-center gap-2 text-sm text-gray-600 bg-gray-50 rounded-xl px-4 py-3 mb-5">
-                  <span className="material-symbols-outlined text-[18px] text-gray-400">schedule</span>
+                  <Icon name="schedule" className="text-[18px] text-gray-400" />
                   مدة الرحلة: <span className="font-bold">{pkg.days}</span>
                 </div>
 
@@ -310,7 +311,7 @@ export default function PackageDetailsPage() {
                   onClick={() => setShowBookingForm(true)}
                   className="gold-shimmer w-full bg-primary text-white py-3.5 rounded-xl font-bold text-sm cursor-pointer transition-all hover:bg-primary/90 flex items-center justify-center gap-2 shadow-md shadow-primary/30"
                 >
-                  <span className="material-symbols-outlined text-[18px]">edit_calendar</span>
+                  <Icon name="edit_calendar" className="text-[18px]" />
                   احجز هذه الباقة
                 </button>
 
@@ -318,7 +319,7 @@ export default function PackageDetailsPage() {
                   href="/booking/wizard"
                   className="mt-3 w-full border border-gray-200 text-gray-700 hover:bg-gray-50 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2"
                 >
-                  <span className="material-symbols-outlined text-[18px]">tune</span>
+                  <Icon name="tune" className="text-[18px]" />
                   أو صمم باقتك بنفسك
                 </Link>
               </div>
@@ -333,7 +334,7 @@ export default function PackageDetailsPage() {
           <div className="w-full max-w-md bg-white rounded-3xl p-6 md:p-8 shadow-2xl relative border border-slate-200 text-right animate-zoom-in" dir="rtl">
             {bookingSuccess ? (
               <div className="text-center py-4">
-                <span className="material-symbols-outlined text-6xl text-green-500 mb-4">check_circle</span>
+                <Icon name="check_circle" className="text-6xl text-green-500 mb-4" />
                 <h3 className="text-xl font-bold text-primary mb-2">تم إرسال طلب الحجز بنجاح!</h3>
                 <p className="text-sm text-slate-600 mb-6">سنتواصل معك قريباً لتأكيد حجز باقة «{pkg.name}».</p>
                 <div className="flex gap-3">
@@ -351,7 +352,7 @@ export default function PackageDetailsPage() {
             ) : (
               <>
                 <h3 className="text-xl font-bold text-primary mb-1 flex items-center gap-2">
-                  <span className="material-symbols-outlined text-secondary">edit_calendar</span>
+                  <Icon name="edit_calendar" className="text-secondary" />
                   حجز باقة «{pkg.name}»
                 </h3>
                 <p className="text-sm text-slate-600 mb-6">

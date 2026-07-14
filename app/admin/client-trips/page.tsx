@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Icon from "@/components/Icon";
 
 type Airport = { id: string; airportName: string; city: { name: string } };
 type Flight = {
@@ -133,7 +134,7 @@ export default function AdminClientTripsPage() {
 
       <div className="glass-panel p-6 md:p-8 rounded-3xl border border-white/60 shadow-xl min-h-[500px]">
         <h3 className="text-xl font-bold text-primary mb-6 flex items-center gap-2 border-b border-outline-variant/30 pb-4">
-          <span className="material-symbols-outlined text-secondary">card_travel</span>
+          <Icon name="card_travel" className="text-secondary" />
           قائمة طلبات الحجز المستلمة
         </h3>
 
@@ -177,14 +178,14 @@ export default function AdminClientTripsPage() {
                         onClick={() => setSelectedBooking(booking)}
                         className="text-secondary hover:text-secondary-bright font-bold flex items-center gap-1 cursor-pointer"
                       >
-                        <span className="material-symbols-outlined text-xs">visibility</span>
+                        <Icon name="visibility" className="text-xs" />
                         تفاصيل البرنامج
                       </button>
                       <button
                         onClick={() => handleDelete(booking.id)}
                         className="text-red-500 hover:text-red-700 font-bold flex items-center gap-1 cursor-pointer"
                       >
-                        <span className="material-symbols-outlined text-xs">delete</span>
+                        <Icon name="delete" className="text-xs" />
                         حذف
                       </button>
                     </td>
@@ -205,7 +206,7 @@ export default function AdminClientTripsPage() {
               onClick={() => setSelectedBooking(null)}
               className="absolute top-6 left-6 text-slate-400 hover:text-primary transition-colors p-2 rounded-full hover:bg-slate-100"
             >
-              <span className="material-symbols-outlined">close</span>
+              <Icon name="close" />
             </button>
 
             <h3 className="text-2xl font-bold text-primary mb-6 border-b border-slate-200 pb-4">تفاصيل حجز العميل</h3>
@@ -251,7 +252,7 @@ export default function AdminClientTripsPage() {
                   {selectedBooking.departingFlight && (
                     <div className="p-3 bg-slate-50/50 rounded-xl border border-slate-100 text-xs">
                       <div className="font-bold text-slate-800 mb-1 flex items-center gap-1">
-                        <span className="material-symbols-outlined text-sm text-secondary">flight_takeoff</span>
+                        <Icon name="flight_takeoff" className="text-sm text-secondary" />
                         رحلة الذهاب ({selectedBooking.departingFlight.airWayName})
                       </div>
                       <p className="text-slate-600">
@@ -265,7 +266,7 @@ export default function AdminClientTripsPage() {
                   {selectedBooking.returningFlight && (
                     <div className="p-3 bg-slate-50/50 rounded-xl border border-slate-100 text-xs">
                       <div className="font-bold text-slate-800 mb-1 flex items-center gap-1">
-                        <span className="material-symbols-outlined text-sm text-secondary">flight_land</span>
+                        <Icon name="flight_land" className="text-sm text-secondary" />
                         رحلة العودة ({selectedBooking.returningFlight.airWayName})
                       </div>
                       <p className="text-slate-600">
@@ -305,7 +306,7 @@ export default function AdminClientTripsPage() {
                         
                         {idx > 0 && stay.transportFromPrevious && (
                           <div className="mb-2 text-xs text-secondary-bright font-bold flex items-center gap-1">
-                            <span className="material-symbols-outlined text-sm">directions_car</span>
+                            <Icon name="directions_car" className="text-sm" />
                             المواصلات: {getTransportName(stay.transportFromPrevious)}
                           </div>
                         )}

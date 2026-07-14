@@ -15,6 +15,7 @@ import {
   METHOD_LABELS,
   docNo,
 } from "../ui";
+import Icon from "@/components/Icon";
 
 type SupplierInvoice = {
   id: string;
@@ -182,7 +183,7 @@ export default function PurchasesPage() {
         subtitle={`مشتريات آجلة وسدادها — إجمالي المستحق للموردين: ${fmtMoney(totalPayables)}`}
         actions={
           <PrimaryBtn onClick={() => setShowForm(true)}>
-            <span className="material-symbols-outlined">add_circle</span>
+            <Icon name="add_circle" />
             فاتورة مورد جديدة
           </PrimaryBtn>
         }
@@ -246,12 +247,12 @@ export default function PurchasesPage() {
                             className="text-green-600 hover:text-green-800"
                             title="سداد"
                           >
-                            <span className="material-symbols-outlined text-xl">payments</span>
+                            <Icon name="payments" className="text-xl" />
                           </button>
                         )}
                         {inv.status !== "CANCELLED" && (
                           <button onClick={() => cancel(inv.id)} className="text-red-400 hover:text-red-600" title="إلغاء">
-                            <span className="material-symbols-outlined text-xl">cancel</span>
+                            <Icon name="cancel" className="text-xl" />
                           </button>
                         )}
                       </div>

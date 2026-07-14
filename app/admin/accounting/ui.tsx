@@ -1,6 +1,7 @@
 "use client";
 
 import { ReactNode } from "react";
+import Icon from "@/components/Icon";
 
 export const fmtMoney = (n: number | string | null | undefined) =>
   `${Number(n || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ر.س`;
@@ -74,7 +75,7 @@ export function Modal({ title, onClose, children, wide }: { title: string; onClo
         <div className="flex items-center justify-between p-5 border-b border-slate-100">
           <h3 className="text-lg font-extrabold text-primary">{title}</h3>
           <button onClick={onClose} className="text-slate-400 hover:text-slate-700">
-            <span className="material-symbols-outlined">close</span>
+            <Icon name="close" />
           </button>
         </div>
         <div className="p-5">{children}</div>

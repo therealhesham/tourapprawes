@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Icon from "@/components/Icon";
 
 export default function HomeSearchWidget() {
   const router = useRouter();
@@ -41,9 +42,7 @@ export default function HomeSearchWidget() {
           {/* Destination */}
           <div className="flex flex-col gap-2">
             <label className="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider">
-              <span className="material-symbols-outlined text-base text-primary">
-                location_on
-              </span>
+              <Icon name="location_on" className="text-base text-primary" />
               الوجهة
             </label>
             <select
@@ -62,9 +61,7 @@ export default function HomeSearchWidget() {
           {/* Duration */}
           <div className="flex flex-col gap-2">
             <label className="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider">
-              <span className="material-symbols-outlined text-base text-primary">
-                calendar_month
-              </span>
+              <Icon name="calendar_month" className="text-base text-primary" />
               المدة
             </label>
             <select
@@ -83,9 +80,7 @@ export default function HomeSearchWidget() {
           {/* Price */}
           <div className="flex flex-col gap-2">
             <label className="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider">
-              <span className="material-symbols-outlined text-base text-primary">
-                payments
-              </span>
+              <Icon name="payments" className="text-base text-primary" />
               الميزانية (SAR)
             </label>
             <select
@@ -108,7 +103,7 @@ export default function HomeSearchWidget() {
           className="bg-primary text-white py-3 px-6 rounded-xl text-sm font-bold shadow-lg shadow-primary/30 hover:bg-primary/90 transition-all flex items-center justify-center gap-2 mt-4 md:mt-0 w-full md:w-auto"
           style={{ minWidth: "150px" }}
         >
-          <span className="material-symbols-outlined text-lg">search</span>
+          <Icon name="search" className="text-lg" />
           البحث عن رحلة
         </button>
       </div>

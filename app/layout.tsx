@@ -23,9 +23,6 @@ export default function RootLayout({
 }>) {
   return (
     <html dir="rtl" lang="ar" className={`${tajawal.variable} h-full antialiased`} suppressHydrationWarning>
-      <head>
-        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
-      </head>
       <body className="bg-background text-on-surface font-body-md antialiased selection:bg-secondary selection:text-on-secondary min-h-full flex flex-col">
         <AuthProvider>
           {children}

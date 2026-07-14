@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Icon from "@/components/Icon";
 
 type CompanyPackage = {
   id: string;
@@ -93,7 +94,7 @@ export default function AdminPackagesPage() {
           href="/admin/packages/new"
           className="py-3 px-6 bg-primary text-background font-bold rounded-xl hover:opacity-95 shadow-md btn-glow flex items-center gap-2 cursor-pointer text-sm"
         >
-          <span className="material-symbols-outlined text-lg">add_circle</span>
+          <Icon name="add_circle" className="text-lg" />
           إضافة باقة جديدة
         </Link>
       </div>
@@ -104,7 +105,7 @@ export default function AdminPackagesPage() {
       <div className="w-full">
         <div className="glass-panel p-6 rounded-3xl border border-white/60 shadow-md min-h-[500px]">
           <h3 className="text-lg font-bold text-primary mb-5 flex items-center gap-2 border-b border-slate-100 pb-3">
-            <span className="material-symbols-outlined text-secondary">card_travel</span>
+            <Icon name="card_travel" className="text-secondary" />
             قائمة الباقات الجاهزة النشطة
           </h3>
 
@@ -136,19 +137,19 @@ export default function AdminPackagesPage() {
                         <div className="flex flex-wrap gap-1.5 mt-1.5">
                           {pkg.departingFlight && (
                             <span className="text-[10px] bg-slate-50 border border-slate-200 text-slate-600 px-1.5 py-0.5 rounded flex items-center gap-0.5" title={pkg.departingFlight.airWayName}>
-                              <span className="material-symbols-outlined text-[10px]">flight_takeoff</span>
+                              <Icon name="flight_takeoff" className="text-[10px]" />
                               ذهاب
                             </span>
                           )}
                           {pkg.returningFlight && (
                             <span className="text-[10px] bg-slate-50 border border-slate-200 text-slate-600 px-1.5 py-0.5 rounded flex items-center gap-0.5" title={pkg.returningFlight.airWayName}>
-                              <span className="material-symbols-outlined text-[10px]">flight_land</span>
+                              <Icon name="flight_land" className="text-[10px]" />
                               عودة
                             </span>
                           )}
                           {Array.isArray(pkg.cityStays) && pkg.cityStays.length > 0 && (
                             <span className="text-[10px] bg-secondary/15 text-secondary px-1.5 py-0.5 rounded font-black flex items-center gap-0.5">
-                              <span className="material-symbols-outlined text-[10px]">location_city</span>
+                              <Icon name="location_city" className="text-[10px]" />
                               {pkg.cityStays.length} مدن
                             </span>
                           )}
@@ -161,7 +162,7 @@ export default function AdminPackagesPage() {
                       <td className="py-4 text-secondary-bright font-black">{pkg.pricing.toLocaleString()} ر.س</td>
                       <td className="py-4 text-secondary text-xs">
                         <div className="flex items-center gap-0.5">
-                          <span className="material-symbols-outlined text-[14px]">star</span>
+                          <Icon name="star" className="text-[14px]" />
                           <span>{pkg.rating} ({pkg.reviews})</span>
                         </div>
                       </td>
@@ -171,7 +172,7 @@ export default function AdminPackagesPage() {
                             href={`/admin/packages/new?id=${pkg.id}`}
                             className="text-secondary hover:text-secondary-bright font-bold text-xs flex items-center gap-1 cursor-pointer"
                           >
-                            <span className="material-symbols-outlined text-sm">edit</span>
+                            <Icon name="edit" className="text-sm" />
                             تعديل
                           </Link>
                           <button
@@ -179,7 +180,7 @@ export default function AdminPackagesPage() {
                             disabled={actionLoading}
                             className="text-red-500 hover:text-red-700 font-bold text-xs flex items-center gap-1 cursor-pointer"
                           >
-                            <span className="material-symbols-outlined text-sm">delete</span>
+                            <Icon name="delete" className="text-sm" />
                             حذف
                           </button>
                         </div>

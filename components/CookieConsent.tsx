@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Icon from "@/components/Icon";
 
 const CONSENT_COOKIE = "cookie_consent";
 const CONSENT_MAX_AGE = 60 * 60 * 24 * 365; // one year
@@ -36,7 +37,7 @@ export default function CookieConsent() {
     >
       <div className="glass-panel max-w-3xl mx-auto rounded-2xl border border-outline-variant/40 shadow-2xl bg-surface-container-lowest/95 backdrop-blur-md p-5 md:p-6">
         <div className="flex items-start gap-3 mb-4">
-          <span className="material-symbols-outlined text-secondary text-2xl shrink-0">cookie</span>
+          <Icon name="cookie" className="text-secondary text-2xl shrink-0" />
           <div>
             <h4 className="font-bold text-primary text-lg mb-1">ملفات تعريف الارتباط</h4>
             <p className="text-sm text-on-surface/80 leading-relaxed">

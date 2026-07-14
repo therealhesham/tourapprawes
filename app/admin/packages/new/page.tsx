@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import Icon from "@/components/Icon";
 
 const destinationsByCountry: Record<string, { value: string; label: string }[]> = {
   id: [
@@ -306,7 +307,7 @@ function NewPackageForm() {
           href="/admin/packages"
           className="py-2.5 px-5 bg-slate-150 text-slate-700 font-bold rounded-xl hover:bg-slate-200 transition-all flex items-center gap-2 cursor-pointer text-sm"
         >
-          <span className="material-symbols-outlined text-lg">arrow_back</span>
+          <Icon name="arrow_back" className="text-lg" />
           العودة للقائمة
         </Link>
       </div>
@@ -527,7 +528,7 @@ function NewPackageForm() {
         {/* Flights & Itinerary card */}
         <div className="glass-panel p-6 md:p-8 rounded-3xl border border-white/60 shadow-md space-y-5">
           <h3 className="text-lg font-bold text-primary border-b border-slate-100 pb-2 flex items-center gap-1">
-            <span className="material-symbols-outlined text-secondary">flight</span>
+            <Icon name="flight" className="text-secondary" />
             إعدادات الطيران الدولي والمسار الداخلي
           </h3>
 
@@ -669,7 +670,7 @@ function NewPackageForm() {
                       onClick={() => handleRemoveCityStay(idx)}
                       className="text-red-500 hover:text-red-700 cursor-pointer p-1 hover:bg-red-50 rounded"
                     >
-                      <span className="material-symbols-outlined text-sm">delete</span>
+                      <Icon name="delete" className="text-sm" />
                     </button>
                   </div>
                 ))

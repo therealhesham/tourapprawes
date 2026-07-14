@@ -4,6 +4,7 @@ import { useState, useEffect, use } from "react";
 import Link from "next/link";
 import QRCode from "qrcode";
 import { fmtMoney, fmtDate, Spinner, docNo, METHOD_LABELS, INVOICE_STATUS } from "../../ui";
+import Icon from "@/components/Icon";
 
 type InvoiceData = {
   invoice: {
@@ -73,14 +74,14 @@ export default function InvoiceViewPage({ params }: { params: Promise<{ id: stri
       {/* Toolbar — hidden on print */}
       <div className="flex justify-between items-center mb-6 print:hidden">
         <Link href="/admin/accounting/invoices" className="flex items-center gap-2 text-slate-500 font-bold hover:text-primary">
-          <span className="material-symbols-outlined rotate-180">arrow_back</span>
+          <Icon name="arrow_back" className="rotate-180" />
           عودة للفواتير
         </Link>
         <button
           onClick={() => window.print()}
           className="flex items-center gap-2 px-5 py-2.5 bg-primary text-white rounded-xl font-bold hover:shadow-lg"
         >
-          <span className="material-symbols-outlined">print</span>
+          <Icon name="print" />
           طباعة
         </button>
       </div>

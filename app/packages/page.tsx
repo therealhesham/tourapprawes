@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import Icon from "@/components/Icon";
 
 interface Option {
   value: string;
@@ -98,7 +99,7 @@ function PackagesPageContent() {
       <section className="relative z-10 pt-16 pb-10 text-center px-4">
         <div className="flex justify-center items-center gap-2 mb-2">
           <h1 className="text-3xl md:text-4xl font-black text-primary">استكشف باقاتنا</h1>
-          <span className="material-symbols-outlined text-primary text-4xl">travel_explore</span>
+          <Icon name="travel_explore" className="text-primary text-4xl" />
         </div>
         <p className="text-gray-500 font-medium">أفضل العروض والبرامج السياحية المصممة خصيصاً لك</p>
       </section>
@@ -112,24 +113,24 @@ function PackagesPageContent() {
             <span className="text-xs font-bold text-gray-400 ml-1">فلاتر نشطة:</span>
             {qDestination && (
               <span className="flex items-center gap-1 bg-primary/10 text-primary text-xs font-bold px-3 py-1.5 rounded-full border border-primary/20">
-                <span className="material-symbols-outlined text-[14px]">location_on</span>
+                <Icon name="location_on" className="text-[14px]" />
                 {qDestination}
               </span>
             )}
             {qBudget !== null && (
               <span className="flex items-center gap-1 bg-primary/10 text-primary text-xs font-bold px-3 py-1.5 rounded-full border border-primary/20">
-                <span className="material-symbols-outlined text-[14px]">account_balance_wallet</span>
+                <Icon name="account_balance_wallet" className="text-[14px]" />
                 حتى {qBudget.toLocaleString("ar-SA")} ريال
               </span>
             )}
             {qFrom && (
               <span className="flex items-center gap-1 bg-primary/10 text-primary text-xs font-bold px-3 py-1.5 rounded-full border border-primary/20">
-                <span className="material-symbols-outlined text-[14px]">calendar_month</span>
+                <Icon name="calendar_month" className="text-[14px]" />
                 {qFrom}{qTo ? ` → ${qTo}` : ""}
               </span>
             )}
             <Link href="/packages" className="text-xs text-gray-400 hover:text-red-500 transition-colors font-medium mr-1 flex items-center gap-1">
-              <span className="material-symbols-outlined text-[14px]">close</span>
+              <Icon name="close" className="text-[14px]" />
               مسح الكل
             </Link>
           </div>
@@ -143,11 +144,11 @@ function PackagesPageContent() {
           <div className="text-center py-20 text-red-500 font-bold">{error}</div>
         ) : filteredPackages.length === 0 ? (
           <div className="text-center py-20 bg-white rounded-2xl border border-gray-100 shadow-sm text-gray-400">
-            <span className="material-symbols-outlined text-5xl block mb-4">search_off</span>
+            <Icon name="search_off" className="text-5xl block mb-4" />
             <p className="text-lg font-bold">لا توجد باقات تطابق بحثك</p>
             <p className="text-sm mt-1">جرب تعديل معايير البحث</p>
             <Link href="/packages" className="inline-flex items-center gap-2 mt-4 text-primary font-bold text-sm hover:underline">
-              <span className="material-symbols-outlined text-[16px]">refresh</span>
+              <Icon name="refresh" className="text-[16px]" />
               عرض كل الباقات
             </Link>
           </div>
@@ -167,13 +168,13 @@ function PackagesPageContent() {
 
                   {/* Heart Icon */}
                   <div className="absolute top-4 left-4 w-8 h-8 bg-white/30 backdrop-blur-md rounded-full flex items-center justify-center border border-white/40 cursor-pointer hover:bg-white/50 transition-colors z-10">
-                    <span className="material-symbols-outlined text-[16px] text-white">favorite</span>
+                    <Icon name="favorite" className="text-[16px] text-white" />
                   </div>
 
                   {/* Rating Badge */}
                   <div className="absolute top-4 right-4 bg-[#FBBF24] text-white text-xs font-bold px-2 py-1 rounded-md flex items-center gap-1 shadow-md z-10">
                     <span>{dest.rating || '4.95'}</span>
-                    <span className="material-symbols-outlined text-[14px]">star</span>
+                    <Icon name="star" className="text-[14px]" />
                   </div>
 
                   {/* Category Badge */}
@@ -196,7 +197,7 @@ function PackagesPageContent() {
                     <span className="text-primary font-bold text-sm ml-1">ريال</span>
                   </div>
                   <div className="text-gray-500 text-sm font-medium flex items-center gap-1 bg-gray-50 px-2 py-1 rounded-md">
-                    <span className="material-symbols-outlined text-[16px] text-gray-400">schedule</span>
+                    <Icon name="schedule" className="text-[16px] text-gray-400" />
                     {dest.days}
                   </div>
                 </div>

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { PageHeader, Spinner, Alert, Field, inputCls, PrimaryBtn } from "../ui";
+import Icon from "@/components/Icon";
 
 type AuditEntry = { id: string; action: string; entity: string; summary: string; createdAt: string };
 
@@ -121,7 +122,7 @@ export default function AccountingSettingsPage() {
 
       <div className="glass-panel rounded-3xl border border-white/60 shadow-xl p-6">
         <h3 className="text-xl font-bold text-primary mb-4 flex items-center gap-2 border-b border-outline-variant/30 pb-4">
-          <span className="material-symbols-outlined text-secondary">history</span>
+          <Icon name="history" className="text-secondary" />
           سجل التدقيق — آخر العمليات
         </h3>
         {audit.length === 0 ? (

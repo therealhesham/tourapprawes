@@ -14,6 +14,7 @@ import {
   PrimaryBtn,
   docNo,
 } from "../ui";
+import Icon from "@/components/Icon";
 
 type Line = {
   id: string;
@@ -149,7 +150,7 @@ export default function JournalPage() {
         subtitle="جميع الحركات المحاسبية — آلية ويدوية"
         actions={
           <PrimaryBtn onClick={() => setShowForm(true)}>
-            <span className="material-symbols-outlined">edit_note</span>
+            <Icon name="edit_note" />
             قيد يدوي جديد
           </PrimaryBtn>
         }
@@ -189,9 +190,7 @@ export default function JournalPage() {
                     {SOURCE_LABELS[e.sourceType] || e.sourceType}
                   </span>
                   <span className="font-bold text-primary">{fmtMoney(total)}</span>
-                  <span className={`material-symbols-outlined text-slate-400 transition-transform ${open ? "rotate-180" : ""}`}>
-                    expand_more
-                  </span>
+                  <Icon name="expand_more" className={`text-slate-400 transition-transform ${open ? "rotate-180" : ""}`} />
                 </div>
               </button>
               {open && (
@@ -217,7 +216,7 @@ export default function JournalPage() {
                   {e.sourceType === "MANUAL" && (
                     <div className="flex justify-end mt-3">
                       <button onClick={() => remove(e.id)} className="text-red-500 font-bold text-sm flex items-center gap-1 hover:text-red-700">
-                        <span className="material-symbols-outlined text-lg">history</span>
+                        <Icon name="history" className="text-lg" />
                         عكس القيد
                       </button>
                     </div>
@@ -278,7 +277,7 @@ export default function JournalPage() {
                       disabled={lines.length <= 2}
                       className="text-red-400 hover:text-red-600 disabled:opacity-30"
                     >
-                      <span className="material-symbols-outlined">delete</span>
+                      <Icon name="delete" />
                     </button>
                   </div>
                 ))}
@@ -287,7 +286,7 @@ export default function JournalPage() {
                 onClick={() => setLines([...lines, { accountId: "", debit: "", credit: "" }])}
                 className="mt-2 text-secondary font-bold text-sm flex items-center gap-1"
               >
-                <span className="material-symbols-outlined text-lg">add</span>
+                <Icon name="add" className="text-lg" />
                 إضافة سطر
               </button>
             </div>
