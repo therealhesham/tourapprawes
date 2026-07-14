@@ -23,6 +23,9 @@ export const prisma =
   new PrismaClient({
     adapter,
     log: process.env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"],
+    // Remote DB latency: accounting transactions run several sequential
+    // queries, so the default 5s interactive-transaction timeout is too tight
+    transactionOptions: { timeout: 30000, maxWait: 10000 },
   });
 
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;

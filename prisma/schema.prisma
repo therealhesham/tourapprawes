@@ -131,6 +131,10 @@ model CustomizedPackage {
   packageItems      PackageItem[]
   companyPackageId  String?          @map("company_package_id")
   companyPackage    CompanyPackage?  @relation("CompanyPackageBookings", fields: [companyPackageId], references: [id])
+  invoices          Invoice[]
+  receiptVouchers   ReceiptVoucher[]
+  paymentVouchers   PaymentVoucher[]
+  supplierInvoices  SupplierInvoice[]
 
   @@map("customized_packages")
 }
@@ -185,4 +189,232 @@ model PackageItem {
   companyPackage      CompanyPackage?    @relation(fields: [companyPackageId], references: [id])
 
   @@map("package_items")
+}
+
+// ============================================================
+// Accounting (double-entry) module
+// ============================================================
+
+enum AccountType {
+  ASSET
+  LIABILITY
+  EQUITY
+  REVENUE
+  EXPENSE
+}
+
+enum JournalSourceType {
+  MANUAL
+  INVOICE
+  RECEIPT
+  PAYMENT
+  SUPPLIER_INVOICE
+  REVERSAL
+}
+
+enum InvoiceStatus {
+  ISSUED
+  PARTIALLY_PAID
+  PAID
+  CANCELLED
+}
+
+enum PaymentMethod {
+  CASH
+  BANK_TRANSFER
+  CARD
+  OTHER
+}
+
+enum SupplierInvoiceStatus {
+  UNPAID
+  PARTIALLY_PAID
+  PAID
+  CANCELLED
+}
+
+model Account {
+  id              String           @id @default(uuid())
+  code            String           @unique @map("code")
+  name            String           @map("name")
+  type            AccountType      @map("type")
+  // System accounts are seeded and used by automatic postings — they can't be deleted
+  isSystem        Boolean          @default(false) @map("is_system")
+  isActive        Boolean          @default(true) @map("is_active")
+  journalLines     JournalLine[]
+  paymentVouchers  PaymentVoucher[]  @relation("VoucherExpenseAccount")
+  supplierInvoices SupplierInvoice[] @relation("SupplierInvoiceExpenseAccount")
+  createdAt        DateTime          @default(now()) @map("created_at")
+
+  @@map("accounts")
+}
+
+model JournalEntry {
+  id              String            @id @default(uuid())
+  entryNumber     Int               @unique @default(autoincrement()) @map("entry_number")
+  date            DateTime          @map("date")
+  description     String            @map("description")
+  reference       String?           @map("reference")
+  sourceType      JournalSourceType @default(MANUAL) @map("source_type")
+  lines           JournalLine[]
+  invoice         Invoice?
+  receipt         ReceiptVoucher?
+  payment         PaymentVoucher?
+  supplierInvoice SupplierInvoice?
+  createdAt       DateTime          @default(now()) @map("created_at")
+
+  @@index([date])
+  @@map("journal_entries")
+}
+
+model JournalLine {
+  id          String       @id @default(uuid())
+  entryId     String       @map("entry_id")
+  entry       JournalEntry @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  accountId   String       @map("account_id")
+  account     Account      @relation(fields: [accountId], references: [id])
+  debit       Decimal      @default(0) @map("debit") @db.Decimal(14, 2)
+  credit      Decimal      @default(0) @map("credit") @db.Decimal(14, 2)
+  description String?      @map("description")
+
+  @@index([accountId])
+  @@map("journal_lines")
+}
+
+model Invoice {
+  id                  String             @id @default(uuid())
+  invoiceNumber       Int                @unique @default(autoincrement()) @map("invoice_number")
+  status              InvoiceStatus      @default(ISSUED) @map("status")
+  issueDate           DateTime           @default(now()) @map("issue_date")
+  dueDate             DateTime?          @map("due_date")
+  clientName          String             @map("client_name")
+  clientPhone         String?            @map("client_phone")
+  clientVatNumber     String?            @map("client_vat_number")
+  clientAddress       String?            @map("client_address")
+  customizedPackageId String?            @map("customized_package_id")
+  customizedPackage   CustomizedPackage? @relation(fields: [customizedPackageId], references: [id])
+  items               InvoiceItem[]
+  subtotal            Decimal            @map("subtotal") @db.Decimal(14, 2)
+  vatRate             Decimal            @default(15) @map("vat_rate") @db.Decimal(5, 2)
+  vatAmount           Decimal            @map("vat_amount") @db.Decimal(14, 2)
+  total               Decimal            @map("total") @db.Decimal(14, 2)
+  paidAmount          Decimal            @default(0) @map("paid_amount") @db.Decimal(14, 2)
+  notes               String?            @map("notes") @db.Text
+  journalEntryId      String?            @unique @map("journal_entry_id")
+  journalEntry        JournalEntry?      @relation(fields: [journalEntryId], references: [id])
+  receipts            ReceiptVoucher[]
+  createdAt           DateTime           @default(now()) @map("created_at")
+
+  @@map("invoices")
+}
+
+model InvoiceItem {
+  id          String  @id @default(uuid())
+  invoiceId   String  @map("invoice_id")
+  invoice     Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  description String  @map("description")
+  quantity    Decimal @default(1) @map("quantity") @db.Decimal(10, 2)
+  unitPrice   Decimal @map("unit_price") @db.Decimal(14, 2)
+  lineTotal   Decimal @map("line_total") @db.Decimal(14, 2)
+
+  @@map("invoice_items")
+}
+
+// سند قبض
+model ReceiptVoucher {
+  id                  String             @id @default(uuid())
+  receiptNumber       Int                @unique @default(autoincrement()) @map("receipt_number")
+  date                DateTime           @default(now()) @map("date")
+  amount              Decimal            @map("amount") @db.Decimal(14, 2)
+  method              PaymentMethod      @default(CASH) @map("method")
+  clientName          String             @map("client_name")
+  invoiceId           String?            @map("invoice_id")
+  invoice             Invoice?           @relation(fields: [invoiceId], references: [id])
+  customizedPackageId String?            @map("customized_package_id")
+  customizedPackage   CustomizedPackage? @relation(fields: [customizedPackageId], references: [id])
+  notes               String?            @map("notes")
+  journalEntryId      String?            @unique @map("journal_entry_id")
+  journalEntry        JournalEntry?      @relation(fields: [journalEntryId], references: [id])
+  cancelledAt         DateTime?          @map("cancelled_at")
+  createdAt           DateTime           @default(now()) @map("created_at")
+
+  @@map("receipt_vouchers")
+}
+
+// سند صرف (مصروفات عامة أو تكاليف رحلة)
+model PaymentVoucher {
+  id                  String             @id @default(uuid())
+  voucherNumber       Int                @unique @default(autoincrement()) @map("voucher_number")
+  date                DateTime           @default(now()) @map("date")
+  amount              Decimal            @map("amount") @db.Decimal(14, 2)
+  vatAmount           Decimal            @default(0) @map("vat_amount") @db.Decimal(14, 2)
+  method              PaymentMethod      @default(CASH) @map("method")
+  payee               String             @map("payee")
+  description         String             @map("description")
+  expenseAccountId    String?            @map("expense_account_id")
+  expenseAccount      Account?           @relation("VoucherExpenseAccount", fields: [expenseAccountId], references: [id])
+  customizedPackageId String?            @map("customized_package_id")
+  customizedPackage   CustomizedPackage? @relation(fields: [customizedPackageId], references: [id])
+  supplierInvoiceId   String?            @map("supplier_invoice_id")
+  supplierInvoice     SupplierInvoice?   @relation(fields: [supplierInvoiceId], references: [id])
+  journalEntryId      String?            @unique @map("journal_entry_id")
+  journalEntry        JournalEntry?      @relation(fields: [journalEntryId], references: [id])
+  cancelledAt         DateTime?          @map("cancelled_at")
+  createdAt           DateTime           @default(now()) @map("created_at")
+
+  @@map("payment_vouchers")
+}
+
+// فاتورة مورد (مشتريات آجلة) — المصروف يُعترف به عند الاستلام والسداد لاحقاً
+model SupplierInvoice {
+  id                  String                @id @default(uuid())
+  invoiceNumber       Int                   @unique @default(autoincrement()) @map("invoice_number")
+  supplierName        String                @map("supplier_name")
+  description         String                @map("description")
+  date                DateTime              @default(now()) @map("date")
+  dueDate             DateTime?             @map("due_date")
+  amount              Decimal               @map("amount") @db.Decimal(14, 2)
+  vatAmount           Decimal               @default(0) @map("vat_amount") @db.Decimal(14, 2)
+  total               Decimal               @map("total") @db.Decimal(14, 2)
+  paidAmount          Decimal               @default(0) @map("paid_amount") @db.Decimal(14, 2)
+  status              SupplierInvoiceStatus @default(UNPAID) @map("status")
+  expenseAccountId    String                @map("expense_account_id")
+  expenseAccount      Account               @relation("SupplierInvoiceExpenseAccount", fields: [expenseAccountId], references: [id])
+  customizedPackageId String?               @map("customized_package_id")
+  customizedPackage   CustomizedPackage?    @relation(fields: [customizedPackageId], references: [id])
+  journalEntryId      String?               @unique @map("journal_entry_id")
+  journalEntry        JournalEntry?         @relation(fields: [journalEntryId], references: [id])
+  payments            PaymentVoucher[]
+  cancelledAt         DateTime?             @map("cancelled_at")
+  createdAt           DateTime              @default(now()) @map("created_at")
+
+  @@map("supplier_invoices")
+}
+
+// سجل تدقيق للعمليات المحاسبية
+model AuditLog {
+  id        String   @id @default(uuid())
+  action    String   @map("action")
+  entity    String   @map("entity")
+  entityId  String?  @map("entity_id")
+  summary   String   @map("summary")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+// Singleton row (id = "main") holding company/tax info printed on invoices
+model AccountingSettings {
+  id          String  @id @default("main")
+  companyName String  @default("معاون للسياحة") @map("company_name")
+  vatNumber   String  @default("") @map("vat_number")
+  crNumber    String  @default("") @map("cr_number")
+  address     String  @default("") @map("address")
+  phone       String  @default("") @map("phone")
+  vatRate     Decimal @default(15) @map("vat_rate") @db.Decimal(5, 2)
+  // No journal entry may be created or reversed with a date on/before this
+  lockDate    DateTime? @map("lock_date")
+
+  @@map("accounting_settings")
 }

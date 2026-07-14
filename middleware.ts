@@ -7,6 +7,29 @@ export async function middleware(req: NextRequest) {
   const { pathname, search } = req.nextUrl;
   const token = await getToken({ req, secret });
 
+  // Admin API — JSON 401 instead of a login redirect.
+  // Catalog reads stay public: the home search widgets, packages page and
+  // booking wizard fetch these without a session.
+  if (pathname.startsWith("/api/admin")) {
+    const publicCatalogGets = new Set([
+      "/api/admin/cities",
+      "/api/admin/airports",
+      "/api/admin/flights",
+      "/api/admin/returning-flights",
+      "/api/admin/transports",
+    ]);
+    if (req.method === "GET" && publicCatalogGets.has(pathname)) {
+      return NextResponse.next();
+    }
+    if (!token || token.role !== "admin") {
+      return NextResponse.json(
+        { error: "غير مصرح — يتطلب تسجيل دخول المشرف" },
+        { status: 401 }
+      );
+    }
+    return NextResponse.next();
+  }
+
   // Admin area — requires an admin session
   if (pathname.startsWith("/admin")) {
     if (pathname.startsWith("/admin/login")) {
@@ -36,6 +59,6 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  // Admin area + client-facing protected pages
-  matcher: ["/admin/:path*", "/booking/:path*"],
+  // Admin area + admin API + client-facing protected pages
+  matcher: ["/admin/:path*", "/api/admin/:path*", "/booking/:path*"],
 };

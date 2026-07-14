@@ -15,6 +15,18 @@ const sidebarLinks = [
   { label: "إدارة المطارات", href: "/admin/airports", icon: "local_airport" },
 ];
 
+const accountingLinks = [
+  { label: "لوحة المحاسبة", href: "/admin/accounting", icon: "account_balance" },
+  { label: "الفواتير الضريبية", href: "/admin/accounting/invoices", icon: "receipt_long" },
+  { label: "سندات القبض", href: "/admin/accounting/receipts", icon: "download" },
+  { label: "سندات الصرف", href: "/admin/accounting/payments", icon: "upload" },
+  { label: "فواتير الموردين", href: "/admin/accounting/purchases", icon: "shopping_cart" },
+  { label: "القيود اليومية", href: "/admin/accounting/journal", icon: "edit_note" },
+  { label: "شجرة الحسابات", href: "/admin/accounting/accounts", icon: "account_tree" },
+  { label: "التقارير المالية", href: "/admin/accounting/reports", icon: "monitoring" },
+  { label: "إعدادات المحاسبة", href: "/admin/accounting/settings", icon: "settings" },
+];
+
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { data: session, status } = useSession();
@@ -61,6 +73,24 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         {/* Links */}
         <nav className="flex-1 p-4 space-y-2 mt-4">
           {sidebarLinks.map((link) => {
+            const isActive = pathname === link.href;
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 font-bold ${isActive
+                  ? "bg-white text-primary shadow-md"
+                  : "text-white/80 hover:bg-white/5 hover:text-white"
+                  }`}
+              >
+                <span className="material-symbols-outlined text-xl">{link.icon}</span>
+                <span>{link.label}</span>
+              </Link>
+            );
+          })}
+
+          <p className="px-4 pt-5 pb-1 text-xs font-black text-white/40 tracking-wider">المحاسبة</p>
+          {accountingLinks.map((link) => {
             const isActive = pathname === link.href;
             return (
               <Link

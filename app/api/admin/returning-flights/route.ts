@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+// Public catalog read — used by the booking wizard
 export async function GET() {
   try {
     const returningFlights = await prisma.returningFlight.findMany({
