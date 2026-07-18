@@ -52,6 +52,7 @@ export default function Navbar({ theme = "light" }: NavbarProps) {
     { href: "/", icon: "home", label: "الرئيسية" },
     { href: "/packages", icon: "travel_explore", label: "الباقات" },
     { href: "/booking", icon: "luggage", label: "حجوزاتي" },
+    { href: "/support", icon: "sms", label: "الدعم" },
     { href: "#", icon: "favorite", label: "المفضلة", activePath: "/favorites" },
   ];
 

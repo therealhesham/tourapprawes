@@ -135,6 +135,7 @@ model CustomizedPackage {
   receiptVouchers   ReceiptVoucher[]
   paymentVouchers   PaymentVoucher[]
   supplierInvoices  SupplierInvoice[]
+  supportTickets    SupportTicket[]
 
   @@map("customized_packages")
 }
@@ -417,4 +418,84 @@ model AccountingSettings {
   lockDate    DateTime? @map("lock_date")
 
   @@map("accounting_settings")
+}
+
+// ============================================================
+// CRM / customer support module
+// ============================================================
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  WAITING_CUSTOMER
+  RESOLVED
+  CLOSED
+}
+
+enum TicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum TicketChannel {
+  PHONE
+  WHATSAPP
+  EMAIL
+  WEBSITE
+  IN_PERSON
+  OTHER
+}
+
+model Customer {
+  id        String          @id @default(uuid())
+  name      String          @map("name")
+  phone     String          @unique @map("phone")
+  email     String?         @map("email")
+  city      String?         @map("city")
+  notes     String?         @map("notes") @db.Text
+  tickets   SupportTicket[]
+  createdAt DateTime        @default(now()) @map("created_at")
+  updatedAt DateTime        @default(now()) @updatedAt @map("updated_at")
+
+  @@map("customers")
+}
+
+model SupportTicket {
+  id                  String             @id @default(uuid())
+  ticketNumber        Int                @unique @default(autoincrement()) @map("ticket_number")
+  subject             String             @map("subject")
+  description         String?            @map("description") @db.Text
+  status              TicketStatus       @default(OPEN) @map("status")
+  priority            TicketPriority     @default(MEDIUM) @map("priority")
+  channel             TicketChannel      @default(PHONE) @map("channel")
+  customerId          String             @map("customer_id")
+  customer            Customer           @relation(fields: [customerId], references: [id])
+  customizedPackageId String?            @map("customized_package_id")
+  customizedPackage   CustomizedPackage? @relation(fields: [customizedPackageId], references: [id])
+  assignee            String?            @map("assignee")
+  messages            TicketMessage[]
+  resolvedAt          DateTime?          @map("resolved_at")
+  closedAt            DateTime?          @map("closed_at")
+  createdAt           DateTime           @default(now()) @map("created_at")
+  updatedAt           DateTime           @default(now()) @updatedAt @map("updated_at")
+
+  @@index([status])
+  @@index([customerId])
+  @@map("support_tickets")
+}
+
+model TicketMessage {
+  id         String        @id @default(uuid())
+  ticketId   String        @map("ticket_id")
+  ticket     SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  body       String        @map("body") @db.Text
+  authorName String        @default("المسؤول") @map("author_name")
+  // Internal notes are visible to staff only (not part of customer-facing history)
+  isInternal Boolean       @default(false) @map("is_internal")
+  createdAt  DateTime      @default(now()) @map("created_at")
+
+  @@index([ticketId])
+  @@map("ticket_messages")
 }
