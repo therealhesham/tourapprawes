@@ -16,6 +16,7 @@ import {
   docNo,
 } from "../ui";
 import Icon from "@/components/Icon";
+import { useConfirm } from "@/components/ConfirmDialog";
 
 type Voucher = {
   id: string;
@@ -36,6 +37,7 @@ type Account = { id: string; code: string; name: string; type: string; isActive:
 type Booking = { id: string; clientName: string; startDate: string; endDate: string };
 
 export default function PaymentsPage() {
+  const confirmDialog = useConfirm();
   const [vouchers, setVouchers] = useState<Voucher[]>([]);
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -116,7 +118,7 @@ export default function PaymentsPage() {
   };
 
   const remove = async (id: string) => {
-    if (!confirm("سيتم إلغاء السند بقيد عكسي (لن يُحذف من السجل). متابعة؟")) return;
+    if (!(await confirmDialog("سيتم إلغاء السند بقيد عكسي (لن يُحذف من السجل). متابعة؟"))) return;
     const res = await fetch(`/api/admin/accounting/payments?id=${id}`, { method: "DELETE" });
     const data = await res.json();
     if (data.error) setError(data.error);

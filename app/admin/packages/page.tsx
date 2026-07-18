@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Icon from "@/components/Icon";
+import { useConfirm } from "@/components/ConfirmDialog";
 
 type CompanyPackage = {
   id: string;
@@ -26,6 +27,7 @@ type CompanyPackage = {
 };
 
 export default function AdminPackagesPage() {
+  const confirmDialog = useConfirm();
   const [packages, setPackages] = useState<CompanyPackage[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
@@ -52,7 +54,7 @@ export default function AdminPackagesPage() {
   }, []);
 
   const handleDelete = async (id: string) => {
-    if (!confirm("هل أنت متأكد من حذف هذه الباقة؟")) return;
+    if (!(await confirmDialog("هل أنت متأكد من حذف هذه الباقة؟"))) return;
     setActionLoading(true);
     setError("");
     setMessage("");

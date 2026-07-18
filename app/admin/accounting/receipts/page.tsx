@@ -16,6 +16,7 @@ import {
   docNo,
 } from "../ui";
 import Icon from "@/components/Icon";
+import { useConfirm } from "@/components/ConfirmDialog";
 
 type Receipt = {
   id: string;
@@ -42,6 +43,7 @@ type InvoiceOpt = {
 };
 
 export default function ReceiptsPage() {
+  const confirmDialog = useConfirm();
   const [receipts, setReceipts] = useState<Receipt[]>([]);
   const [invoices, setInvoices] = useState<InvoiceOpt[]>([]);
   const [loading, setLoading] = useState(true);
@@ -124,7 +126,7 @@ export default function ReceiptsPage() {
   };
 
   const remove = async (id: string) => {
-    if (!confirm("سيتم إلغاء السند بقيد عكسي (لن يُحذف من السجل). متابعة؟")) return;
+    if (!(await confirmDialog("سيتم إلغاء السند بقيد عكسي (لن يُحذف من السجل). متابعة؟"))) return;
     const res = await fetch(`/api/admin/accounting/receipts?id=${id}`, { method: "DELETE" });
     const data = await res.json();
     if (data.error) setError(data.error);

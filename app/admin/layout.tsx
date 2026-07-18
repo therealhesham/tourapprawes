@@ -6,6 +6,8 @@ import { signOut, useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
 import Icon from "@/components/Icon";
+import BugReportButton from "@/components/BugReportButton";
+import { ConfirmProvider } from "@/components/ConfirmDialog";
 
 const sidebarLinks = [
   { label: "لوحة التحكم", href: "/admin", icon: "dashboard" },
@@ -16,6 +18,7 @@ const sidebarLinks = [
   { label: "المدن والوجهات", href: "/admin/cities", icon: "location_city" },
   { label: "إدارة المطارات", href: "/admin/airports", icon: "local_airport" },
   { label: "الموظفون", href: "/admin/staff", icon: "admin_panel_settings" },
+  { label: "بلاغات الأعطال", href: "/admin/bug-reports", icon: "bug_report" },
 ];
 
 const crmLinks = [
@@ -149,70 +152,73 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   return (
-    <div className="min-h-screen bg-background flex" dir="rtl">
-      {/* Desktop sidebar */}
-      <aside className="hidden md:flex w-64 bg-primary text-white border-l border-white/10 shrink-0 relative flex-col">
-        <SidebarContent pathname={pathname} />
-      </aside>
+    <ConfirmProvider>
+      <div className="min-h-screen bg-background flex" dir="rtl">
+        {/* Desktop sidebar */}
+        <aside className="hidden md:flex w-64 bg-primary text-white border-l border-white/10 shrink-0 relative flex-col">
+          <SidebarContent pathname={pathname} />
+        </aside>
 
-      {/* Mobile drawer + backdrop */}
-      <div
-        className={`fixed inset-0 z-40 bg-black/50 backdrop-blur-sm transition-opacity md:hidden ${
-          menuOpen ? "opacity-100" : "opacity-0 pointer-events-none"
-        }`}
-        onClick={() => setMenuOpen(false)}
-      />
-      <aside
-        className={`fixed inset-y-0 right-0 z-50 w-72 max-w-[85vw] bg-primary text-white flex flex-col shadow-2xl transition-transform duration-300 md:hidden ${
-          menuOpen ? "translate-x-0" : "translate-x-full"
-        }`}
-      >
-        <button
+        {/* Mobile drawer + backdrop */}
+        <div
+          className={`fixed inset-0 z-40 bg-black/50 backdrop-blur-sm transition-opacity md:hidden ${
+            menuOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+          }`}
           onClick={() => setMenuOpen(false)}
-          className="absolute top-4 left-4 text-white/70 hover:text-white p-2"
-          aria-label="إغلاق القائمة"
+        />
+        <aside
+          className={`fixed inset-y-0 right-0 z-50 w-72 max-w-[85vw] bg-primary text-white flex flex-col shadow-2xl transition-transform duration-300 md:hidden ${
+            menuOpen ? "translate-x-0" : "translate-x-full"
+          }`}
         >
-          <Icon name="close" className="text-2xl" />
-        </button>
-        <SidebarContent pathname={pathname} />
-      </aside>
+          <button
+            onClick={() => setMenuOpen(false)}
+            className="absolute top-4 left-4 text-white/70 hover:text-white p-2"
+            aria-label="إغلاق القائمة"
+          >
+            <Icon name="close" className="text-2xl" />
+          </button>
+          <SidebarContent pathname={pathname} />
+        </aside>
 
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-h-screen overflow-hidden">
-        {/* Header */}
-        <header className="glass-panel border-b border-outline-variant/30 h-16 shrink-0 flex items-center justify-between px-4 md:px-6 z-30 gap-3">
-          <div className="flex items-center gap-3 min-w-0">
-            {/* Burger — mobile only */}
-            <button
-              onClick={() => setMenuOpen(true)}
-              className="md:hidden p-2 -mr-2 text-primary hover:bg-primary/5 rounded-xl"
-              aria-label="فتح القائمة"
-            >
-              <Icon name="menu" className="text-2xl" />
-            </button>
-            <Icon name="admin_panel_settings" className="hidden sm:inline text-secondary text-2xl shrink-0" />
-            <h1 className="text-base md:text-lg font-bold text-primary truncate">
-              لوحة إدارة السفر والسياحة
-            </h1>
-          </div>
+        {/* Main Content Area */}
+        <div className="flex-1 flex flex-col min-h-screen overflow-hidden">
+          {/* Header */}
+          <header className="glass-panel border-b border-outline-variant/30 h-16 shrink-0 flex items-center justify-between px-4 md:px-6 z-30 gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+              {/* Burger — mobile only */}
+              <button
+                onClick={() => setMenuOpen(true)}
+                className="md:hidden p-2 -mr-2 text-primary hover:bg-primary/5 rounded-xl"
+                aria-label="فتح القائمة"
+              >
+                <Icon name="menu" className="text-2xl" />
+              </button>
+              <Icon name="admin_panel_settings" className="hidden sm:inline text-secondary text-2xl shrink-0" />
+              <h1 className="text-base md:text-lg font-bold text-primary truncate">
+                لوحة إدارة السفر والسياحة
+              </h1>
+            </div>
 
-          {/* <div className="flex items-center gap-2 shrink-0">
-            <span className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse" />
-            <span className="text-slate-600 text-sm font-bold truncate max-w-[120px] sm:max-w-none">
-              متصل: {session?.user?.name || "المسؤول"}
-            </span>
-          </div> */}
-        </header>
+            <div className="flex items-center gap-2 shrink-0">
+              <BugReportButton />
+              {/* <span className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse" />
+              <span className="text-slate-600 text-sm font-bold truncate max-w-[120px] sm:max-w-none">
+                متصل: {session?.user?.name || "المسؤول"}
+              </span> */}
+            </div>
+          </header>
 
-        {/* Content Body */}
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 bg-surface-container/30 relative">
-          {/* Background Glow */}
-          <div className="absolute top-0 left-0 w-full h-[500px] pointer-events-none opacity-[0.03] overflow-hidden">
-            <div className="w-[500px] h-[500px] rounded-full blur-[100px] bg-secondary-bright absolute -top-40 -left-40" />
-          </div>
-          <div className="relative z-10">{children}</div>
-        </main>
+          {/* Content Body */}
+          <main className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 bg-surface-container/30 relative">
+            {/* Background Glow */}
+            <div className="absolute top-0 left-0 w-full h-[500px] pointer-events-none opacity-[0.03] overflow-hidden">
+              <div className="w-[500px] h-[500px] rounded-full blur-[100px] bg-secondary-bright absolute -top-40 -left-40" />
+            </div>
+            <div className="relative z-10">{children}</div>
+          </main>
+        </div>
       </div>
-    </div>
+    </ConfirmProvider>
   );
 }

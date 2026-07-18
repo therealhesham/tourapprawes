@@ -51,6 +51,12 @@ export async function DELETE(req: Request) {
     await prisma.internalTransport.delete({ where: { id } });
     return NextResponse.json({ success: true });
   } catch (error: any) {
+    if (error?.code === "P2003") {
+      return NextResponse.json(
+        { error: "لا يمكن حذف التنقّل لوجود بيانات مرتبطة به." },
+        { status: 400 }
+      );
+    }
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

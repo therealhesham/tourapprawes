@@ -17,6 +17,7 @@ import {
   docNo,
 } from "../ui";
 import Icon from "@/components/Icon";
+import { useConfirm } from "@/components/ConfirmDialog";
 
 type Invoice = {
   id: string;
@@ -37,6 +38,7 @@ type Booking = { id: string; clientName: string; clientPhone: string; startDate:
 type ItemRow = { description: string; quantity: string; unitPrice: string };
 
 export default function InvoicesPage() {
+  const confirmDialog = useConfirm();
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
@@ -138,7 +140,7 @@ export default function InvoicesPage() {
   };
 
   const cancelInvoice = async (id: string) => {
-    if (!confirm("سيتم إلغاء الفاتورة وعكس قيدها المحاسبي. متابعة؟")) return;
+    if (!(await confirmDialog("سيتم إلغاء الفاتورة وعكس قيدها المحاسبي. متابعة؟"))) return;
     const res = await fetch(`/api/admin/accounting/invoices?id=${id}`, { method: "DELETE" });
     const data = await res.json();
     if (data.error) setError(data.error);

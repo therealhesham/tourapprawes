@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Icon from "@/components/Icon";
+import { useConfirm } from "@/components/ConfirmDialog";
 
 type Airport = { id: string; airportName: string; city: { name: string } };
 type Flight = {
@@ -30,6 +31,7 @@ type City = { id: string; name: string };
 type Transport = { id: string; transportationName: string; approximatePrice: number };
 
 export default function AdminClientTripsPage() {
+  const confirmDialog = useConfirm();
   const [bookings, setBokings] = useState<Booking[]>([]);
   const [cities, setCities] = useState<City[]>([]);
   const [transports, setTransports] = useState<Transport[]>([]);
@@ -75,7 +77,7 @@ export default function AdminClientTripsPage() {
   }, []);
 
   const handleDelete = async (id: string) => {
-    if (!confirm("هل أنت متأكد من حذف هذا الحجز؟")) return;
+    if (!(await confirmDialog("هل أنت متأكد من حذف هذا الحجز؟"))) return;
     try {
       const res = await fetch(`/api/admin/client-trips?id=${id}`, {
         method: "DELETE",

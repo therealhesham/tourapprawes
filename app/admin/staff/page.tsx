@@ -12,6 +12,7 @@ import {
   inputCls,
   PrimaryBtn,
 } from "../accounting/ui";
+import { useConfirm } from "@/components/ConfirmDialog";
 
 type Staff = {
   id: string;
@@ -24,6 +25,7 @@ type Staff = {
 const emptyForm = { id: "", name: "", username: "", password: "" };
 
 export default function StaffPage() {
+  const confirmDialog = useConfirm();
   const [staff, setStaff] = useState<Staff[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -84,7 +86,7 @@ export default function StaffPage() {
   };
 
   const remove = async (s: Staff) => {
-    if (!confirm(`سيتم حذف حساب الموظف «${s.name}» ولن يتمكن من تسجيل الدخول. متابعة؟`)) return;
+    if (!(await confirmDialog(`سيتم حذف حساب الموظف «${s.name}» ولن يتمكن من تسجيل الدخول. متابعة؟`))) return;
     const res = await fetch(`/api/admin/staff?id=${s.id}`, { method: "DELETE" });
     const data = await res.json();
     if (data.error) setError(data.error);

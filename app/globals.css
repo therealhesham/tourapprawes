@@ -7,6 +7,12 @@ body {
   overflow-x: hidden;
 }
 
+/* Tailwind v4 resets <button> to cursor: default — restore pointer everywhere */
+button:not(:disabled),
+[role="button"]:not([aria-disabled="true"]) {
+  cursor: pointer;
+}
+
 @theme {
   --color-primary-fixed-dim: #c0c6db;
   --color-surface-tint: #585e70;

@@ -2,11 +2,13 @@
 
 import { useState, useEffect } from "react";
 import Icon from "@/components/Icon";
+import { useConfirm } from "@/components/ConfirmDialog";
 
 type City = { id: string; name: string };
 type Airport = { id: string; airportName: string; cityId: string; city: City };
 
 export default function AdminAirportsPage() {
+  const confirmDialog = useConfirm();
   const [saudiAirports, setSaudiAirports] = useState<Airport[]>([]);
   const [destinationAirports, setDestinationAirports] = useState<Airport[]>([]);
   const [cities, setCities] = useState<City[]>([]);
@@ -112,7 +114,7 @@ export default function AdminAirportsPage() {
   };
 
   const handleDelete = async (id: string, type: string) => {
-    if (!confirm("هل أنت متأكد من الحذف؟")) return;
+    if (!(await confirmDialog("هل أنت متأكد من الحذف؟"))) return;
     setActionLoading(true);
     setError("");
     setMessage("");

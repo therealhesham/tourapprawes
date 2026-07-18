@@ -56,17 +56,49 @@ export async function DELETE(req: Request) {
     }
 
     if (type === "saudi") {
+      // Flights reference the airport — deleting would orphan them (FK violation)
+      const [departing, returning] = await Promise.all([
+        prisma.flight.count({ where: { departedAirportId: id } }),
+        prisma.returningFlight.count({ where: { arrivalAirportId: id } }),
+      ]);
+      if (departing + returning > 0) {
+        return NextResponse.json(
+          {
+            error: `لا يمكن حذف المطار — مرتبط بـ ${departing} رحلة ذهاب و${returning} رحلة عودة. احذف هذه الرحلات أولاً من صفحة الرحلات الدولية.`,
+          },
+          { status: 400 }
+        );
+      }
       await prisma.saudiAirport.delete({ where: { id } });
       return NextResponse.json({ success: true });
     }
 
     if (type === "destination") {
+      const [arriving, returning] = await Promise.all([
+        prisma.flight.count({ where: { arrivalAirportId: id } }),
+        prisma.returningFlight.count({ where: { departedAirportId: id } }),
+      ]);
+      if (arriving + returning > 0) {
+        return NextResponse.json(
+          {
+            error: `لا يمكن حذف المطار — مرتبط بـ ${arriving} رحلة ذهاب و${returning} رحلة عودة. احذف هذه الرحلات أولاً من صفحة الرحلات الدولية.`,
+          },
+          { status: 400 }
+        );
+      }
       await prisma.destinationAirport.delete({ where: { id } });
       return NextResponse.json({ success: true });
     }
 
     return NextResponse.json({ error: "Invalid type" }, { status: 400 });
   } catch (error: any) {
+    // Fallback for any other FK constraint (e.g. references added later)
+    if (error?.code === "P2003") {
+      return NextResponse.json(
+        { error: "لا يمكن حذف المطار لوجود بيانات مرتبطة به." },
+        { status: 400 }
+      );
+    }
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

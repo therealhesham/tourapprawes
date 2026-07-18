@@ -13,6 +13,7 @@ import {
   ACCOUNT_TYPE_LABELS,
 } from "../ui";
 import Icon from "@/components/Icon";
+import { useConfirm } from "@/components/ConfirmDialog";
 
 type Account = {
   id: string;
@@ -27,6 +28,7 @@ type Account = {
 const TYPE_ORDER = ["ASSET", "LIABILITY", "EQUITY", "REVENUE", "EXPENSE"];
 
 export default function AccountsPage() {
+  const confirmDialog = useConfirm();
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -90,7 +92,7 @@ export default function AccountsPage() {
   };
 
   const remove = async (id: string) => {
-    if (!confirm("هل أنت متأكد من حذف هذا الحساب؟")) return;
+    if (!(await confirmDialog("هل أنت متأكد من حذف هذا الحساب؟"))) return;
     const res = await fetch(`/api/admin/accounting/accounts?id=${id}`, { method: "DELETE" });
     const data = await res.json();
     if (data.error) setError(data.error);

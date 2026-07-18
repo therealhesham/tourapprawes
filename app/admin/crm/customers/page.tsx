@@ -12,6 +12,7 @@ import {
   inputCls,
   PrimaryBtn,
 } from "../ui";
+import { useConfirm } from "@/components/ConfirmDialog";
 
 type Customer = {
   id: string;
@@ -29,6 +30,7 @@ type Customer = {
 const emptyForm = { id: "", name: "", phone: "", email: "", city: "", notes: "" };
 
 export default function CustomersPage() {
+  const confirmDialog = useConfirm();
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -99,7 +101,7 @@ export default function CustomersPage() {
   };
 
   const remove = async (c: Customer) => {
-    if (!confirm(`سيتم حذف العميل «${c.name}». متابعة؟`)) return;
+    if (!(await confirmDialog(`سيتم حذف العميل «${c.name}». متابعة؟`))) return;
     const res = await fetch(`/api/admin/crm/customers?id=${c.id}`, { method: "DELETE" });
     const data = await res.json();
     if (data.error) setError(data.error);

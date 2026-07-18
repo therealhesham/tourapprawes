@@ -50,9 +50,29 @@ export async function DELETE(req: Request) {
       return NextResponse.json({ error: "Missing id" }, { status: 400 });
     }
 
+    // Bookings and ready-made packages reference the flight — deleting would break them
+    const [bookings, packages] = await Promise.all([
+      prisma.customizedPackage.count({ where: { departingFlightId: id } }),
+      prisma.companyPackage.count({ where: { departingFlightId: id } }),
+    ]);
+    if (bookings + packages > 0) {
+      return NextResponse.json(
+        {
+          error: `لا يمكن حذف الرحلة — مرتبطة بـ ${bookings} حجز عميل و${packages} باقة جاهزة. عدّل هذه البيانات أولاً.`,
+        },
+        { status: 400 }
+      );
+    }
+
     await prisma.flight.delete({ where: { id } });
     return NextResponse.json({ success: true });
   } catch (error: any) {
+    if (error?.code === "P2003") {
+      return NextResponse.json(
+        { error: "لا يمكن حذف الرحلة لوجود بيانات مرتبطة بها." },
+        { status: 400 }
+      );
+    }
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

@@ -499,3 +499,20 @@ model TicketMessage {
   @@index([ticketId])
   @@map("ticket_messages")
 }
+
+// بلاغات الأعطال — يرسلها موظفو لوحة التحكم مع لقطة شاشة ليعالجها مختص الـ IT
+model BugReport {
+  id           String    @id @default(uuid())
+  reportNumber Int       @unique @default(autoincrement()) @map("report_number")
+  description  String    @map("description") @db.Text
+  // Admin route the reporter was on when the bug happened
+  page         String    @map("page")
+  // JPEG data URL captured client-side at submit time
+  screenshot   String?   @map("screenshot") @db.LongText
+  reporterName String    @map("reporter_name")
+  resolvedAt   DateTime? @map("resolved_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  @@index([createdAt])
+  @@map("bug_reports")
+}

@@ -16,6 +16,7 @@ import {
   docNo,
 } from "../ui";
 import Icon from "@/components/Icon";
+import { useConfirm } from "@/components/ConfirmDialog";
 
 type SupplierInvoice = {
   id: string;
@@ -44,6 +45,7 @@ const STATUS: Record<string, { label: string; cls: string }> = {
 };
 
 export default function PurchasesPage() {
+  const confirmDialog = useConfirm();
   const [invoices, setInvoices] = useState<SupplierInvoice[]>([]);
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -160,7 +162,7 @@ export default function PurchasesPage() {
   };
 
   const cancel = async (id: string) => {
-    if (!confirm("سيتم إلغاء الفاتورة بقيد عكسي (لن تُحذف من السجل). متابعة؟")) return;
+    if (!(await confirmDialog("سيتم إلغاء الفاتورة بقيد عكسي (لن تُحذف من السجل). متابعة؟"))) return;
     const res = await fetch(`/api/admin/accounting/supplier-invoices?id=${id}`, { method: "DELETE" });
     const data = await res.json();
     if (data.error) setError(data.error);

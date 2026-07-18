@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
 import {
   hotelCategories,
   transportMethods,
@@ -31,6 +32,9 @@ type BookingState = {
 const WIZARD_SNAPSHOT_KEY = "bookingWizardSnapshot";
 
 export default function BookingWizard({ onClose }: { onClose?: () => void }) {
+  const { data: session } = useSession();
+  // Phone-verified client session — booking then needs no contact form (or name only)
+  const sessionPhone = ((session?.user as any)?.phone as string | null) || null;
   const [state, setState] = useState<BookingState>({
     startDate: "",
     country: "",
@@ -331,6 +335,79 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
   const isDateSectionComplete = state.startDate && state.departureDate && state.departureDate >= state.startDate;
   const isCountrySectionComplete = isDateSectionComplete && state.country !== "";
   const isFlightSectionComplete = isCountrySectionComplete && flightConfirmed;
+
+  // Shared by the contact-form submit and the direct (already logged-in) path.
+  // Returns true on success.
+  const submitBooking = async (name: string, phone: string): Promise<boolean> => {
+    setIsSubmitting(true);
+    setBookingError("");
+    try {
+      const res = await fetch("/api/booking", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          clientName: name,
+          clientPhone: phone,
+          startDate: state.startDate,
+          endDate: state.departureDate,
+          departingFlightId: state.flightId || null,
+          returningFlightId: returningFlight?.id || null,
+          pricing: totalEstimate,
+          cityStays: state.cityStays,
+        }),
+      });
+      if (res.status === 401) {
+        // Stash the wizard so it survives the login round-trip
+        sessionStorage.setItem(
+          WIZARD_SNAPSHOT_KEY,
+          JSON.stringify({ state, flightConfirmed, flightChoice, citiesConfirmed, clientName: name, clientPhone: phone })
+        );
+        window.location.href = "/login?callbackUrl=" + encodeURIComponent("/booking/wizard");
+        return false;
+      }
+      const data = await res.json();
+      if (data.error) {
+        setBookingError(data.error);
+        return false;
+      }
+      setBookingSuccess(true);
+      return true;
+    } catch {
+      setBookingError("حدث خطأ أثناء إرسال الطلب. يرجى المحاولة لاحقاً.");
+      return false;
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // "تأكيد الحجز": logged-in clients with a known name skip the contact form
+  // entirely; logged-in clients without one are asked for the name only.
+  const confirmBooking = async () => {
+    if (!sessionPhone) {
+      setShowContactForm(true);
+      return;
+    }
+    setIsSubmitting(true);
+    let me: { name?: string | null; phone?: string } = {};
+    try {
+      const res = await fetch("/api/me");
+      if (res.ok) me = await res.json();
+    } catch {
+      // fall through to the form with the session phone
+    } finally {
+      setIsSubmitting(false);
+    }
+    const phone = me.phone || sessionPhone;
+    setClientPhone(phone);
+    if (me.name) {
+      setClientName(me.name);
+      const ok = await submitBooking(me.name, phone);
+      // Surface any server error inside the form rather than silently
+      if (!ok && !bookingSuccess) setShowContactForm(true);
+    } else {
+      setShowContactForm(true);
+    }
+  };
 
   return (
     <div className="w-full mx-auto pb-24 relative" dir="rtl">
@@ -744,10 +821,11 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
 
             <div className="mt-8 flex justify-center">
               <button
-                onClick={() => setShowContactForm(true)}
-                className="gold-shimmer bg-primary text-white px-12 py-4 rounded-full font-bold text-xl tracking-widest btn-glow transition-all w-full md:w-auto"
+                onClick={confirmBooking}
+                disabled={isSubmitting}
+                className="gold-shimmer bg-primary text-white px-12 py-4 rounded-full font-bold text-xl tracking-widest btn-glow transition-all w-full md:w-auto disabled:opacity-60"
               >
-                تأكيد الحجز
+                {isSubmitting ? "جاري إرسال الطلب..." : "تأكيد الحجز"}
               </button>
             </div>
           </section>
@@ -763,7 +841,9 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
               معلومات الاتصال للحجز
             </h3>
             <p className="text-sm text-slate-600 mb-6">
-              يرجى إدخال اسمك ورقم جوالك لنقوم بحفظ مسار رحلتك والتواصل معك لتأكيد الحجوزات.
+              {sessionPhone
+                ? "يرجى إدخال اسمك لنقوم بحفظ مسار رحلتك والتواصل معك عبر رقم جوالك المسجل."
+                : "يرجى إدخال اسمك ورقم جوالك لنقوم بحفظ مسار رحلتك والتواصل معك لتأكيد الحجوزات."}
             </p>
 
             {bookingError && (
@@ -775,43 +855,7 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
             <form
               onSubmit={async (e) => {
                 e.preventDefault();
-                setIsSubmitting(true);
-                setBookingError("");
-                try {
-                  const res = await fetch("/api/booking", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                      clientName,
-                      clientPhone,
-                      startDate: state.startDate,
-                      endDate: state.departureDate,
-                      departingFlightId: state.flightId || null,
-                      returningFlightId: returningFlight?.id || null,
-                      pricing: totalEstimate,
-                      cityStays: state.cityStays,
-                    }),
-                  });
-                  if (res.status === 401) {
-                    // Stash the wizard so it survives the login round-trip
-                    sessionStorage.setItem(
-                      WIZARD_SNAPSHOT_KEY,
-                      JSON.stringify({ state, flightConfirmed, flightChoice, citiesConfirmed, clientName, clientPhone })
-                    );
-                    window.location.href = "/login?callbackUrl=" + encodeURIComponent("/booking/wizard");
-                    return;
-                  }
-                  const data = await res.json();
-                  if (data.error) {
-                    setBookingError(data.error);
-                  } else {
-                    setBookingSuccess(true);
-                  }
-                } catch (err) {
-                  setBookingError("حدث خطأ أثناء إرسال الطلب. يرجى المحاولة لاحقاً.");
-                } finally {
-                  setIsSubmitting(false);
-                }
+                await submitBooking(clientName, sessionPhone || clientPhone);
               }}
               className="space-y-4"
             >
@@ -819,10 +863,13 @@ export default function BookingWizard({ onClose }: { onClose?: () => void }) {
                 <label className="text-xs text-secondary font-bold">الاسم بالكامل</label>
                 <input type="text" required value={clientName} onChange={(e) => setClientName(e.target.value)} className="w-full py-3 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:border-secondary outline-none text-sm" placeholder="مثال: محمد أحمد" />
               </div>
-              <div className="flex flex-col gap-2">
-                <label className="text-xs text-secondary font-bold">رقم الجوال</label>
-                <input type="tel" required value={clientPhone} onChange={(e) => setClientPhone(e.target.value)} className="w-full py-3 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:border-secondary outline-none text-sm text-left" placeholder="05xxxxxxxx" dir="ltr" />
-              </div>
+              {/* Phone is already known for logged-in clients — the server uses the session phone */}
+              {!sessionPhone && (
+                <div className="flex flex-col gap-2">
+                  <label className="text-xs text-secondary font-bold">رقم الجوال</label>
+                  <input type="tel" required value={clientPhone} onChange={(e) => setClientPhone(e.target.value)} className="w-full py-3 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:border-secondary outline-none text-sm text-left" placeholder="05xxxxxxxx" dir="ltr" />
+                </div>
+              )}
               <div className="pt-4 flex justify-between gap-4">
                 <button type="button" onClick={() => setShowContactForm(false)} className="border border-slate-200 text-slate-700 hover:bg-slate-50 px-6 py-3 rounded-xl font-bold text-sm cursor-pointer transition-all flex-1">
                   إلغاء

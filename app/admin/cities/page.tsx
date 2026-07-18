@@ -2,12 +2,14 @@
 
 import { useState, useEffect } from "react";
 import Icon from "@/components/Icon";
+import { useConfirm } from "@/components/ConfirmDialog";
 
 type City = { id: string; name: string };
 type Country = { id: string; name: string; cities: City[] };
 type Destination = { id: string; destination: string; countries: Country[] };
 
 export default function AdminCitiesPage() {
+  const confirmDialog = useConfirm();
   const [destinations, setDestinations] = useState<Destination[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -124,7 +126,7 @@ export default function AdminCitiesPage() {
   };
 
   const handleDelete = async (id: string, type: string) => {
-    if (!confirm("هل أنت متأكد من الحذف؟")) return;
+    if (!(await confirmDialog("هل أنت متأكد من الحذف؟"))) return;
     setActionLoading(true);
     setError("");
     setMessage("");

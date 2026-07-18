@@ -15,6 +15,7 @@ import {
   docNo,
 } from "../ui";
 import Icon from "@/components/Icon";
+import { useConfirm } from "@/components/ConfirmDialog";
 
 type Line = {
   id: string;
@@ -48,6 +49,7 @@ const SOURCE_LABELS: Record<string, string> = {
 };
 
 export default function JournalPage() {
+  const confirmDialog = useConfirm();
   const [entries, setEntries] = useState<Entry[]>([]);
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [loading, setLoading] = useState(true);
@@ -131,7 +133,7 @@ export default function JournalPage() {
   };
 
   const remove = async (id: string) => {
-    if (!confirm("سيتم تسجيل قيد عكسي لهذا القيد اليدوي (لن يُحذف من السجل). متابعة؟")) return;
+    if (!(await confirmDialog("سيتم تسجيل قيد عكسي لهذا القيد اليدوي (لن يُحذف من السجل). متابعة؟"))) return;
     const res = await fetch(`/api/admin/accounting/journal?id=${id}`, { method: "DELETE" });
     const data = await res.json();
     if (data.error) setError(data.error);
